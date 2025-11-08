@@ -95,26 +95,10 @@ programs.virt-manager.enable = true;
   ];
 
   # Program toggles
-  programs.firefox.enable = true;
-  programs.obs-studio.enable = true;
-  programs.steam.enable = true;
-  programs.neovim.enable = true;
-  programs.git.enable = true;
-  programs.tmux.enable = true;
-  programs.java.enable = true;
+  programs.steam.enable = true; # provides system-wide 32-bit libs; package lives in Home Manager
   programs.bazecor.enable = true;
-  #programs.zsh.enable = true;
-  #programs.zsh.ohMyZsh.enable = true;
+  programs.zsh.enable = true; # keep NixOS aware that zsh is the login shell
 
-  # zsh ohmyzsh and others
-  programs.zsh = {
-    enable = true;
-    oh-my-zsh = {
-      enable = true;
-      plugins = [ "git" ];
-      theme = "robbyrussell";
-  };
-  };
   # Unfree ok
   nixpkgs.config.allowUnfree = true;
 
@@ -130,11 +114,7 @@ programs.virt-manager.enable = true;
   # Graphics (25.05 uses hardware.graphics.*)
   hardware.graphics = {
     enable = true;
-    enable32Bit = true;
-  };
-  hardware.opengl = {
-    enable = true;
-    driSupport32Bit = true;   # needed for 32-bit DX9 via Wine/DXVK
+    enable32Bit = true;   # needed for 32-bit DX9 via Wine/DXVK
   };
 
   # Optional AMD OpenCL ICD (you had this earlier)
@@ -162,20 +142,7 @@ programs.virt-manager.enable = true;
   # -------- Packages --------
   environment.systemPackages = with pkgs; [
     davinci-resolve-studio
-    #inputs.nix-citizen.packages.${pkgs.system}.rsi-launcher
-    #inputs.nix-citizen.packages.${pkgs.system}.wine-astral
     inputs.nix-citizen.packages.${pkgs.system}.star-citizen
-    #inputs.nix-citizen.packages.${pkgs.system}.star-citizen-umu
-    firefox
-    obs-studio
-    steam
-    #bazecor
-    git
-    zsh 
-    discord
-    obsidian
-    vscode
   ];
   system.stateVersion = "25.05";
 }
-

@@ -26,11 +26,11 @@
 	hm.nixosModules.home-manager
 	{
 	  home-manager.useUserPackages = true;
- 	  home-manager.users.luix = import ./home/users/luix;
+ 	  home-manager.users.luix = import ./home/luix;
+	  home-manager.extraSpecialArgs = { inherit inputs; };
 	  home-manager.backupFileExtension = "hm-back";
 	}
       ];
     };
   };
 }
-
