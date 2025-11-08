@@ -13,6 +13,7 @@
     ../modules/media.nix
     ../modules/programming.nix
     ../modules/kitty.nix
+    ../modules/nixvim.nix
     ../modules/buildandpush.nix
     ../modules/zsh.nix
   ];
