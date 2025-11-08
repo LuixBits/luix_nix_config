@@ -10,6 +10,5 @@
     obsidian
     qownnotes
     steam
-    vscode
   ];
 }

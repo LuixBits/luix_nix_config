@@ -11,5 +11,6 @@
     nodejs
     php
     python3
+    vscode
   ];
 }
