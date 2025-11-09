@@ -16,7 +16,7 @@
     ../modules/nixvim.nix
     ../modules/buildandpush.nix
     ../modules/zsh.nix
-    ../modules/remotion.nix
+    ../modules/docker.nix
 
   ];
 

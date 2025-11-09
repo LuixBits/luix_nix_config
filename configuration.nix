@@ -45,8 +45,17 @@
     })
   ];
 
-virtualisation.libvirtd.enable = true;
-programs.virt-manager.enable = true;
+  virtualisation.libvirtd.enable = true;
+  programs.virt-manager.enable = true;
+  virtualisation.docker = {
+    enable = true;
+    daemon.settings = {
+      features = {
+        # ensure buildkit on
+        buildkit = true;
+      };
+    };
+  };
 
 
   # Bootloader
@@ -82,7 +91,13 @@ programs.virt-manager.enable = true;
   users.users.luix = {
     isNormalUser = true;
     description = "luix";
-    extraGroups = [ "networkmanager" "wheel" "vboxusers" "libvirtd" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "vboxusers"
+      "libvirtd"
+      "docker"
+    ];
     shell = pkgs.zsh;
   };
 
