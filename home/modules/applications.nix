@@ -10,5 +10,6 @@
     obsidian
     qownnotes
     steam
+    chromium
   ];
 }
