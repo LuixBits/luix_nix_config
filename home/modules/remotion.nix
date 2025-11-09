@@ -18,6 +18,7 @@ let
     libglvnd
     libnotify
     libuuid
+    libxkbcommon
     mesa
     nspr
     nss
