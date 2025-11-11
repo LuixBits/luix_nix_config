@@ -169,6 +169,7 @@
     davinci-resolve-studio
     inputs.nix-citizen.packages.${pkgs.system}.star-citizen
     inputs.nix-citizen.packages.${pkgs.system}.wine-astral
+    inputs.nix-citizen.packages.${pkgs.system}.lug-helper
     #inputs.nix-citizen.packages.${pkgs.system}.star-citizen-umu
     #inputs.nix-citizen.packages.${pkgs.system}.rsi-launcher-umu
   ];
