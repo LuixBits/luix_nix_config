@@ -72,6 +72,18 @@
   services.xserver.xkb = { layout = "ch"; variant = ""; };
   console.keyMap = "sg";
 
+  # Mount secondary NVMe (4TB, label LuixMass) under home
+  fileSystems."/home/luix/Mass" = {
+    device = "/dev/disk/by-uuid/270d2e79-7e41-4b83-8990-dad1412fcf45";
+    fsType = "ext4";
+    options = [ "nofail" ];
+  };
+
+  # Ensure mountpoint exists with user-friendly ownership
+  systemd.tmpfiles.rules = [
+    "d /home/luix/Mass 0755 luix users -"
+  ];
+
   # Printing
   services.printing.enable = true;
 
@@ -124,6 +136,9 @@
   programs.bazecor.enable = true;
   programs.zsh.enable = true; # keep NixOS aware that zsh is the login shell
 
+  # Flatpak (system-wide)
+  services.flatpak.enable = true;
+
   # Unfree ok
   nixpkgs.config.allowUnfree = true;
 
@@ -167,9 +182,9 @@
   # -------- Packages --------
   environment.systemPackages = with pkgs; [
     davinci-resolve-studio
-    inputs.nix-citizen.packages.${pkgs.system}.star-citizen
-    inputs.nix-citizen.packages.${pkgs.system}.wine-astral
-    inputs.nix-citizen.packages.${pkgs.system}.lug-helper
+    #inputs.nix-citizen.packages.${pkgs.system}.star-citizen
+    #inputs.nix-citizen.packages.${pkgs.system}.wine-astral
+    #inputs.nix-citizen.packages.${pkgs.system}.lug-helper
     #inputs.nix-citizen.packages.${pkgs.system}.star-citizen-umu
     #inputs.nix-citizen.packages.${pkgs.system}.rsi-launcher-umu
   ];

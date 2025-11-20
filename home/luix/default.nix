@@ -17,6 +17,7 @@
     ../modules/buildandpush.nix
     ../modules/zsh.nix
     ../modules/docker.nix
+    ../modules/flatpak.nix
 
   ];
 
