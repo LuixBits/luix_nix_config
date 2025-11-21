@@ -12,7 +12,9 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     # nixvim for Neovim configuration
-    nixvim.url = "github:nix-community/nixvim";
+    # pinned because newer nixvim revs currently expect `valueMeta` support in the
+    # module system, which 25.05 doesn't provide yet.
+    nixvim.url = "github:nix-community/nixvim/f4b9a7122425c56d65466fcafb99053730b2646a";
     nixvim.inputs.nixpkgs.follows = "nixpkgs-unstable";
   };
 
