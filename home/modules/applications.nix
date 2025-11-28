@@ -11,5 +11,6 @@
     qownnotes
     steam
     chromium
+    vlc
   ];
 }
