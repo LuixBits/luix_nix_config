@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ pkgs, inputs, ... }:
 {
   imports = [ 
     inputs.nixvim.homeManagerModules.nixvim 
@@ -97,5 +97,20 @@
         };
       };
     };
+
+    extraPlugins = [ pkgs.vimPlugins.snacks-nvim ];
+
+    extraConfigLua = ''
+      require("lazy").setup({
+        {
+          "folke/snacks.nvim",
+          priority = 1000,
+          lazy = false, --load immediatly
+          opts = {
+            dashboard = { enable = true },
+          }
+        }
+      })
+    '';
   };
 }
