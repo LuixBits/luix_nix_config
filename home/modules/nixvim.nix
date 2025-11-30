@@ -88,8 +88,8 @@
       lsp = {
         enable = true;
         servers = {
-          volar.enable   = true;
-          ts_ls.enable   = true;  # ← renamed from tsserver
+          vue_ls.enable   = true;
+          ts_ls.enable   = true;
           cssls.enable   = true;
           jsonls.enable  = true;
           lua_ls.enable  = true;
