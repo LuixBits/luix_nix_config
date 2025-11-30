@@ -108,6 +108,44 @@
         action = "<cmd>Telescope help_tags<CR>";
         options.silent = true;
       }
+
+      #gitsigns
+      {
+        mode = "n";
+        key = "<leader>hs";
+        action = "<cmd>Gitsigns stage_hunk<CR>";
+        options.silent = true;
+      }
+      {
+        mode = "n";
+        key = "<leader>hr";
+        action = "<cmd>Gitsigns reset_hunk<CR>";
+        options.silent = true;
+      }
+      {
+        mode = "n";
+        key = "<leader>hp";
+        action = "<cmd>Gitsigns preview_hunk<CR>";
+        options.silent = true;
+      }
+      {
+        mode = "n";
+        key = "<leader>hb";
+        action = "<cmd>Gitsigns blame_line<CR>";
+        options.silent = true;
+      }
+      {
+        mode = "n";
+        key = "]c";
+        action = "<cmd>Gitsigns next_hunk<CR>";
+        options.silent = true;
+      }
+      {
+        mode = "n";
+        key = "[c";
+        action = "<cmd>Gitsigns prev_hunk<CR>";
+        options.silent = true;
+      }
     ];
 
     plugins = {
