@@ -1,11 +1,11 @@
-{ pkgs, inputs, lib, ... }:
+{ pkgs, inputs, ... }:
 {
   imports = [
     inputs.nixvim.homeModules.nixvim
   ];
 
-  programs.nixvim = { 
-    enable = true; 
+  programs.nixvim = {
+    enable = true;
     defaultEditor = true;
     vimAlias = true;
     viAlias = true;
@@ -66,7 +66,6 @@
       foldmethod = "indent";
       foldlevel = 99;
       foldenable = false;
-
     };
 
     keymaps = [
@@ -86,25 +85,25 @@
       #telescope
       {
         mode = "n";
-        key = "<leader>ff"; 
+        key = "<leader>ff";
         action = "<cmd>Telescope find_files<CR>";
         options.silent = true;
       }
       {
         mode = "n";
-        key = "<leader>fg"; 
+        key = "<leader>fg";
         action = "<cmd>Telescope live_grep<CR>";
         options.silent = true;
       }
       {
         mode = "n";
-        key = "<leader>fb"; 
+        key = "<leader>fb";
         action = "<cmd>Telescope buffers<CR>";
         options.silent = true;
       }
       {
         mode = "n";
-        key = "<leader>fh"; 
+        key = "<leader>fh";
         action = "<cmd>Telescope help_tags<CR>";
         options.silent = true;
       }
@@ -146,13 +145,21 @@
         action = "<cmd>lua require('gitsigns').prev_hunk()<CR>";
         options.silent = true;
       }
+
+      #lazygit
+      {
+        mode = "n";
+        key = "<leader>lg";
+        action = "<cmd>LazyGit<CR>";
+        options.silent = true;
+      }
     ];
 
     plugins = {
       lsp = {
         enable = true;
         servers = {
-          vue_ls.enable   = true;
+          vue_ls.enable  = true;
           ts_ls.enable   = true;
           cssls.enable   = true;
           jsonls.enable  = true;
@@ -160,6 +167,7 @@
           nixd.enable    = true;
         };
       };
+
       dashboard = {
         enable = true;
         settings = {
@@ -185,7 +193,14 @@
         enable = true;
         settings.attach_to_untracked = true;
       };
-      fugitive.enable = true;
+
+      lazygit = {
+        enable = true;
+        settings = {
+          floating_window_winblend = 0;
+          floating_window_scaling_factor = 0.9;
+        };
+      };
 
       lualine = {
         enable = true;
