@@ -29,6 +29,7 @@
       softtabstop = 2;
       expandtab = true;
       shiftround = true;
+      autoindent = true;
       smartindent = true;
 
       #linenumbers
@@ -82,5 +83,19 @@
         options.silent = false;
       }
     ];
+
+    plugins = {
+      lsp = {
+        enable = true;
+        servers = {
+          volar.enable   = true;
+          ts_ls.enable   = true;  # ← renamed from tsserver
+          cssls.enable   = true;
+          jsonls.enable  = true;
+          lua_ls.enable  = true;
+          nixd.enable    = true;
+        };
+      };
+    };
   };
 }
