@@ -181,7 +181,10 @@
         };
       };
 
-      gitsigns.enable = true;
+      gitsigns = {
+        enable = true;
+        settings.attach_to_untracked = true;
+      };
       fugitive.enable = true;
 
       lualine = {
