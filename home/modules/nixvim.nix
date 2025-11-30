@@ -111,38 +111,8 @@
       #gitsigns
       {
         mode = "n";
-        key = "<leader>hs";
-        action = "<cmd>lua require('gitsigns').stage_hunk()<CR>";
-        options.silent = true;
-      }
-      {
-        mode = "n";
-        key = "<leader>hr";
-        action = "<cmd>lua require('gitsigns').reset_hunk()<CR>";
-        options.silent = true;
-      }
-      {
-        mode = "n";
-        key = "<leader>hp";
+        key = "<leader>lp";
         action = "<cmd>lua require('gitsigns').preview_hunk()<CR>";
-        options.silent = true;
-      }
-      {
-        mode = "n";
-        key = "<leader>hb";
-        action = "<cmd>lua require('gitsigns').blame_line()<CR>";
-        options.silent = true;
-      }
-      {
-        mode = "n";
-        key = "]c";
-        action = "<cmd>lua require('gitsigns').next_hunk()<CR>";
-        options.silent = true;
-      }
-      {
-        mode = "n";
-        key = "[c";
-        action = "<cmd>lua require('gitsigns').prev_hunk()<CR>";
         options.silent = true;
       }
 
@@ -169,7 +139,7 @@
       };
 
       dashboard = {
-        enable = true;
+        enable = false;
         settings = {
           theme = "doom";
           config = {
@@ -191,7 +161,14 @@
 
       gitsigns = {
         enable = true;
-        settings.attach_to_untracked = true;
+        settings = {
+          attach_to_untracked = true;
+          current_line_blame = true;
+          current_line_blame_opts = {
+            delay = 0;
+            virt_text_pos = "eol";
+          };
+        };
       };
 
       lazygit = {
