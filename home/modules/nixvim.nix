@@ -113,37 +113,37 @@
       {
         mode = "n";
         key = "<leader>hs";
-        action = "<cmd>Gitsigns stage_hunk<CR>";
+        action = "<cmd>lua require('gitsigns').stage_hunk()<CR>";
         options.silent = true;
       }
       {
         mode = "n";
         key = "<leader>hr";
-        action = "<cmd>Gitsigns reset_hunk<CR>";
+        action = "<cmd>lua require('gitsigns').reset_hunk()<CR>";
         options.silent = true;
       }
       {
         mode = "n";
         key = "<leader>hp";
-        action = "<cmd>Gitsigns preview_hunk<CR>";
+        action = "<cmd>lua require('gitsigns').preview_hunk()<CR>";
         options.silent = true;
       }
       {
         mode = "n";
         key = "<leader>hb";
-        action = "<cmd>Gitsigns blame_line<CR>";
+        action = "<cmd>lua require('gitsigns').blame_line()<CR>";
         options.silent = true;
       }
       {
         mode = "n";
         key = "]c";
-        action = "<cmd>Gitsigns next_hunk<CR>";
+        action = "<cmd>lua require('gitsigns').next_hunk()<CR>";
         options.silent = true;
       }
       {
         mode = "n";
         key = "[c";
-        action = "<cmd>Gitsigns prev_hunk<CR>";
+        action = "<cmd>lua require('gitsigns').prev_hunk()<CR>";
         options.silent = true;
       }
     ];
