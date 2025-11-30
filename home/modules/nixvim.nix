@@ -143,6 +143,21 @@
         };
       };
 
+      gitsigns.enable = true;
+      fugitive.enable = true;
+
+      lualine = {
+        enable = true;
+        settings = {
+          options = {
+            theme = "tokyonight";
+            icons_enabled = true;
+            section_separators = { left = ""; right = ""; };
+            component_separators = { left = ""; right = ""; };
+          };
+        };
+      };
+
       telescope = {
         enable = true;
         extensions."fzf-native" = {
