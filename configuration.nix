@@ -63,6 +63,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.supportedFilesystems = [ "exfat" ];
 
   # GNOME on NixOS 25.05 (xserver paths)
   services.xserver.enable = true;
@@ -182,6 +183,7 @@
   # -------- Packages --------
   environment.systemPackages = with pkgs; [
     davinci-resolve-studio
+    exfatprogs
     #inputs.nix-citizen.packages.${pkgs.system}.star-citizen
     #inputs.nix-citizen.packages.${pkgs.system}.wine-astral
     #inputs.nix-citizen.packages.${pkgs.system}.lug-helper
