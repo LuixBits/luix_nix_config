@@ -13,5 +13,6 @@
     python3
     vscode
     whois
+    dig
   ];
 }
