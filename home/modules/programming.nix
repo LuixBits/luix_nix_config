@@ -12,5 +12,6 @@
     php
     python3
     vscode
+    whois
   ];
 }
