@@ -14,5 +14,8 @@ in
     vimAlias = true;
   };
 
-  xdg.configFile."nvim/init.lua".source = ../luix/.config/nvim/init.lua;
+  xdg.configFile."nvim" = {
+    source = ./lua;
+    recursive = true;
+  };
 }

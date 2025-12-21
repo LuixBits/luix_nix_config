@@ -190,5 +190,5 @@
     #inputs.nix-citizen.packages.${pkgs.system}.star-citizen-umu
     #inputs.nix-citizen.packages.${pkgs.system}.rsi-launcher-umu
   ];
-  system.stateVersion = "25.05";
+  system.stateVersion = "25.11";
 }

@@ -66,7 +66,7 @@
       };
     };
     nixCatsDefaultPackageName = "nvimLuix";
-    nixCatsBuilder = nixCatsUtils.baseBuilder ./home/luix/.config/nvim {
+    nixCatsBuilder = nixCatsUtils.baseBuilder ./home/modules/lua {
       inherit nixpkgs system;
     } nixCatsCategoryDefinitions nixCatsPackageDefinitions;
     nixCatsDefaultPackage = nixCatsBuilder nixCatsDefaultPackageName;

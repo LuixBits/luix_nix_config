@@ -13,14 +13,15 @@
     ../modules/media.nix
     ../modules/programming.nix
     ../modules/kitty.nix
-    # Neovim variants (enable one at a time)
-    ../modules/nixvim.nix
-    # ../modules/nvfvim.nix
-    # ../modules/nixcats.nix
     ../modules/buildandpush.nix
     ../modules/zsh.nix
     ../modules/docker.nix
     ../modules/flatpak.nix
+
+    # Neovim variants
+    ../modules/nixvim.nix
+    # ../modules/nvfvim.nix
+    # ../modules/nixcats.nix
 
   ];
 
