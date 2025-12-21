@@ -20,13 +20,14 @@
       ll = "ls -alh";
       gs = "git status -sb";
     };
-    initExtraFirst = ''
+    initContent = lib.mkMerge [
+      (lib.mkBefore ''
       typeset -U path cdpath fpath manpath
       for profile in ''${(z)NIX_PROFILES}; do
         fpath+=("$profile/share/zsh/site-functions" "$profile/share/zsh/$ZSH_VERSION/functions" "$profile/share/zsh/vendor-completions")
       done
-    '';
-    initExtra = ''
+      '')
+      ''
       setopt HIST_FCNTL_LOCK
       unsetopt APPEND_HISTORY
       setopt HIST_IGNORE_DUPS
@@ -43,7 +44,8 @@
         kitty-integration
         unfunction kitty-integration
       fi
-    '';
+      ''
+    ];
   };
 
 }
