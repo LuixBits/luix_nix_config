@@ -5,6 +5,6 @@
     easyeffects
     ffmpeg
     orca-slicer
-    clipgrab
+    yt-dlp
   ];
 }

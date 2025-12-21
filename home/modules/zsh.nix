@@ -46,6 +46,4 @@
     '';
   };
 
-  # ensure the managed .zshrc replaces any pre-existing file
-  home.file.".zshrc".force = lib.mkDefault true;
 }
