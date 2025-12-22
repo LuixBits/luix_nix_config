@@ -167,6 +167,7 @@
   nix.settings = {
     # Keep flakes UX nice everywhere
     experimental-features = [ "nix-command" "flakes" ];
+    warn-dirty = false;
 
     # Caches from nix-citizen + nix-gaming READMEs
     substituters = [
