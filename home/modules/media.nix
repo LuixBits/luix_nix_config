@@ -6,5 +6,6 @@
     ffmpeg
     orca-slicer
     yt-dlp
+    kdePackages.kdenlive
   ];
 }
