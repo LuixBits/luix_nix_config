@@ -7,5 +7,6 @@
     orca-slicer
     yt-dlp
     kdePackages.kdenlive
+    shotcut
   ];
 }
