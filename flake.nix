@@ -3,10 +3,8 @@
 
   inputs = {
     # primary channels
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
-    # pinned for davinci-resolve-studio
-    nixpkgs-davinci.url = "github:NixOS/nixpkgs/4684fd6b0c01e4b7d99027a34c93c2e09ecafee2";
 
     # gaming/other overlays
     nix-gaming.url = "github:fufexan/nix-gaming";
@@ -16,7 +14,7 @@
     nix-citizen.inputs.nix-gaming.follows = "nix-gaming";
 
     # home-manager
-    home-manager.url = "github:nix-community/home-manager/release-25.11";
+    home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     # neovim wrappers

@@ -43,14 +43,6 @@
         echo "Atopile placeholder; real package not available on this channel."
       '';
     })
-    (final: prev: let
-      davinciPkgs = import inputs.nixpkgs-davinci {
-        system = prev.system;
-        config = { allowUnfree = true; };
-      };
-    in {
-      davinci-resolve-studio = davinciPkgs.davinci-resolve-studio;
-    })
   ];
 
   virtualisation.libvirtd.enable = true;
@@ -76,8 +68,8 @@
   # GNOME on NixOS 25.05 (xserver paths)
   services.xserver.enable = true;
   services.xserver.videoDrivers = [ "amdgpu" ];
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
   services.xserver.xkb = { layout = "ch"; variant = ""; };
   console.keyMap = "sg";
 
