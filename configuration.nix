@@ -43,6 +43,14 @@
         echo "Atopile placeholder; real package not available on this channel."
       '';
     })
+    (final: prev: let
+      davinciPkgs = import inputs.nixpkgs-davinci {
+        system = prev.system;
+        config = { allowUnfree = true; };
+      };
+    in {
+      davinci-resolve-studio = davinciPkgs.davinci-resolve-studio;
+    })
   ];
 
   virtualisation.libvirtd.enable = true;

@@ -5,6 +5,8 @@
     # primary channels
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # pinned for davinci-resolve-studio
+    nixpkgs-davinci.url = "github:NixOS/nixpkgs/e6f23dc08d3624daab7094b701aa3954923c6bbb";
 
     # gaming/other overlays
     nix-gaming.url = "github:fufexan/nix-gaming";
