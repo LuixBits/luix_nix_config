@@ -64,6 +64,10 @@
           general = true;
         };
       };
+      secondVariant = { pkgs, ... }: {
+        settings = { aliases = [ "nvim2" ]; };
+        categories = { general = true; }; # or whatever categories you define
+      };
     };
     nixCatsDefaultPackageName = "nvimLuix";
     nixCatsBuilder = nixCatsUtils.baseBuilder ./home/modules/lua {

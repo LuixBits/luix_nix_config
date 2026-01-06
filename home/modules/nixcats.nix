@@ -13,9 +13,4 @@ in
     viAlias = true;
     vimAlias = true;
   };
-
-  xdg.configFile."nvim" = {
-    source = ./lua;
-    recursive = true;
-  };
 }
