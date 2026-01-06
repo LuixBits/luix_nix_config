@@ -2,12 +2,9 @@
 
 {
   # -------- imports --------
-  imports = [
-    ./hardware-configuration.nix
-  ];
+  imports = [ ];
 
   # -------- basics --------
-  networking.hostName = "nixos";
   time.timeZone = "Europe/Zurich";
   i18n.defaultLocale = "en_GB.UTF-8";
   networking.networkmanager.enable = true;
@@ -21,7 +18,7 @@
   system.autoUpgrade = {
     enable = true;
     allowReboot = false;
-    flake = "/etc/nixos#nixos";
+    flake = "/etc/nixos#${config.networking.hostName}";
     dates = "daily";
   };
 

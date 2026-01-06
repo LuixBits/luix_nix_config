@@ -80,12 +80,32 @@
   in
   {
     # NixOS configuration
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.pc = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
 
       modules = [
         ./configuration.nix
+        ./hosts/pc
+
+        # Home-Manager as a NixOS module
+        home-manager.nixosModules.home-manager
+        {
+          home-manager.useUserPackages = true;
+          home-manager.backupFileExtension = "hm-back";
+          home-manager.extraSpecialArgs = { inherit inputs; };
+          home-manager.users.luix = import ./home/luix;
+        }
+      ];
+    };
+
+    nixosConfigurations.l = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit inputs; };
+
+      modules = [
+        ./configuration.nix
+        ./hosts/l
 
         # Home-Manager as a NixOS module
         home-manager.nixosModules.home-manager

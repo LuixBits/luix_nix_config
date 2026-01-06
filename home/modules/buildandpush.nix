@@ -1,7 +1,7 @@
 { pkgs, lib, ... }:
 let
   defaultFlake = "/home/luix/luix_nix_config";
-  defaultHost = "nixos";
+  defaultHost = "pc";
   scriptPath = lib.makeBinPath [
     pkgs.bash
     pkgs.coreutils
@@ -126,6 +126,15 @@ let
     FLAKE="''${CONFIG_FLAKE:-${defaultFlake}}"
     HOST="''${CONFIG_HOST:-${defaultHost}}"
 
+    if [[ $# -gt 0 ]]; then
+      case "$1" in
+        l|pc)
+          HOST="$1"
+          shift
+          ;;
+      esac
+    fi
+
     nix flake update --flake "$FLAKE"
     sudo nixos-rebuild switch --flake "''${FLAKE}#''${HOST}"
   '';
@@ -137,7 +146,17 @@ let
 
     FLAKE="''${CONFIG_FLAKE:-${defaultFlake}}"
     HOST="''${CONFIG_HOST:-${defaultHost}}"
-    MSG="''${1:-update: $(date -Iseconds)}"
+
+    if [[ $# -gt 0 ]]; then
+      case "$1" in
+        l|pc)
+          HOST="$1"
+          shift
+          ;;
+      esac
+    fi
+
+    MSG="''${*:-update: $(date -Iseconds)}"
 
     nix flake update --flake "$FLAKE"
     sudo nixos-rebuild switch --flake "''${FLAKE}#''${HOST}"

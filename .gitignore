@@ -1,2 +1,1 @@
-hardware-configuration.nix
-hardware-configuration.nix.fromGit
+# Host-specific hardware configs are tracked under hosts/.
