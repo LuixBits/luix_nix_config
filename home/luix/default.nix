@@ -17,7 +17,7 @@
     ../modules/zsh.nix
     ../modules/docker.nix
     ../modules/flatpak.nix
-
+    ../modules/music_client.nix
     # Neovim variants
     ../modules/nixvim.nix
     # ../modules/nvfvim.nix
