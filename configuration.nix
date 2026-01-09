@@ -8,6 +8,7 @@
   time.timeZone = "Europe/Zurich";
   i18n.defaultLocale = "en_GB.UTF-8";
   networking.networkmanager.enable = true;
+  networking.firewall.checkReversePath = false;
 
   boot.kernel.sysctl = {
     "vm.max_map_count" = 16777216;
@@ -182,6 +183,8 @@
   environment.systemPackages = with pkgs; [
     davinci-resolve-studio
     exfatprogs
+    protonvpn-gui
+    wireguard-tools
     #inputs.nix-citizen.packages.${pkgs.system}.star-citizen
     #inputs.nix-citizen.packages.${pkgs.system}.wine-astral
     #inputs.nix-citizen.packages.${pkgs.system}.lug-helper
