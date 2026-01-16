@@ -605,6 +605,32 @@ qul.branches-list * {
   color: #fefbff !important;
   border-color: #3a4166 !important;
 }
+.SelectMenu,
+.SelectMenu-modal,
+.SelectMenu-list,
+.SelectMenu-item,
+.SelectMenu-item .content,
+.SelectMenu-message,
+.SelectMenu-header,
+details-menu,
+details-menu .select-menu-list,
+details-menu .select-menu-item,
+.ActionList,
+.ActionListItem,
+.ActionListContent {
+  background-color: #0e1436 !important;
+  color: #fefbff !important;
+  border-color: #3a4166 !important;
+}
+.SelectMenu-item:hover,
+.SelectMenu-item[aria-selected="true"],
+.ActionListItem:hover,
+.ActionListItem[aria-current="true"],
+details-menu .select-menu-item:hover,
+details-menu .select-menu-item.selected {
+  background-color: #182053 !important;
+  color: #fefbff !important;
+}
 .files * {
   color: #e8ecff !important;
 }

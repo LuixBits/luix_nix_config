@@ -14,6 +14,8 @@ in {
     enable = true;
     settings = {
       content.user_stylesheets = [ baseCssTarget overrideCssTarget ];
+      # Dark initial background to reduce white flash on page load.
+      colors.webpage.bg = "#050614";
     };
   };
 
