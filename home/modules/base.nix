@@ -7,6 +7,5 @@
     stow
     unzip
     wget
-    qutebrowser
   ];
 }
