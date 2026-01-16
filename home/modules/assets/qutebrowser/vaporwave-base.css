@@ -1,6 +1,24 @@
 * {
   border-color: #524d8c !important;
 }
+a, a * {
+  color: #9fe7ff !important;
+}
+.link-primary,
+.link--primary,
+.text-link {
+  color: #ff7ad7 !important;
+}
+.highlight,
+.tag,
+.label,
+.badge,
+.pill,
+.counter {
+  background-color: #17124a !important;
+  color: #fff9ff !important;
+  border-color: #524d8c !important;
+}
 a {
   color: #9fe7ff !important;
 }
@@ -620,6 +638,32 @@ qul.branches-list * {
   background-color: #141042 !important;
   color: #fff9ff !important;
   border-color: #524d8c !important;
+}
+.SelectMenu,
+.SelectMenu-modal,
+.SelectMenu-list,
+.SelectMenu-item,
+.SelectMenu-item .content,
+.SelectMenu-message,
+.SelectMenu-header,
+details-menu,
+details-menu .select-menu-list,
+details-menu .select-menu-item,
+.ActionList,
+.ActionListItem,
+.ActionListContent {
+  background-color: #141042 !important;
+  color: #fff9ff !important;
+  border-color: #524d8c !important;
+}
+.SelectMenu-item:hover,
+.SelectMenu-item[aria-selected="true"],
+.ActionListItem:hover,
+.ActionListItem[aria-current="true"],
+details-menu .select-menu-item:hover,
+details-menu .select-menu-item.selected {
+  background-color: #17124a !important;
+  color: #fff9ff !important;
 }
 .SelectMenu,
 .SelectMenu-modal,
