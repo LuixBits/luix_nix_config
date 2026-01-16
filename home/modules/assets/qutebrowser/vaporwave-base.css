@@ -1,103 +1,52 @@
-/* Vaporwave base userstyle for qutebrowser.
- * Palette pulled from the LuixBits Remotion visuals (magenta/cyan/violet + deep purples).
- * Applied globally with light glassmorphism and grid accents. Keep overrides in vaporwave-overrides.css. */
+/* Vaporwave userstyle (minimal) – focus on readable colors, keep native shapes.
+ * Palette: deep navy surfaces with magenta/cyan accents. Avoid heavy shadows/grids. */
 
 :root {
-  --vw-bg: #050018;
-  --vw-bg-2: #090028;
-  --vw-panel: rgba(10, 0, 35, 0.9);
-  --vw-panel-2: rgba(26, 8, 56, 0.82);
-  --vw-text: #f7f4ff;
-  --vw-muted: #b9c7ff;
-  --vw-pink: #ff5da2;
-  --vw-cyan: #8afff7;
-  --vw-violet: #7c4dff;
-  --vw-gold: #ffd580;
-  --vw-border: rgba(255, 255, 255, 0.16);
-  --vw-glow: rgba(255, 93, 162, 0.35);
-  --vw-grid: rgba(255, 137, 255, 0.08);
-}
-
-* {
-  border-color: var(--vw-border) !important;
-  scrollbar-color: var(--vw-pink) var(--vw-bg) !important;
+  --vw-bg: #0b0c1c;
+  --vw-surface: #11142a;
+  --vw-surface-2: #161a33;
+  --vw-text: #e8eaf6;
+  --vw-muted: #c2c7e2;
+  --vw-link: #7fe7ff;
+  --vw-visited: #b59cff;
+  --vw-accent: #ff6fb4;
+  --vw-accent-2: #8ddcff;
+  --vw-border: #262b46;
 }
 
 html,
 body {
-  background: radial-gradient(circle at 20% 0%, #2b003f 0%, #060012 65%, #030008 100%) !important;
+  background: linear-gradient(135deg, #0a0b1b 0%, #0c0d20 60%, #080915 100%) !important;
   color: var(--vw-text) !important;
-  font-family: "Inter", "Space Grotesk", "Sora", system-ui, -apple-system, sans-serif !important;
+  font-family: "Inter", "Sora", system-ui, -apple-system, sans-serif !important;
   line-height: 1.6 !important;
 }
 
-body {
-  min-height: 100vh !important;
-  margin: 0 !important;
-  background-attachment: fixed !important;
-  position: relative !important;
-}
-
-body::before {
-  content: "" !important;
-  position: fixed !important;
-  inset: -20% !important;
-  background-image: linear-gradient(
-      rgba(255, 137, 255, 0.35) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(138, 255, 247, 0.25) 1px,
-      transparent 1px
-    ) !important;
-  background-size: 100% 48px, 160px 100% !important;
-  transform: perspective(1200px) rotateX(74deg) !important;
-  mix-blend-mode: screen !important;
-  opacity: 0.22 !important;
-  pointer-events: none !important;
-  z-index: 0 !important;
-}
-
-body::after {
-  content: "" !important;
-  position: fixed !important;
-  inset: 0 !important;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255, 124, 244, 0.2), transparent 40%),
-    radial-gradient(circle at 78% 35%, rgba(124, 210, 255, 0.18), transparent 42%) !important;
-  mix-blend-mode: screen !important;
-  opacity: 0.3 !important;
-  pointer-events: none !important;
-  z-index: 0 !important;
-}
-
 a {
-  color: var(--vw-cyan) !important;
-  text-decoration: none !important;
-  text-shadow: 0 0 10px var(--vw-glow) !important;
+  color: var(--vw-link) !important;
+  text-decoration-color: rgba(127, 231, 255, 0.6) !important;
 }
 
 a:visited {
-  color: var(--vw-violet) !important;
+  color: var(--vw-visited) !important;
 }
 
 a:hover,
 a:focus {
-  color: var(--vw-pink) !important;
-  text-shadow: 0 0 12px var(--vw-glow), 0 0 16px rgba(138, 255, 247, 0.35) !important;
+  color: var(--vw-accent) !important;
+  text-decoration: underline !important;
 }
 
 ::selection {
-  background: var(--vw-pink) !important;
-  color: var(--vw-bg) !important;
+  background: var(--vw-accent) !important;
+  color: #0a0b1b !important;
 }
 
 p,
 li,
-span,
 td,
-th {
+th,
+span {
   color: var(--vw-text) !important;
 }
 
@@ -113,132 +62,90 @@ h3,
 h4,
 h5,
 h6 {
-  color: #ffe7ff !important;
-  letter-spacing: 0.08em !important;
-  text-transform: uppercase !important;
-  text-shadow: 0 0 24px rgba(255, 135, 255, 0.35) !important;
-}
-
-blockquote,
-pre,
-code,
-section,
-article,
-nav,
-aside {
-  background: var(--vw-panel) !important;
-  border: 1px solid var(--vw-border) !important;
-  box-shadow: 0 30px 90px rgba(4, 0, 24, 0.7), inset 0 0 60px rgba(255, 137, 255, 0.08) !important;
-  border-radius: 28px !important;
-  padding: 18px 22px !important;
+  color: #f7f2ff !important;
+  letter-spacing: 0.04em !important;
 }
 
 blockquote {
-  border-left: 4px solid var(--vw-pink) !important;
+  background: var(--vw-surface) !important;
   color: var(--vw-muted) !important;
+  border-left: 3px solid var(--vw-accent) !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
 }
 
 pre,
 code {
   font-family: "JetBrains Mono", "Fira Code", monospace !important;
-  background: linear-gradient(135deg, rgba(10, 0, 35, 0.85), rgba(40, 0, 65, 0.7)) !important;
+  background: var(--vw-surface) !important;
   color: var(--vw-text) !important;
+  border: 1px solid var(--vw-border) !important;
+  border-radius: 6px !important;
 }
 
-pre code {
-  padding: 0 !important;
-  background: transparent !important;
+pre {
+  padding: 12px 14px !important;
 }
 
 table {
   border-collapse: collapse !important;
   width: 100% !important;
-  background: var(--vw-panel-2) !important;
-  box-shadow: 0 16px 50px rgba(4, 0, 24, 0.55) !important;
+  background: var(--vw-surface-2) !important;
+  color: var(--vw-text) !important;
 }
 
 th,
 td {
   border: 1px solid var(--vw-border) !important;
-  padding: 12px 14px !important;
+  padding: 10px 12px !important;
 }
 
 th {
-  background: rgba(255, 93, 162, 0.12) !important;
-  color: #fef2ff !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.06em !important;
+  background: rgba(255, 111, 180, 0.12) !important;
+  color: var(--vw-text) !important;
 }
 
 tr:nth-child(even) td {
-  background: rgba(8, 0, 32, 0.35) !important;
+  background: rgba(17, 20, 42, 0.55) !important;
 }
 
 input,
 textarea,
 select {
-  background: var(--vw-panel-2) !important;
+  background: var(--vw-surface-2) !important;
   color: var(--vw-text) !important;
   border: 1px solid var(--vw-border) !important;
-  border-radius: 14px !important;
-  padding: 10px 14px !important;
-  box-shadow: 0 12px 30px rgba(4, 0, 24, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+}
+
+option {
+  background: var(--vw-surface) !important;
+  color: var(--vw-text) !important;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  outline: 2px solid var(--vw-cyan) !important;
-  box-shadow: 0 0 0 2px var(--vw-glow), 0 0 24px rgba(138, 255, 247, 0.4) !important;
+  outline: 1px solid var(--vw-accent-2) !important;
+  box-shadow: 0 0 0 2px rgba(141, 220, 255, 0.35) !important;
 }
 
 button,
 input[type="submit"],
 input[type="button"] {
-  background: linear-gradient(135deg, var(--vw-pink), var(--vw-violet)) !important;
-  color: #0b0017 !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
-  border-radius: 14px !important;
-  padding: 10px 16px !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.08em !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 20px rgba(255, 93, 162, 0.5) !important;
-  cursor: pointer !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  background: var(--vw-accent) !important;
+  color: #0a0b1b !important;
+  border: 1px solid #ff9ad0 !important;
+  box-shadow: none !important;
 }
 
 button:hover,
 input[type="submit"]:hover,
 input[type="button"]:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 26px rgba(138, 255, 247, 0.4) !important;
+  background: #ff81bf !important;
 }
 
 hr {
   border: none !important;
   height: 1px !important;
-  background: linear-gradient(90deg, transparent, var(--vw-border), transparent) !important;
-}
-
-img,
-video {
-  border-radius: 20px !important;
-  border: 1px solid var(--vw-border) !important;
-  box-shadow: 0 18px 50px rgba(4, 0, 24, 0.6) !important;
-}
-
-mark {
-  background: rgba(255, 93, 162, 0.35) !important;
-  color: var(--vw-text) !important;
-  border-radius: 6px !important;
-  padding: 2px 4px !important;
-}
-
-ul li::marker {
-  color: var(--vw-gold) !important;
-}
-
-code span,
-pre span {
-  color: inherit !important;
+  background: var(--vw-border) !important;
 }
