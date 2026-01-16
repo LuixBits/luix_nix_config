@@ -1,0 +1,12 @@
+/* Personal overrides layered after vaporwave-base.css.
+ * Use this for site-specific tweaks or to disable rules that clash. */
+
+/* Example: lighten backgrounds for GitHub markdown */
+/*
+@-moz-document domain("github.com") {
+  article,
+  .markdown-body {
+    background: rgba(12, 0, 40, 0.8) !important;
+  }
+}
+*/

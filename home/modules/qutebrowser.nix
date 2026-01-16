@@ -1,12 +1,12 @@
 { config, pkgs, ... }:
 
 let
-  # Solarized-everything (dark, all sites) bundle plus a local override layer.
-  baseCss = ./assets/qutebrowser/solarized-base.css;
-  overrideCss = ./assets/qutebrowser/solarized-overrides.css;
+  # Vaporwave-styled bundle plus a local override layer.
+  baseCss = ./assets/qutebrowser/vaporwave-base.css;
+  overrideCss = ./assets/qutebrowser/vaporwave-overrides.css;
 
-  baseCssTarget = "${config.xdg.configHome}/qutebrowser/userstyles/solarized-base.css";
-  overrideCssTarget = "${config.xdg.configHome}/qutebrowser/userstyles/solarized-overrides.css";
+  baseCssTarget = "${config.xdg.configHome}/qutebrowser/userstyles/vaporwave-base.css";
+  overrideCssTarget = "${config.xdg.configHome}/qutebrowser/userstyles/vaporwave-overrides.css";
 in {
   home.packages = [ pkgs.qutebrowser ];
 
