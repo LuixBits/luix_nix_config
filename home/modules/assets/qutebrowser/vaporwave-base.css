@@ -399,17 +399,17 @@ a.filter-item:hover,
   color: #050614 !important;
 }
 .select-menu-filters {
-  background-color: #182053 !important;
-  color: #d5ddff !important;
+  background-color: #0e1436 !important;
+  color: #fefbff !important;
 }
 .js-select-menu-tab {
-  background-color: #1a265a !important;
-  color: #d5ddff !important;
+  background-color: #10183f !important;
+  color: #fefbff !important;
 }
 .select-menu-tabs a.selected,
 .select-menu-tab-nav.selected {
-  background-color: #2b3258 !important;
-  color: #050614 !important;
+  background-color: #182053 !important;
+  color: #fefbff !important;
 }
 .signed-commit-header {
   background-color: #050614 !important;
@@ -594,15 +594,15 @@ qul.branches-list * {
   background-color: #3a4166 !important;
 }
 .dropdown-item {
-  color: #e8ecff !important;
+  color: #fefbff !important;
 }
 .dropdown-item:hover {
   background-color: #2b3258 !important;
-  color: #d5ddff !important;
+  color: #fefbff !important;
 }
 .dropdown-menu {
-  background-color: #1a265a !important;
-  color: #d5ddff !important;
+  background-color: #0e1436 !important;
+  color: #fefbff !important;
   border-color: #3a4166 !important;
 }
 .files * {
@@ -850,26 +850,26 @@ ul.comparison-list {
   color: #e8ecff !important;
 }
 .select-menu-modal {
-  border-color: #e8ecff !important;
+  border-color: #3a4166 !important;
 }
 .select-menu-modal * {
-  color: #e8ecff !important;
+  color: #fefbff !important;
 }
 .select-menu-header,
 .select-menu-header * {
-  background-color: #0d1030 !important;
-  color: #d5ddff !important;
+  background-color: #0e1436 !important;
+  color: #fefbff !important;
   text-shadow: none !important;
 }
 .select-menu-item {
-  background-color: #050614 !important;
+  background-color: #0b0f2c !important;
 }
 .select-menu-item.navigation-focus,
 .select-menu-item.navigation-focus.selected,
 .select-menu-item.navigation-focus.select-menu-action,
 .select-menu-item-text.navigation-focus {
-  background-color: #2b3258 !important;
-  color: #d5ddff !important;
+  background-color: #182053 !important;
+  color: #fefbff !important;
 }
 .repository-sidebar {
   background-color: #050614 !important;
