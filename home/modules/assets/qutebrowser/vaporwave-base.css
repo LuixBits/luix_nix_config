@@ -1,30 +1,42 @@
-/* Vaporwave userstyle (minimal) – focus on readable colors, keep native shapes.
- * Palette: deep navy surfaces with magenta/cyan accents. Avoid heavy shadows/grids. */
+/* Vaporwave userstyle (high-contrast, minimal shape changes).
+ * Goal: readable dark surfaces with bright pastel accents; avoid heavy shadows/grids. */
 
 :root {
-  --vw-bg: #0b0c1c;
-  --vw-surface: #11142a;
-  --vw-surface-2: #161a33;
-  --vw-text: #e8eaf6;
-  --vw-muted: #c2c7e2;
-  --vw-link: #7fe7ff;
-  --vw-visited: #b59cff;
-  --vw-accent: #ff6fb4;
-  --vw-accent-2: #8ddcff;
-  --vw-border: #262b46;
+  --vw-bg: #050614;
+  --vw-surface: #0d1030;
+  --vw-surface-2: #151a3d;
+  --vw-text: #fefbff;
+  --vw-muted: #d9def5;
+  --vw-link: #7ff3ff;
+  --vw-visited: #d0b7ff;
+  --vw-accent: #ff7aca;
+  --vw-accent-2: #7ff9d8;
+  --vw-border: #353b62;
 }
 
 html,
 body {
-  background: linear-gradient(135deg, #0a0b1b 0%, #0c0d20 60%, #080915 100%) !important;
+  background: linear-gradient(135deg, #07081b 0%, #0a0c22 60%, #050614 100%) !important;
   color: var(--vw-text) !important;
   font-family: "Inter", "Sora", system-ui, -apple-system, sans-serif !important;
   line-height: 1.6 !important;
 }
 
+body,
+main,
+article,
+section,
+nav,
+aside,
+header,
+footer {
+  background-color: var(--vw-bg) !important;
+  color: var(--vw-text) !important;
+}
+
 a {
   color: var(--vw-link) !important;
-  text-decoration-color: rgba(127, 231, 255, 0.6) !important;
+  text-decoration-color: rgba(127, 243, 255, 0.7) !important;
 }
 
 a:visited {
@@ -39,14 +51,16 @@ a:focus {
 
 ::selection {
   background: var(--vw-accent) !important;
-  color: #0a0b1b !important;
+  color: #060614 !important;
 }
 
 p,
 li,
 td,
 th,
-span {
+span,
+label,
+legend {
   color: var(--vw-text) !important;
 }
 
@@ -62,7 +76,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: #f7f2ff !important;
+  color: #fff2ff !important;
   letter-spacing: 0.04em !important;
 }
 
@@ -101,12 +115,12 @@ td {
 }
 
 th {
-  background: rgba(255, 111, 180, 0.12) !important;
+  background: rgba(255, 122, 202, 0.2) !important;
   color: var(--vw-text) !important;
 }
 
 tr:nth-child(even) td {
-  background: rgba(17, 20, 42, 0.55) !important;
+  background: rgba(21, 26, 61, 0.75) !important;
 }
 
 input,
@@ -118,7 +132,7 @@ select {
 }
 
 option {
-  background: var(--vw-surface) !important;
+  background: #0f1230 !important;
   color: var(--vw-text) !important;
 }
 
@@ -126,22 +140,22 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: 1px solid var(--vw-accent-2) !important;
-  box-shadow: 0 0 0 2px rgba(141, 220, 255, 0.35) !important;
+  box-shadow: 0 0 0 2px rgba(127, 249, 216, 0.45) !important;
 }
 
 button,
 input[type="submit"],
 input[type="button"] {
-  background: var(--vw-accent) !important;
-  color: #0a0b1b !important;
-  border: 1px solid #ff9ad0 !important;
+  background: linear-gradient(135deg, var(--vw-accent), var(--vw-accent-2)) !important;
+  color: #050614 !important;
+  border: 1px solid #ffd1ed !important;
   box-shadow: none !important;
 }
 
 button:hover,
 input[type="submit"]:hover,
 input[type="button"]:hover {
-  background: #ff81bf !important;
+  filter: brightness(1.08) !important;
 }
 
 hr {
