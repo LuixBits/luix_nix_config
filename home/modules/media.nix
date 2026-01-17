@@ -9,5 +9,6 @@
     kdePackages.kdenlive
     shotcut
     handbrake
+    yt-dlp
   ];
 }
