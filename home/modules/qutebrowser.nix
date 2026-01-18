@@ -26,3 +26,4 @@ in {
   home.file."${baseCssTarget}".source = baseCss;
   home.file."${overrideCssTarget}".source = overrideCss;
 }
+
