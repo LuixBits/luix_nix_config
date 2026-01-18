@@ -1796,3 +1796,54 @@ a.comment-user.owner {
   background-color: #3d3a78 !important;
   color: #070420 !important;
 }
+
+
+/* --- Sphinx RTD / docs.kdenlive.org sidebar dark mode patch --- */
+
+/* Sidebar container + scroll area */
+nav.wy-nav-side,
+.wy-nav-side,
+.wy-side-scroll,
+.wy-side-nav-search,
+.wy-nav-top {
+  background-color: #070420 !important;
+  color: #f4f5ff !important;
+  border-color: #524d8c !important;
+}
+
+/* Sidebar search input */
+.wy-side-nav-search input[type="text"],
+.wy-side-nav-search input[type="search"] {
+  background-color: #0f0c36 !important;
+  color: #f4f5ff !important;
+  border-color: #524d8c !important;
+}
+
+/* Sidebar links */
+.wy-menu-vertical a,
+.wy-menu-vertical a:visited {
+  color: #9fe7ff !important;
+  background: transparent !important;
+}
+
+/* Hover / active / current section */
+.wy-menu-vertical a:hover,
+.wy-menu-vertical li.current > a,
+.wy-menu-vertical li.current a,
+.wy-menu-vertical li.toctree-l1.current > a {
+  background-color: #0f0c36 !important;
+  color: #fff9ff !important;
+}
+
+/* Optional: small accent for the current top-level entry */
+.wy-menu-vertical li.toctree-l1.current > a {
+  border-left: 3px solid #ff7ad7 !important;
+}
+
+/* Main content background (RTD layout) */
+.wy-nav-content,
+.wy-nav-content-wrap {
+  background-color: #070420 !important;
+  color: #f4f5ff !important;
+}
+
