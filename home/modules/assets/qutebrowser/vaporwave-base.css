@@ -1847,3 +1847,123 @@ nav.wy-nav-side,
   color: #f4f5ff !important;
 }
 
+
+
+/* --- Kdenlive docs (Sphinx RTD): fix bright highlights + tables --- */
+
+/* Admonitions (Attention / Note / Warning etc.) */
+.rst-content .admonition,
+.rst-content .admonition.note,
+.rst-content .admonition.attention,
+.rst-content .admonition.warning,
+.rst-content .admonition.caution,
+.rst-content .admonition.important,
+.rst-content .admonition.tip {
+  background-color: #0f0c36 !important;
+  color: #f4f5ff !important;
+  border: 1px solid #524d8c !important;
+  box-shadow: none !important;
+}
+
+.rst-content .admonition-title {
+  background-color: #251c62 !important;
+  color: #fff9ff !important;
+  border-bottom: 1px solid #524d8c !important;
+}
+
+/* Inline “highlight” roles used by Sphinx (menu selections, GUI labels, literals) */
+.rst-content .menuselection,
+.rst-content .guilabel,
+.rst-content .kbd,
+.rst-content kbd,
+.rst-content code.literal,
+.rst-content tt.literal,
+.rst-content .literal {
+  background-color: #17124a !important;
+  color: #8effe0 !important;              /* neon green accent */
+  border: 1px solid #524d8c !important;
+  border-radius: 6px !important;
+  padding: 0.05em 0.35em !important;
+}
+
+/* Search/term highlights (common RTD class) + HTML <mark> */
+.rst-content span.highlighted,
+.rst-content mark,
+mark {
+  background-color: rgba(142, 255, 224, 0.18) !important;
+  color: #fff9ff !important;
+  border: 1px solid rgba(142, 255, 224, 0.45) !important;
+  border-radius: 6px !important;
+  padding: 0.05em 0.25em !important;
+}
+
+/* Tables: force dark cells + readable headers */
+.rst-content table.docutils,
+.rst-content table.docutils td,
+.rst-content table.docutils th,
+.rst-content table.table-wrap,
+.rst-content table.table-wrap td,
+.rst-content table.table-wrap th,
+.wy-table-responsive table td,
+.wy-table-responsive table th {
+  border-color: #524d8c !important;
+  color: #f4f5ff !important;
+}
+
+.rst-content table.docutils td,
+.rst-content table.table-wrap td,
+.wy-table-responsive table td {
+  background-color: #070420 !important;
+}
+
+.rst-content table.docutils thead th,
+.rst-content table.table-wrap thead th,
+.rst-content table.docutils th,
+.rst-content table.table-wrap th {
+  background-color: #251c62 !important;
+  color: #fff9ff !important;
+}
+
+/* Zebra + hover (helps scanability) */
+.rst-content table.docutils tbody tr:nth-child(even) td,
+.rst-content table.table-wrap tbody tr:nth-child(even) td {
+  background-color: #0f0c36 !important;
+}
+
+.rst-content table.docutils tbody tr:hover td,
+.rst-content table.table-wrap tbody tr:hover td {
+  background-color: #22185a !important;
+}
+
+/* Table “title”/caption + any caption links */
+.rst-content table caption,
+.rst-content table caption *,
+.rst-content .caption,
+.rst-content .caption * {
+  color: #e3e6ff !important;
+}
+
+.rst-content table caption a,
+.rst-content .caption a {
+  color: #9fe7ff !important;
+}
+
+.rst-content table caption a:hover,
+.rst-content .caption a:hover {
+  color: #ff7ad7 !important;
+}
+
+/* Fix links inside table headers/cells that might stay dark */
+.rst-content table.docutils th a,
+.rst-content table.table-wrap th a,
+.rst-content table.docutils td a,
+.rst-content table.table-wrap td a {
+  color: #9fe7ff !important;
+}
+.rst-content table.docutils th a:hover,
+.rst-content table.table-wrap th a:hover,
+.rst-content table.docutils td a:hover,
+.rst-content table.table-wrap td a:hover {
+  color: #ff7ad7 !important;
+}
+
