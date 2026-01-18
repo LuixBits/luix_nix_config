@@ -17,6 +17,10 @@ in {
       # Dark initial background to reduce white flash on page load.
       colors.webpage.bg = "#050614";
     };
+    extraConfig = ''
+      # Darkmode for Google Apps that don't implement a dark color scheme
+      config.set('colors.webpage.darkmode.enabled', True, '*.google.com')
+    '';
   };
 
   home.file."${baseCssTarget}".source = baseCss;
