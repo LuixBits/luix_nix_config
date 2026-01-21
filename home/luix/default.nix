@@ -19,6 +19,7 @@
     ../modules/flatpak.nix
     ../modules/music_client.nix
     ../modules/qutebrowser.nix
+    ../modules/kdenlive.nix
     # Neovim variants
     ../modules/nixvim.nix
     # ../modules/nvfvim.nix
