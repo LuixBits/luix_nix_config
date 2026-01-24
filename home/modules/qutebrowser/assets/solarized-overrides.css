@@ -1,9 +1,0 @@
-/* Personal overrides layered after solarized-base.css.
- * Add site-specific tweaks or disable rules here. */
-
-/* Example: soften strong link colors on a single domain */
-/*
-@-moz-document domain("example.com") {
-  a { color: #268bd2 !important; }
-}
-*/

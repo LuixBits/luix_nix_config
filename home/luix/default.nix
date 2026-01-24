@@ -15,6 +15,7 @@
     ../modules/zsh
     ../modules/docker
     ../modules/flatpak
+    ../modules/vpn
     ../modules/qutebrowser
     ../modules/kdenlive
     # Neovim (NVF)
