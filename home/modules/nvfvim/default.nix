@@ -105,10 +105,8 @@
         ];
 
         # Languages (LSP servers). NVF exposes many language modules; enable those
-        # corresponding to your original config. Some language names differ; for
-        # example TS stands for TypeScript, Vue LS uses volar or vtsls.
+        # corresponding to your setup. For Vue, add a custom LSP under vim.lsp.servers.
         languages = {
-          vue.enable = true; # enable Vue language server (volar)
           ts.enable = true; # TypeScript/JavaScript
           css.enable = true;
           json.enable = true;

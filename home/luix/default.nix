@@ -7,23 +7,18 @@
   home.stateVersion = "25.05";
 
   imports = [
-    ../modules/base.nix
-    ../modules/applications.nix
-    ../modules/cli.nix
-    ../modules/media.nix
-    ../modules/programming.nix
-    ../modules/kitty.nix
-    ../modules/buildandpush.nix
-    ../modules/zsh.nix
-    ../modules/docker.nix
-    ../modules/flatpak.nix
-    ../modules/music_client.nix
-    ../modules/qutebrowser.nix
-    ../modules/kdenlive.nix
-    # Neovim variants
-    ../modules/nixvim.nix
-    # ../modules/nvfvim.nix
-    # ../modules/nixcats.nix
+    ../modules/applications
+    ../modules/cli
+    ../modules/programming
+    ../modules/kitty
+    ../modules/buildandpush
+    ../modules/zsh
+    ../modules/docker
+    ../modules/flatpak
+    ../modules/qutebrowser
+    ../modules/kdenlive
+    # Neovim (NVF)
+    ../modules/nvfvim
 
   ];
 

@@ -1,5 +1,5 @@
 {
-  description = "Fixed flake for NixOS + home-manager + nixCats-nvim";
+  description = "Fixed flake for NixOS + home-manager + NVF";
 
   inputs = {
     # primary channels
@@ -17,67 +17,12 @@
     home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    # nixvim wrappers
-    nixvim.url = "github:nix-community/nixvim";
-    nixvim.inputs.nixpkgs.follows = "nixpkgs-unstable";
-
-    # nixCats-nvim
-    nixCats.url = "github:BirdeeHub/nixCats-nvim";
-
     # NVF (Neovim framework)
     nvf.url = "github:notashelf/nvf";
     nvf.inputs.nixpkgs.follows = "nixpkgs-unstable";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, nixCats, nix-gaming, nix-citizen, nixvim, nvf, ... }@inputs:
-  let
-    system = "x86_64-linux";
-    pkgs = import nixpkgs { inherit system; };
-    nixCatsUtils = nixCats.utils;
-    nixCatsCategoryDefinitions = { pkgs, ... }: {
-      startupPlugins.general = [
-        pkgs.vimPlugins.telescope-nvim
-        pkgs.vimPlugins.telescope-fzf-native-nvim
-        pkgs.vimPlugins.nvim-web-devicons
-        pkgs.vimPlugins.gitsigns-nvim
-        pkgs.vimPlugins.lazygit-nvim
-        pkgs.vimPlugins.indent-blankline-nvim
-        pkgs.vimPlugins.lualine-nvim
-        pkgs.vimPlugins.alpha-nvim        # dashboard replacement
-        pkgs.vimPlugins.tokyonight-nvim
-      ];
-      optionalPlugins.none = [];
-      lspsAndRuntimeDeps.general = [
-        pkgs.nodePackages.typescript-language-server
-        pkgs.nodePackages.vls               # Vue language server (volar)
-        pkgs.nodePackages.vscode-json-languageserver
-        pkgs.nodePackages.vscode-css-languageserver-bin
-        pkgs.lua-language-server
-        pkgs.nixd
-      ];
-    };
-    nixCatsPackageDefinitions = {
-      nvimLuix = { pkgs, ... }: {
-        # Provide an alias so you can run `nvim` to start this package
-        settings = { aliases = [ "nvim" ]; };
-        categories = {
-          general = true;
-        };
-      };
-      secondVariant = { pkgs, ... }: {
-        settings = { aliases = [ "nvim2" ]; };
-        categories = { general = true; }; # or whatever categories you define
-      };
-    };
-    nixCatsDefaultPackageName = "nvimLuix";
-    nixCatsBuilder = nixCatsUtils.baseBuilder ./home/modules/lua {
-      inherit nixpkgs system;
-    } nixCatsCategoryDefinitions nixCatsPackageDefinitions;
-    nixCatsDefaultPackage = nixCatsBuilder nixCatsDefaultPackageName;
-    nixCatsOutputs = {
-      packages.${system} = nixCatsUtils.mkAllWithDefault nixCatsDefaultPackage;
-    };
-  in
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, nix-gaming, nix-citizen, nvf, ... }@inputs:
   {
     # NixOS configuration
     nixosConfigurations.pc = nixpkgs.lib.nixosSystem {
@@ -117,5 +62,5 @@
         }
       ];
     };
-  } // nixCatsOutputs;
+  };
 }

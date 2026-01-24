@@ -35,7 +35,6 @@
   };
 
   nixpkgs.overlays = [
-    inputs.nixvim.overlays.default
     (final: prev: {
       atopile = prev.writeShellScriptBin "atopile" ''
         echo "Atopile placeholder; real package not available on this channel."
