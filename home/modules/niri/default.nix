@@ -1,7 +1,7 @@
 { pkgs, ... }:
 let
-  mainOutputName = "DP-1";
-  verticalOutputName = "HDMI-A-1";
+  mainOutputName = "HDMI-A-2";
+  verticalOutputName = "HDMI-A-3";
 in
 {
   programs.fuzzel.enable = true;
@@ -16,7 +16,8 @@ in
     }
 
     output "${verticalOutputName}" {
-        mode "3440x1440@60.000"
+        mode "3840x2160@59.997"
+        scale 1.25
         transform "90"
         position x=3440 y=720
     }
