@@ -4,6 +4,11 @@ let
   verticalOutputName = "HDMI-A-3";
 in
 {
+  imports = [
+    ./mako
+    ./waybar
+  ];
+
   programs.fuzzel.enable = true;
 
   xdg.configFile."niri/config.kdl".text = ''

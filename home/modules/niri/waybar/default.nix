@@ -1,0 +1,4 @@
+{ ... }:
+{
+  programs.waybar.enable = true;
+}

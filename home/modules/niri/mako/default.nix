@@ -1,0 +1,4 @@
+{ ... }:
+{
+  services.mako.enable = true;
+}
