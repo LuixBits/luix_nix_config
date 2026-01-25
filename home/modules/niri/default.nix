@@ -13,6 +13,11 @@ let
   ] [
     ""
   ] noWaybarConfig;
+  widthConfig = lib.replaceStrings [
+    "    Mod+Period { expel-window-from-column; }\n"
+  ] [
+    "    Mod+Period { set-column-width \"+10%\"; }\n"
+  ] noCommaConfig;
   noctaliaLauncherBinds = ''
     Mod+Space hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
     Mod+D hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
@@ -26,7 +31,7 @@ let
     "    Mod+D hotkey-overlay-title=\"Run an Application: fuzzel\" { spawn \"fuzzel\"; }\n"
   ] [
     "    ${noctaliaLauncherBinds}\n"
-  ] noCommaConfig;
+  ] widthConfig;
   noctaliaConfig = lib.replaceStrings [
     "    Super+Alt+L hotkey-overlay-title=\"Lock the Screen: swaylock\" { spawn \"swaylock\"; }\n"
   ] [
@@ -39,6 +44,7 @@ in
     ./brightness
     ./clipboard
     ./filemanager
+    ./gamescope
     ./keyring
     ./lock
     ./mako
