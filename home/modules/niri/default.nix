@@ -50,6 +50,7 @@ in
     ./mako
     ./noctalia
     ./polkit
+    ./rsi-launcher
     ./screenshot
     ./xwayland
     ./xdg
