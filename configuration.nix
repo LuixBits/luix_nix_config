@@ -133,6 +133,8 @@
   programs.steam.enable = true; # provides system-wide 32-bit libs; package lives in Home Manager
   programs.bazecor.enable = true;
   programs.zsh.enable = true; # keep NixOS aware that zsh is the login shell
+  programs.xwayland.enable = true; # keep X11 apps working under Wayland
+  programs.niri.enable = true; # Niri session in the display manager
 
   # Flatpak (system-wide)
   services.flatpak.enable = true;
@@ -178,12 +180,21 @@
     auto-optimise-store = true;
   };
 
+  xdg.portal = {
+    enable = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-gnome
+    ];
+  };
+
   # -------- Packages --------
   environment.systemPackages = with pkgs; [
     davinci-resolve-studio
     exfatprogs
     protonvpn-gui
     wireguard-tools
+    xwayland-satellite
     #inputs.nix-citizen.packages.${pkgs.system}.star-citizen
     #inputs.nix-citizen.packages.${pkgs.system}.wine-astral
     #inputs.nix-citizen.packages.${pkgs.system}.lug-helper
