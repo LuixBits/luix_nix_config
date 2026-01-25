@@ -8,6 +8,11 @@ let
   ] [
     ""
   ] baseConfig;
+  noCommaConfig = lib.replaceStrings [
+    "    Mod+Comma  { consume-window-into-column; }\n"
+  ] [
+    ""
+  ] noWaybarConfig;
   noctaliaLauncherBinds = ''
     Mod+Space hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
     Mod+D hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
@@ -21,7 +26,7 @@ let
     "    Mod+D hotkey-overlay-title=\"Run an Application: fuzzel\" { spawn \"fuzzel\"; }\n"
   ] [
     "    ${noctaliaLauncherBinds}\n"
-  ] noWaybarConfig;
+  ] noCommaConfig;
   noctaliaConfig = lib.replaceStrings [
     "    Super+Alt+L hotkey-overlay-title=\"Lock the Screen: swaylock\" { spawn \"swaylock\"; }\n"
   ] [
