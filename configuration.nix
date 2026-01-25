@@ -62,12 +62,14 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.supportedFilesystems = [ "exfat" ];
 
-  # GNOME on NixOS (display manager + desktop manager)
+  # Display manager (SDDM) + X11 stack for the greeter
   services.xserver.enable = true;
   services.xserver.videoDrivers = [ "amdgpu" ];
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
   services.xserver.xkb = { layout = "ch"; variant = ""; };
+  services.displayManager.gdm.enable = false;
+  services.desktopManager.gnome.enable = false;
+  services.displayManager.sddm.enable = true;
+  services.displayManager.defaultSession = "niri";
   console.keyMap = "sg";
 
   # Mount secondary NVMe (4TB, label LuixMass) under home
