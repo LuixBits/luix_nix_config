@@ -5,8 +5,19 @@ let
 in
 {
   imports = [
+    ./audio
+    ./brightness
+    ./clipboard
+    ./filemanager
+    ./keyring
+    ./lock
     ./mako
+    ./noctalia
+    ./polkit
+    ./screenshot
     ./waybar
+    ./xwayland
+    ./xdg
   ];
 
   programs.fuzzel.enable = true;
@@ -24,7 +35,7 @@ in
         mode "3840x2160@59.997"
         scale 1.25
         transform "270"
-        position x=3440 y=720
+        position x=3440 y=1440
     }
   '';
 }

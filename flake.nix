@@ -20,6 +20,10 @@
     # NVF (Neovim framework)
     nvf.url = "github:notashelf/nvf";
     nvf.inputs.nixpkgs.follows = "nixpkgs-unstable";
+
+    # Noctalia shell (Wayland desktop shell + launcher)
+    noctalia.url = "github:noctalia-dev/noctalia-shell";
+    noctalia.inputs.nixpkgs.follows = "nixpkgs-unstable";
   };
 
   outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, nix-gaming, nix-citizen, nvf, ... }@inputs:
