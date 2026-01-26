@@ -129,6 +129,24 @@ in
         }
       ];
     };
+    wireplumber.extraConfig."51-arctis-analog-profile" = {
+      "monitor.alsa.rules" = [
+        {
+          matches = [
+            { "device.name" = "alsa_card.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00"; }
+          ];
+          actions = {
+            update-props = {
+              "device.profile" = "output:analog-stereo+input:mono-fallback";
+              "device.disabled-profiles" = [
+                "output:iec958-stereo"
+                "output:iec958-stereo+input:mono-fallback"
+              ];
+            };
+          };
+        }
+      ];
+    };
   };
 
   # default Shell
