@@ -79,6 +79,11 @@ in
     enable = true;
     theme = "sddm-astronaut-theme";
     extraPackages = [ sddmAstronautNoctalia ];
+    settings = {
+      Theme = {
+        Current = "sddm-astronaut-theme";
+      };
+    };
   };
   services.displayManager.defaultSession = "niri";
   console.keyMap = "sg";
