@@ -75,6 +75,7 @@ in
   services.xserver.xkb = { layout = "ch"; variant = ""; };
   services.displayManager.gdm.enable = false;
   services.desktopManager.gnome.enable = true;
+  services.gnome.gnome-remote-desktop.enable = lib.mkForce false;
   services.displayManager.sddm = {
     enable = true;
     theme = "sddm-astronaut-theme";
@@ -107,83 +108,10 @@ in
   services.printing.enable = true;
 
   # Audio (PipeWire)
-  services.pulseaudio.enable = false;
+  services.pulseaudio.enable = true;
+  services.pulseaudio.support32Bit = true;
   security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    wireplumber.extraConfig."10-settings" = {
-      "wireplumber.settings" = {
-        "device.restore-profile" = false;
-        "device.restore-routes" = false;
-      };
-    };
-    wireplumber.extraConfig."90-arctis-analog" = {
-      "monitor.alsa.rules" = [
-        {
-          matches = [
-            { "device.name" = "alsa_card.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00"; }
-          ];
-          actions = {
-            update-props = {
-              "device.profile-set" = "analog-only";
-              "device.profile" = "output:analog-stereo+input:mono-fallback";
-              "api.alsa.period-size" = 2048;
-              "api.alsa.headroom" = 2048;
-              "api.alsa.period-num" = 4;
-            };
-          };
-        }
-        {
-          matches = [
-            { "node.name" = "alsa_output.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00.iec958-stereo"; }
-          ];
-          actions = {
-            update-props = {
-              "node.disabled" = true;
-            };
-          };
-        }
-        {
-          matches = [
-            { "node.name" = "alsa_output.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00.analog-stereo"; }
-          ];
-          actions = {
-            update-props = {
-              "session.suspend-timeout-seconds" = 0;
-              "node.pause-on-idle" = false;
-              "priority.session" = 1100;
-            };
-          };
-        }
-      ];
-    };
-    extraConfig.pipewire."90-arctis-clock" = {
-      "context.properties" = {
-        "clock.power-of-two-quantum" = true;
-        "default.clock.rate" = 48000;
-        "default.clock.allowed-rates" = [ 48000 ];
-        "default.clock.quantum" = 2048;
-        "default.clock.min-quantum" = 2048;
-        "default.clock.max-quantum" = 2048;
-        "default.clock.quantum-limit" = 8192;
-      };
-    };
-    extraConfig.pipewire-pulse."90-latency" = {
-      "pulse.properties" = {
-        "pulse.idle.timeout" = 0;
-        "pulse.min.req" = "2048/48000";
-        "pulse.default.req" = "2048/48000";
-        "pulse.min.quantum" = "2048/48000";
-        "pulse.default.tlength" = "4096/48000";
-      };
-      "stream.properties" = {
-        "node.latency" = "2048/48000";
-      };
-    };
-  };
+  services.pipewire.enable = false;
 
   # default Shell
   environment.shells = with pkgs; [ zsh ];
