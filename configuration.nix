@@ -1,5 +1,12 @@
 { config, pkgs, lib, inputs, ... }:
-
+let
+  sddmAstronautNoctalia = pkgs.sddm-astronaut.overrideAttrs (old: {
+    postInstall = (old.postInstall or "") + ''
+      substituteInPlace $out/share/sddm/themes/sddm-astronaut-theme/metadata.desktop \
+        --replace "ConfigFile=Themes/astronaut.conf" "ConfigFile=Themes/purple_leaves.conf"
+    '';
+  });
+in
 {
   # -------- imports --------
   imports = [ ];
@@ -68,7 +75,11 @@
   services.xserver.xkb = { layout = "ch"; variant = ""; };
   services.displayManager.gdm.enable = false;
   services.desktopManager.gnome.enable = true;
-  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm = {
+    enable = true;
+    theme = "sddm-astronaut-theme";
+    extraPackages = [ sddmAstronautNoctalia ];
+  };
   services.displayManager.defaultSession = "niri";
   console.keyMap = "sg";
 
