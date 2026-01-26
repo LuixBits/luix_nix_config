@@ -117,6 +117,7 @@ in
     wireplumber.extraConfig."10-settings" = {
       "wireplumber.settings" = {
         "device.restore-profile" = false;
+        "device.restore-routes" = false;
       };
     };
     wireplumber.extraConfig."90-arctis-analog" = {
@@ -127,7 +128,11 @@ in
           ];
           actions = {
             update-props = {
+              "device.profile-set" = "analog-only";
               "device.profile" = "output:analog-stereo+input:mono-fallback";
+              "api.alsa.period-size" = 1024;
+              "api.alsa.headroom" = 1024;
+              "api.alsa.period-num" = 3;
             };
           };
         }
@@ -149,10 +154,20 @@ in
             update-props = {
               "session.suspend-timeout-seconds" = 0;
               "node.pause-on-idle" = false;
+              "priority.session" = 1100;
             };
           };
         }
       ];
+    };
+    extraConfig.pipewire."90-arctis-clock" = {
+      "context.properties" = {
+        "default.clock.rate" = 48000;
+        "default.clock.allowed-rates" = [ 48000 ];
+        "default.clock.quantum" = 1024;
+        "default.clock.min-quantum" = 256;
+        "default.clock.max-quantum" = 2048;
+      };
     };
   };
 
