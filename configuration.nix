@@ -68,6 +68,7 @@ in
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.supportedFilesystems = [ "exfat" ];
+  boot.kernelParams = [ "usbcore.autosuspend=-1" ];
 
   # Display manager (SDDM) + X11 stack for the greeter
   services.xserver.enable = true;
@@ -110,6 +111,18 @@ in
   # Audio (PipeWire)
   services.pulseaudio.enable = true;
   services.pulseaudio.support32Bit = true;
+  services.pulseaudio.daemon.config = {
+    default-sample-rate = 48000;
+    alternate-sample-rate = 48000;
+    avoid-resampling = "yes";
+    exit-idle-time = "-1";
+  };
+  services.pulseaudio.extraConfig = ''
+    unload-module module-suspend-on-idle
+    unload-module module-udev-detect
+    load-module module-udev-detect tsched=0
+    load-module module-always-sink
+  '';
   security.rtkit.enable = true;
   services.pipewire.enable = false;
 
