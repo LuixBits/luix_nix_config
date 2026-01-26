@@ -137,7 +137,7 @@ in
           ];
           actions = {
             update-props = {
-              "device.profile" = "output:analog-stereo+input:mono-fallback";
+              "device.profile.name" = "output:analog-stereo+input:mono-fallback";
               "device.disabled-profiles" = [
                 "output:iec958-stereo"
                 "output:iec958-stereo+input:mono-fallback"
