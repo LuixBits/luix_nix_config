@@ -44,13 +44,10 @@ in
     ./brightness
     ./clipboard
     ./filemanager
-    ./gamescope
     ./keyring
-    ./lock
-    ./mako
     ./noctalia
+    ./notifications
     ./polkit
-    ./rsi-launcher
     ./screenshot
     ./xwayland
     ./xdg

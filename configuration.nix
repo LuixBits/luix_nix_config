@@ -67,7 +67,7 @@
   services.xserver.videoDrivers = [ "amdgpu" ];
   services.xserver.xkb = { layout = "ch"; variant = ""; };
   services.displayManager.gdm.enable = false;
-  services.desktopManager.gnome.enable = false;
+  services.desktopManager.gnome.enable = true;
   services.displayManager.sddm.enable = true;
   services.displayManager.defaultSession = "niri";
   console.keyMap = "sg";
