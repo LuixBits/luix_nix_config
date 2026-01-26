@@ -130,9 +130,9 @@ in
             update-props = {
               "device.profile-set" = "analog-only";
               "device.profile" = "output:analog-stereo+input:mono-fallback";
-              "api.alsa.period-size" = 1024;
-              "api.alsa.headroom" = 1024;
-              "api.alsa.period-num" = 3;
+              "api.alsa.period-size" = 2048;
+              "api.alsa.headroom" = 2048;
+              "api.alsa.period-num" = 4;
             };
           };
         }
@@ -162,11 +162,25 @@ in
     };
     extraConfig.pipewire."90-arctis-clock" = {
       "context.properties" = {
+        "clock.power-of-two-quantum" = true;
         "default.clock.rate" = 48000;
         "default.clock.allowed-rates" = [ 48000 ];
-        "default.clock.quantum" = 1024;
-        "default.clock.min-quantum" = 256;
+        "default.clock.quantum" = 2048;
+        "default.clock.min-quantum" = 2048;
         "default.clock.max-quantum" = 2048;
+        "default.clock.quantum-limit" = 8192;
+      };
+    };
+    extraConfig.pipewire-pulse."90-latency" = {
+      "pulse.properties" = {
+        "pulse.idle.timeout" = 0;
+        "pulse.min.req" = "2048/48000";
+        "pulse.default.req" = "2048/48000";
+        "pulse.min.quantum" = "2048/48000";
+        "pulse.default.tlength" = "4096/48000";
+      };
+      "stream.properties" = {
+        "node.latency" = "2048/48000";
       };
     };
   };
