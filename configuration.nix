@@ -80,6 +80,9 @@ in
     theme = "sddm-astronaut-theme";
     extraPackages = [ sddmAstronautNoctalia ];
     settings = {
+      General = {
+        InputMethod = "";
+      };
       Theme = {
         Current = "sddm-astronaut-theme";
       };
@@ -111,6 +114,21 @@ in
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    wireplumber.extraConfig."50-disable-suspend-arctis" = {
+      "monitor.alsa.rules" = [
+        {
+          matches = [
+            { "node.name" = "alsa_output.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00.iec958-stereo"; }
+          ];
+          actions = {
+            update-props = {
+              "session.suspend-timeout-seconds" = 0;
+              "node.pause-on-idle" = false;
+            };
+          };
+        }
+      ];
+    };
   };
 
   # default Shell
