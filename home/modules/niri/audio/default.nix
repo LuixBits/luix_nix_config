@@ -1,17 +1,35 @@
 { pkgs, ... }:
 let
-  paKeepalive = pkgs.writeShellScript "pa-keepalive" ''
+  arctisProfile = pkgs.writeShellScript "wpctl-arctis-analog" ''
     set -euo pipefail
-    PACTL="${pkgs.pulseaudio}/bin/pactl"
-    PAREC="${pkgs.pulseaudio}/bin/parec"
+    WPCTL="${pkgs.pipewire}/bin/wpctl"
+    AWK="${pkgs.gawk}/bin/awk"
     SLEEP="${pkgs.coreutils}/bin/sleep"
 
-    while true; do
-      sink="$($PACTL get-default-sink 2>/dev/null || true)"
-      if [ -n "$sink" ]; then
-        $PAREC --device="''${sink}.monitor" --raw --format=s16le --rate=48000 --channels=2 --latency-msec=200 >/dev/null || true
+    # Find the Arctis device id
+    for _i in $(seq 1 30); do
+      dev_id="$($WPCTL status | $AWK '
+        $0 ~ /Devices:/ {in=1; next}
+        in && $0 ~ /Arctis Nova Pro Wireless/ {gsub(/\./,"",$1); print $1; exit}
+      ')"
+      if [ -n "$dev_id" ]; then
+        $WPCTL set-profile "$dev_id" "output:analog-stereo+input:mono-fallback" || true
+        break
       fi
-      $SLEEP 2
+      $SLEEP 1
+    done
+
+    # Find the analog sink and set it as default
+    for _i in $(seq 1 30); do
+      sink_id="$($WPCTL status | $AWK '
+        $0 ~ /Sinks:/ {in=1; next}
+        in && $0 ~ /Arctis Nova Pro Wireless/ && $0 ~ /Analog Stereo/ {gsub(/\./,"",$1); print $1; exit}
+      ')"
+      if [ -n "$sink_id" ]; then
+        $WPCTL set-default "$sink_id" || true
+        break
+      fi
+      $SLEEP 1
     done
   '';
 in
@@ -23,16 +41,14 @@ in
     helvum
   ];
 
-  systemd.user.services.pulseaudio-keepalive = {
+  systemd.user.services.pipewire-arctis-profile = {
     Unit = {
-      Description = "Keep PulseAudio default sink active";
-      After = [ "pulseaudio.service" ];
-      Wants = [ "pulseaudio.service" ];
+      Description = "Force Arctis Nova Pro Wireless to analog stereo profile";
+      After = [ "pipewire.service" "wireplumber.service" ];
     };
     Service = {
-      ExecStart = paKeepalive;
-      Restart = "always";
-      RestartSec = "2s";
+      Type = "oneshot";
+      ExecStart = arctisProfile;
     };
     Install = {
       WantedBy = [ "default.target" ];

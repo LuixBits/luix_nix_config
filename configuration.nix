@@ -68,7 +68,6 @@ in
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.supportedFilesystems = [ "exfat" ];
-  boot.kernelParams = [ "usbcore.autosuspend=-1" ];
 
   # Display manager (SDDM) + X11 stack for the greeter
   services.xserver.enable = true;
@@ -76,7 +75,6 @@ in
   services.xserver.xkb = { layout = "ch"; variant = ""; };
   services.displayManager.gdm.enable = false;
   services.desktopManager.gnome.enable = true;
-  services.gnome.gnome-remote-desktop.enable = lib.mkForce false;
   services.displayManager.sddm = {
     enable = true;
     theme = "sddm-astronaut-theme";
@@ -109,23 +107,47 @@ in
   services.printing.enable = true;
 
   # Audio (PipeWire)
-  services.pulseaudio.enable = true;
-  services.pulseaudio.support32Bit = true;
-  services.pulseaudio.daemon.config = {
-    default-sample-rate = 48000;
-    alternate-sample-rate = 48000;
-    avoid-resampling = "yes";
-    exit-idle-time = "-1";
-  };
-  services.pulseaudio.extraConfig = ''
-    unload-module module-suspend-on-idle
-    unload-module module-udev-detect
-    load-module module-udev-detect tsched=0
-    load-module module-always-sink
-  '';
-  programs.noisetorch.enable = true;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
-  services.pipewire.enable = false;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    wireplumber.extraConfig."50-disable-suspend-arctis" = {
+      "monitor.alsa.rules" = [
+        {
+          matches = [
+            { "node.name" = "alsa_output.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00.iec958-stereo"; }
+          ];
+          actions = {
+            update-props = {
+              "session.suspend-timeout-seconds" = 0;
+              "node.pause-on-idle" = false;
+            };
+          };
+        }
+      ];
+    };
+    wireplumber.extraConfig."51-arctis-analog-profile" = {
+      "monitor.alsa.rules" = [
+        {
+          matches = [
+            { "device.name" = "alsa_card.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00"; }
+          ];
+          actions = {
+            update-props = {
+              "device.profile.name" = "output:analog-stereo+input:mono-fallback";
+              "device.disabled-profiles" = [
+                "output:iec958-stereo"
+                "output:iec958-stereo+input:mono-fallback"
+              ];
+            };
+          };
+        }
+      ];
+    };
+  };
 
   # default Shell
   environment.shells = with pkgs; [ zsh ];
