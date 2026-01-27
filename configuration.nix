@@ -123,6 +123,7 @@ in
     load-module module-udev-detect tsched=0
     load-module module-always-sink
   '';
+  programs.noisetorch.enable = true;
   security.rtkit.enable = true;
   services.pipewire.enable = false;
 
