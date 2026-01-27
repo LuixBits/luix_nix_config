@@ -27,6 +27,7 @@
     easyeffects
     ffmpeg
     handbrake
+    noisetorch
     orca-slicer
     shotcut
     yt-dlp
