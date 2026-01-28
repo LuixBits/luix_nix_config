@@ -21,6 +21,8 @@
     qownnotes
     steam
     vlc
+    kdePackages.okular
+
 
     # Media tools
     audacity
