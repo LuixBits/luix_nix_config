@@ -114,48 +114,6 @@ in
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    wireplumber.extraConfig."50-arctis-stability" = {
-      "monitor.alsa.rules" = [
-        {
-          matches = [
-            { "device.name" = "alsa_card.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00"; }
-          ];
-          actions = {
-            update-props = {
-              "device.profile" = "output:analog-stereo+input:mono-fallback";
-              "device.disabled-profiles" = [
-                "output:iec958-stereo"
-                "output:iec958-stereo+input:mono-fallback"
-              ];
-              "api.alsa.period-size" = 1024;
-              "api.alsa.headroom" = 1024;
-              "api.alsa.period-num" = 3;
-            };
-          };
-        }
-        {
-          matches = [
-            { "node.name" = "alsa_output.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00.iec958-stereo"; }
-          ];
-          actions = {
-            update-props = {
-              "node.disabled" = true;
-            };
-          };
-        }
-        {
-          matches = [
-            { "node.name" = "alsa_output.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00.analog-stereo"; }
-          ];
-          actions = {
-            update-props = {
-              "session.suspend-timeout-seconds" = 0;
-              "node.pause-on-idle" = false;
-            };
-          };
-        }
-      ];
-    };
   };
 
   # default Shell
