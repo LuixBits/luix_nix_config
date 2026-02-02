@@ -8,6 +8,12 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    wireplumber.extraConfig."10-settings" = {
+      "wireplumber.settings" = {
+        "device.restore-profile" = false;
+        "device.restore-routes" = false;
+      };
+    };
     wireplumber.extraConfig."50-audio-routing" = {
       "monitor.alsa.rules" = [
         {
@@ -17,6 +23,10 @@
           actions = {
             update-props = {
               "device.profile" = "output:analog-stereo+input:mono-fallback";
+              "device.disabled-profiles" = [
+                "output:iec958-stereo"
+                "output:iec958-stereo+input:mono-fallback"
+              ];
             };
           };
         }
