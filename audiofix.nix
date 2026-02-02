@@ -16,7 +16,7 @@
           ];
           actions = {
             update-props = {
-              "device.profile" = "output:analog-stereo+input:mono-fallback";
+              "device.profile" = null;
             };
           };
         }
@@ -26,7 +26,7 @@
           ];
           actions = {
             update-props = {
-              "node.disabled" = true;
+              "priority.session" = 50;
             };
           };
         }
