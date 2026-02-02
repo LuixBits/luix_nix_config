@@ -44,6 +44,7 @@ in
     ./clipboard
     ./noctalia
     ./notifications
+    ./polkit
     ./screenshot
   ];
 

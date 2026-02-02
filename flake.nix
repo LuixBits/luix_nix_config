@@ -25,9 +25,6 @@
     noctalia.url = "github:noctalia-dev/noctalia-shell";
     noctalia.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
-    # Noctalia polkit auth agent (community)
-    noctalia-unofficial-auth-agent.url = "github:anthonyhab/noctalia-unofficial-auth-agent";
-    noctalia-unofficial-auth-agent.inputs.nixpkgs.follows = "nixpkgs-unstable";
   };
 
   outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, nix-gaming, nix-citizen, nvf, ... }@inputs:
