@@ -41,16 +41,10 @@ in
 {
   imports = [
     ./audio
-    ./brightness
     ./clipboard
-    ./filemanager
-    ./keyring
     ./noctalia
     ./notifications
-    ./polkit
     ./screenshot
-    ./xwayland
-    ./xdg
   ];
 
   xdg.configFile."niri/config.kdl".text =

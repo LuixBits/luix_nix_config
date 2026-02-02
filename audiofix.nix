@@ -46,7 +46,18 @@
           ];
           actions = {
             update-props = {
-              "priority.session" = 1100;
+              "priority.session" = 2000;
+            };
+          };
+        }
+        {
+          matches = [
+            { "node.name" = "alsa_output.usb-DisplayLink_ThinkPad_Hybrid_USB-C_with_USB-A_Dock_11238036-02.iec958-stereo"; }
+            { "node.name" = "alsa_output.pci-0000_18_00.6.iec958-stereo"; }
+          ];
+          actions = {
+            update-props = {
+              "priority.session" = 100;
             };
           };
         }
