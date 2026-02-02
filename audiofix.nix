@@ -16,7 +16,7 @@
           ];
           actions = {
             update-props = {
-              "device.profile" = null;
+              "device.profile" = "output:analog-stereo+input:mono-fallback";
             };
           };
         }
@@ -27,6 +27,16 @@
           actions = {
             update-props = {
               "priority.session" = 50;
+            };
+          };
+        }
+        {
+          matches = [
+            { "node.name" = "alsa_output.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00.analog-stereo"; }
+          ];
+          actions = {
+            update-props = {
+              "priority.session" = 1100;
             };
           };
         }
