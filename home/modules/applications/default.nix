@@ -28,7 +28,6 @@
     audacity
     easyeffects
     ffmpeg
-    handbrake
     orca-slicer
     shotcut
     yt-dlp
