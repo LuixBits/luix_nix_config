@@ -144,7 +144,7 @@ in
   programs.steam.enable = true; # provides system-wide 32-bit libs; package lives in Home Manager
   programs.bazecor.enable = true;
   programs.zsh.enable = true; # keep NixOS aware that zsh is the login shell
-  programs.xwayland.enable = true; # keep X11 apps working under Wayland
+  programs.xwayland.enable = false;
   programs.niri.enable = true; # Niri session in the display manager
 
   # Flatpak (system-wide)

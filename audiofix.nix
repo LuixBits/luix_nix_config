@@ -1,77 +1,55 @@
-{ ... }:
+{ pkgs, ... }:
 {
-  # Audio (PipeWire baseline + minimal routing fixes)
-  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
+
   services.pipewire = {
     enable = true;
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    wireplumber.extraConfig."10-settings" = {
-      "wireplumber.settings" = {
-        "device.restore-profile" = false;
-        "device.restore-routes" = false;
+
+    extraConfig.pipewire."92-low-latency" = {
+      "context.properties" = {
+        "default.clock.rate" = 48000;
+        "default.clock.quantum" = 4096;
+        "default.clock.min-quantum" = 1024;
+        "default.clock.max-quantum" = 4096;
       };
     };
-    wireplumber.extraConfig."50-audio-routing" = {
+
+    extraConfig.pipewire-pulse."99-no-flat-volume" = {
+      "pulse.properties" = {
+        "pulse.min.quantum" = "4096/48000";
+        "pulse.flat-volume" = false;
+      };
+    };
+
+    wireplumber.extraConfig."99-optical-fix" = {
       "monitor.alsa.rules" = [
         {
-          matches = [
-            { "device.name" = "alsa_card.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00"; }
+          "matches" = [
+            { "node.name" = "~.*SPDIF.*"; }
+            { "node.name" = "~.*optical.*"; }
+            { "node.name" = "~.*iec958.*"; }
+            { "node.name" = "~.*digital-stereo.*"; }
           ];
-          actions = {
-            update-props = {
-              "device.profile" = "output:analog-stereo+input:mono-fallback";
-              "device.disabled-profiles" = [
-                "output:iec958-stereo"
-                "output:iec958-stereo+input:mono-fallback"
-              ];
-            };
-          };
-        }
-        {
-          matches = [
-            { "node.name" = "alsa_output.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00.iec958-stereo"; }
-          ];
-          actions = {
-            update-props = {
-              "priority.session" = 50;
-            };
-          };
-        }
-        {
-          matches = [
-            { "node.name" = "alsa_output.usb-SteelSeries_Arctis_Nova_Pro_Wireless-00.analog-stereo"; }
-          ];
-          actions = {
-            update-props = {
-              "priority.session" = 2000;
-            };
-          };
-        }
-        {
-          matches = [
-            { "node.name" = "alsa_output.usb-DisplayLink_ThinkPad_Hybrid_USB-C_with_USB-A_Dock_11238036-02.iec958-stereo"; }
-            { "node.name" = "alsa_output.pci-0000_18_00.6.iec958-stereo"; }
-          ];
-          actions = {
-            update-props = {
-              "priority.session" = 100;
-            };
-          };
-        }
-        {
-          matches = [
-            { "node.name" = "alsa_output.usb-Elgato_Systems_Elgato_Wave_3_BS09L1A00858-00.iec958-stereo"; }
-          ];
-          actions = {
-            update-props = {
-              "node.disabled" = true;
+          "actions" = {
+            "update-props" = {
+              "api.alsa.soft-mixer" = true;
+              "api.alsa.ignore-dB" = true;
             };
           };
         }
       ];
     };
   };
+
+  environment.systemPackages = with pkgs; [
+    pipewire
+    wireplumber
+  ];
+
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1038", TEST=="power/control", ATTR{power/control}="on"
+  '';
 }
