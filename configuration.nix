@@ -212,5 +212,6 @@ in
     #inputs.nix-citizen.packages.${pkgs.system}.star-citizen-umu
     #inputs.nix-citizen.packages.${pkgs.system}.rsi-launcher-umu
   ];
+  boot.kernelParams = [ "usbcore.autosuspend=-1" ];
   system.stateVersion = "25.05";
 }
