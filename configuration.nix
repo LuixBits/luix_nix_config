@@ -203,6 +203,7 @@ in
     davinci-resolve-studio
     exfatprogs
     protonvpn-gui
+    usbutils
     wireguard-tools
     xwayland-satellite
     #inputs.nix-citizen.packages.${pkgs.system}.star-citizen
