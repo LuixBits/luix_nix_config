@@ -144,7 +144,7 @@ in
   programs.steam.enable = true; # provides system-wide 32-bit libs; package lives in Home Manager
   programs.bazecor.enable = true;
   programs.zsh.enable = true; # keep NixOS aware that zsh is the login shell
-  programs.xwayland.enable = false;
+  programs.xwayland.enable = true;
   programs.niri.enable = true; # Niri session in the display manager
 
   # Flatpak (system-wide)
@@ -212,6 +212,10 @@ in
     #inputs.nix-citizen.packages.${pkgs.system}.star-citizen-umu
     #inputs.nix-citizen.packages.${pkgs.system}.rsi-launcher-umu
   ];
-  boot.kernelParams = [ "usbcore.autosuspend=-1" ];
+  boot.kernelParams = [
+    "usbcore.autosuspend=-1"
+    "pcie_aspm=off"
+    "usbcore.quirks=1038:12e5:k,17ef:a356:k,17ef:1028:k,17ef:1029:k,17ef:a357:k"
+  ];
   system.stateVersion = "25.05";
 }
