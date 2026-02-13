@@ -195,8 +195,15 @@ in
     enable = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
+      xdg-desktop-portal-gnome
     ];
+    # Use niri's recommended portal preference order (niri-portals.conf).
+    configPackages = [ pkgs.niri ];
   };
+
+  # Needed for the Secret portal (Flatpak apps) and recommended by niri docs.
+  services.gnome.gnome-keyring.enable = true;
+  security.pam.services.sddm.enableGnomeKeyring = true;
 
   # -------- Packages --------
   environment.systemPackages = with pkgs; [

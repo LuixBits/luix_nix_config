@@ -7,6 +7,12 @@ let
 
     "$FLATPAK" remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     "$FLATPAK" remote-add --user --if-not-exists RSILauncher https://mactan-sc.github.io/rsilauncher/RSILauncher.flatpakrepo
+
+    # RSI Launcher runs the Windows launcher under Proton/Wine and needs Flatpak's 32-bit compat + GL32 runtime.
+    "$FLATPAK" install -y --user --noninteractive flathub \
+      org.freedesktop.Platform.Compat.i386//24.08 \
+      org.freedesktop.Platform.GL32.default//24.08
+
     "$FLATPAK" install -y --user --noninteractive RSILauncher io.github.mactan_sc.RSILauncher
   '';
 in
