@@ -64,5 +64,15 @@ in
           transform "270"
           position x=3440 y=0
       }
+
+      // Star Citizen / RSI Launcher (Flatpak -> Proton/Wine) runs under Xwayland.
+      // Under niri it may start "minimized"/unmapped; the `rsi-launcher` wrapper
+      // focuses it. Once mapped, this rule makes it behave like a normal maximized
+      // window instead of opening as a small tile.
+      window-rule {
+          match app-id=r#"^steam_app_starcitizen$"# title=r#"^RSI Launcher$"#
+          open-maximized-to-edges true
+          open-focused true
+      }
     '';
 }
