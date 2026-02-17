@@ -12,7 +12,7 @@
     ../modules/programming
     ../modules/kitty
     ../modules/buildandpush
-    ../modules/zsh
+    ../modules/fish
     ../modules/docker
     ../modules/flatpak
     ../modules/vpn

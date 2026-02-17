@@ -107,7 +107,7 @@ in
   services.printing.enable = true;
 
   # default Shell
-  environment.shells = with pkgs; [ zsh ];
+  environment.shells = with pkgs; [ fish ];
 
   # Users
   users.users.luix = {
@@ -120,7 +120,7 @@ in
       "libvirtd"
       "docker"
     ];
-    shell = pkgs.zsh;
+    shell = pkgs.fish;
   };
 
   #fonts
@@ -143,7 +143,7 @@ in
   # Program toggles
   programs.steam.enable = true; # provides system-wide 32-bit libs; package lives in Home Manager
   programs.bazecor.enable = true;
-  programs.zsh.enable = true; # keep NixOS aware that zsh is the login shell
+  programs.fish.enable = true; # keep NixOS aware that fish is the login shell
   programs.xwayland.enable = true;
   programs.niri.enable = true; # Niri session in the display manager
 
