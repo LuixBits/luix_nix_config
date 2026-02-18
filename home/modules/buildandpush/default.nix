@@ -145,15 +145,28 @@ let
     export PATH=${scriptPath}:$PATH
 
     FLAKE="''${CONFIG_FLAKE:-${defaultFlake}}"
-    HOST="''${CONFIG_HOST:-${defaultHost}}"
+    usage() {
+      echo "Usage: buildall <pc|l|work> [commit-message...]" >&2
+      exit 2
+    }
 
-    if [[ $# -gt 0 ]]; then
-      case "$1" in
-        l|pc)
-          HOST="$1"
-          shift
-          ;;
-      esac
+    if [[ $# -lt 1 ]]; then
+      usage
+    fi
+
+    case "$1" in
+      pc|l|work)
+        HOST="$1"
+        shift
+        ;;
+      *)
+        usage
+        ;;
+    esac
+
+    if ! nix eval --raw "''${FLAKE}#nixosConfigurations.''${HOST}.config.networking.hostName" >/dev/null 2>&1; then
+      echo "Host '$HOST' is not defined in this flake." >&2
+      exit 1
     fi
 
     MSG="''${*:-update: $(date -Iseconds)}"
