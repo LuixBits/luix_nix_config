@@ -6,13 +6,6 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # gaming/other overlays
-    nix-gaming.url = "github:fufexan/nix-gaming";
-
-    # Star Citizen flake
-    nix-citizen.url = "github:LovingMelody/nix-citizen";
-    nix-citizen.inputs.nix-gaming.follows = "nix-gaming";
-
     # home-manager
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -27,7 +20,7 @@
 
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, nix-gaming, nix-citizen, nvf, ... }@inputs:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, nvf, ... }@inputs:
   {
     # NixOS configuration
     nixosConfigurations.pc = nixpkgs.lib.nixosSystem {
@@ -35,7 +28,6 @@
       specialArgs = { inherit inputs; };
 
       modules = [
-        ./configuration.nix
         ./hosts/pc
 
         # Home-Manager as a NixOS module
@@ -44,7 +36,7 @@
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "hm-back";
           home-manager.extraSpecialArgs = { inherit inputs; };
-          home-manager.users.luix = import ./home/luix;
+          home-manager.users.luix = import ./home/hosts/pc.nix;
         }
       ];
     };
@@ -54,7 +46,6 @@
       specialArgs = { inherit inputs; };
 
       modules = [
-        ./configuration.nix
         ./hosts/l
 
         # Home-Manager as a NixOS module
@@ -63,7 +54,7 @@
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "hm-back";
           home-manager.extraSpecialArgs = { inherit inputs; };
-          home-manager.users.luix = import ./home/luix;
+          home-manager.users.luix = import ./home/hosts/l.nix;
         }
       ];
     };

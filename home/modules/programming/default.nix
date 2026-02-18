@@ -14,6 +14,5 @@
     vscode
     whois
     dig
-    protonup-qt
   ];
 }

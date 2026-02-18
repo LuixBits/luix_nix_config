@@ -1,10 +1,10 @@
-{ config, pkgs, lib, ... }:
+{ config, lib, pkgs, ... }:
 {
   nixpkgs.config.allowUnfree = true;
 
   home.username = "luix";
   home.homeDirectory = "/home/luix";
-  home.stateVersion = "25.05";
+  home.stateVersion = "25.11";
 
   imports = [
     ../modules/applications
@@ -14,14 +14,16 @@
     ../modules/buildandpush
     ../modules/fish
     ../modules/docker
-    ../modules/flatpak
     ../modules/vpn
     ../modules/niri
     ../modules/qutebrowser
     ../modules/kdenlive
-    # Neovim (NVF)
     ../modules/nvfvim
+    ../modules/flatpak
+  ];
 
+  home.packages = with pkgs; [
+    protonup-qt
   ];
 
   home.activation.cleanupBrokenNvimConfig = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
