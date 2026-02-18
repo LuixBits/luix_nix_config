@@ -73,8 +73,6 @@ in
   services.xserver.enable = true;
   services.xserver.videoDrivers = [ "amdgpu" ];
   services.xserver.xkb = { layout = "ch"; variant = ""; };
-  services.displayManager.gdm.enable = false;
-  services.desktopManager.gnome.enable = true;
   services.displayManager.sddm = {
     enable = true;
     theme = "sddm-astronaut-theme";
@@ -141,7 +139,7 @@ in
   ];
 
   # Program toggles
-  programs.steam.enable = true; # provides system-wide 32-bit libs; package lives in Home Manager
+  programs.steam.enable = true; # enables Steam and required 32-bit runtime
   programs.bazecor.enable = true;
   programs.fish.enable = true; # keep NixOS aware that fish is the login shell
   programs.xwayland.enable = true;
@@ -209,7 +207,6 @@ in
   environment.systemPackages = with pkgs; [
     davinci-resolve-studio
     exfatprogs
-    protonvpn-gui
     usbutils
     wireguard-tools
     xwayland-satellite

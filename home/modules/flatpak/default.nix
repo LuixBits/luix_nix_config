@@ -47,10 +47,8 @@ let
   '';
 in
 {
-  # Make flatpak available to the user
+  # Tools used by the RSI launcher workaround
   home.packages = [
-    pkgs.flatpak
-
     # Needed to un-minimize/focus the RSI Launcher window under Xwayland.
     pkgs.wmctrl
     pkgs.xorg.xwininfo

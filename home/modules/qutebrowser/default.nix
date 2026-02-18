@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 
 let
   # Vaporwave-styled bundle plus a local override layer.
@@ -8,8 +8,6 @@ let
   baseCssTarget = "${config.xdg.configHome}/qutebrowser/userstyles/vaporwave-base.css";
   overrideCssTarget = "${config.xdg.configHome}/qutebrowser/userstyles/vaporwave-overrides.css";
 in {
-  home.packages = [ pkgs.qutebrowser ];
-
   programs.qutebrowser = {
     enable = true;
     settings = {

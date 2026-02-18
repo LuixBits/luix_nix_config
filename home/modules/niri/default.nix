@@ -37,19 +37,28 @@ let
   ] [
     "    ${noctaliaLockBind}\n"
   ] noFuzzelConfig;
+  kittyTerminalConfig = lib.replaceStrings [
+    "    Mod+T hotkey-overlay-title=\"Open a Terminal: alacritty\" { spawn \"alacritty\"; }\n"
+  ] [
+    "    Mod+T hotkey-overlay-title=\"Open a Terminal: kitty\" { spawn \"kitty\"; }\n"
+  ] noctaliaConfig;
+  noBrightnessConfig = lib.replaceStrings [
+    "    XF86MonBrightnessUp allow-when-locked=true { spawn \"brightnessctl\" \"--class=backlight\" \"set\" \"+10%\"; }\n"
+    "    XF86MonBrightnessDown allow-when-locked=true { spawn \"brightnessctl\" \"--class=backlight\" \"set\" \"10%-\"; }\n"
+  ] [
+    ""
+    ""
+  ] kittyTerminalConfig;
 in
 {
   imports = [
     ./audio
-    ./clipboard
     ./noctalia
-    ./notifications
     ./polkit
-    ./screenshot
   ];
 
   xdg.configFile."niri/config.kdl".text =
-    noctaliaConfig
+    noBrightnessConfig
     + ''
 
       output "${mainOutputName}" {

@@ -19,7 +19,6 @@
     obs-studio
     obsidian
     qownnotes
-    steam
     vlc
     kdePackages.okular
 
