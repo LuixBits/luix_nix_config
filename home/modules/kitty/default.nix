@@ -27,6 +27,8 @@
 
       strip_trailing_spaces = "always";
 
+      shell = "/run/current-system/sw/bin/fish";
+
       enable_audio_bell = "yes";
       visual_bell_duration = "0.0";
       window_alert_on_bell = "yes";
