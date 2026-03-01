@@ -25,7 +25,6 @@
 
     # Media tools
     audacity
-    easyeffects
     ffmpeg
     orca-slicer
     shotcut

@@ -99,6 +99,7 @@
 
   # Program toggles
   programs.bazecor.enable = true;
+  programs.dconf.enable = true;
   programs.fish.enable = true; # keep NixOS aware that fish is the login shell
   programs.xwayland.enable = true;
   programs.niri.enable = true; # Niri session in the display manager
