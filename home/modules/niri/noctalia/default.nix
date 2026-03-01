@@ -1,8 +1,4 @@
-{ inputs, pkgs, ... }:
-let
-  noctaliaPackage = pkgs.callPackage (inputs.noctalia + "/nix/package.nix") { };
-in
-
+{ inputs, ... }:
 {
   imports = [
     inputs.noctalia.homeModules.default
@@ -11,6 +7,5 @@ in
   programs.noctalia-shell = {
     enable = true;
     systemd.enable = true;
-    package = noctaliaPackage;
   };
 }
