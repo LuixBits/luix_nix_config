@@ -52,7 +52,6 @@ let
 in
 {
   imports = [
-    ./audio
     ./noctalia
     ./polkit
   ];

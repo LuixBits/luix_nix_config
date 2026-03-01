@@ -14,6 +14,7 @@
           blocklist = [ ];
 
           "plugins_order" = [
+            "stereo_tools#0"
             "rnnoise#0"
             "gate#0"
             "equalizer#0"
@@ -21,6 +22,28 @@
             "deesser#0"
             "limiter#0"
           ];
+
+          "stereo_tools#0" = {
+            "balance-in" = 0.0;
+            "balance-out" = 0.0;
+            bypass = false;
+            delay = 0.0;
+            "input-gain" = 0.0;
+            "middle-level" = 1.0;
+            "middle-panorama" = 0.0;
+            mode = "LR > LL (Mono Left Channel)";
+            mutel = false;
+            muter = false;
+            "output-gain" = 0.0;
+            phasel = false;
+            phaser = false;
+            "sc-level" = 1.0;
+            "side-balance" = 0.0;
+            "side-level" = 1.0;
+            softclip = false;
+            "stereo-base" = 0.0;
+            "stereo-phase" = 0.0;
+          };
 
           "rnnoise#0" = {
             bypass = false;
@@ -84,7 +107,7 @@
 
             left = {
               band0 = {
-                frequency = 90.0;
+                frequency = 70.0;
                 gain = 0.0;
                 mode = "RLC (BT)";
                 mute = false;
@@ -95,8 +118,8 @@
                 width = 4.0;
               };
               band1 = {
-                frequency = 180.0;
-                gain = -3.0;
+                frequency = 130.0;
+                gain = 1.2;
                 mode = "RLC (MT)";
                 mute = false;
                 q = 1.0;
@@ -106,8 +129,8 @@
                 width = 4.0;
               };
               band2 = {
-                frequency = 320.0;
-                gain = -2.5;
+                frequency = 280.0;
+                gain = -1.2;
                 mode = "BWC (MT)";
                 mute = false;
                 q = 1.0;
@@ -117,8 +140,8 @@
                 width = 4.0;
               };
               band3 = {
-                frequency = 3500.0;
-                gain = 2.0;
+                frequency = 3200.0;
+                gain = 1.8;
                 mode = "BWC (BT)";
                 mute = false;
                 q = 0.9;
@@ -128,8 +151,8 @@
                 width = 4.0;
               };
               band4 = {
-                frequency = 9000.0;
-                gain = 1.8;
+                frequency = 8500.0;
+                gain = 1.5;
                 mode = "LRX (MT)";
                 mute = false;
                 q = 0.7;
@@ -142,7 +165,7 @@
 
             right = {
               band0 = {
-                frequency = 90.0;
+                frequency = 70.0;
                 gain = 0.0;
                 mode = "RLC (BT)";
                 mute = false;
@@ -153,8 +176,8 @@
                 width = 4.0;
               };
               band1 = {
-                frequency = 180.0;
-                gain = -3.0;
+                frequency = 130.0;
+                gain = 1.2;
                 mode = "RLC (MT)";
                 mute = false;
                 q = 1.0;
@@ -164,8 +187,8 @@
                 width = 4.0;
               };
               band2 = {
-                frequency = 320.0;
-                gain = -2.5;
+                frequency = 280.0;
+                gain = -1.2;
                 mode = "BWC (MT)";
                 mute = false;
                 q = 1.0;
@@ -175,8 +198,8 @@
                 width = 4.0;
               };
               band3 = {
-                frequency = 3500.0;
-                gain = 2.0;
+                frequency = 3200.0;
+                gain = 1.8;
                 mode = "BWC (BT)";
                 mute = false;
                 q = 0.9;
@@ -186,8 +209,8 @@
                 width = 4.0;
               };
               band4 = {
-                frequency = 9000.0;
-                gain = 1.8;
+                frequency = 8500.0;
+                gain = 1.5;
                 mode = "LRX (MT)";
                 mute = false;
                 q = 0.7;

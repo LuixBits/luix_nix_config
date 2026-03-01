@@ -15,6 +15,7 @@
     ../modules/fish
     ../modules/docker
     ../modules/vpn
+    ../modules/audio
     ../modules/niri
     ../modules/qutebrowser
     ../modules/kdenlive
