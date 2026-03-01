@@ -6,10 +6,10 @@
 
   services.easyeffects = {
     enable = true;
-    preset = "luix-crystal-voice";
+    preset = "luix-voice";
 
     extraPresets = {
-      luix-crystal-voice = {
+      luix-voice = {
         input = {
           blocklist = [ ];
 

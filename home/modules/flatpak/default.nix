@@ -51,7 +51,7 @@ in
   home.packages = [
     # Needed to un-minimize/focus the RSI Launcher window under Xwayland.
     pkgs.wmctrl
-    pkgs.xorg.xwininfo
+    pkgs.xwininfo
     rsiLauncher
   ];
 
