@@ -60,6 +60,12 @@ in
   xdg.configFile."niri/config.kdl".text =
     noBrightnessConfig
     + ''
+      ${lib.optionalString isWorkProfile ''
+      output "eDP-1" {
+          mode "2400x1600"
+          position x=-2400 y=0
+      }
+      ''}
 
       output "${mainOutputName}" {
           mode "3440x1440@100.000"
