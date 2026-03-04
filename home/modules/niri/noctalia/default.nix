@@ -1,11 +1,6 @@
 { inputs, pkgs, hostName ? null, ... }:
 let
   baseSettings = builtins.fromJSON (builtins.readFile ./settings.json);
-  workVerticalWidgets =
-    let
-      matching = builtins.filter (entry: entry.name == "DVI-I-2") baseSettings.desktopWidgets.monitorWidgets;
-    in
-    if matching == [ ] then [ ] else (builtins.head matching).widgets;
   lSettings = baseSettings // {
     bar = baseSettings.bar // {
       monitors = [ "eDP-1" ];
@@ -26,22 +21,19 @@ let
     };
     wallpaper = baseSettings.wallpaper // {
       directory = "/home/luix/Pictures/Wallpapers";
+      setWallpaperOnAllMonitors = true;
+      enableMultiMonitorDirectories = false;
     };
   };
   pcSettings = baseSettings // {
     bar = baseSettings.bar // {
-      monitors = [ "HDMI-A-2" ];
+      monitors = [ "HDMI-A-2" "HDMI-A-3" ];
     };
     dock = baseSettings.dock // {
       monitors = [ "HDMI-A-2" ];
     };
     desktopWidgets = baseSettings.desktopWidgets // {
-      monitorWidgets = [
-        {
-          name = "HDMI-A-3";
-          widgets = workVerticalWidgets;
-        }
-      ];
+      monitorWidgets = [ ];
     };
     general = baseSettings.general // {
       avatarImage = "/home/luix/.face";
