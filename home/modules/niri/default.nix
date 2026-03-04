@@ -63,7 +63,8 @@ in
       ${lib.optionalString isWorkProfile ''
       output "eDP-1" {
           mode "2400x1600"
-          position x=-2400 y=0
+          scale 1.5
+          position x=-1600 y=0
       }
       ''}
 
