@@ -1,0 +1,35 @@
+{ pkgs, ... }:
+{
+  programs.git = {
+    enable = true;
+    lfs.enable = true;
+    settings = {
+      user = {
+        name = "Luiz Perren";
+        email = "luiz.perren@siga.swiss";
+      };
+      init.defaultBranch = "main";
+      pull.rebase = false;
+      color.ui = "auto";
+      core.editor = "vim";
+      credential.helper = "cache";
+    };
+  };
+
+  home.packages = with pkgs; [
+    azure-cli
+    brave
+    deckmaster
+    go
+    htop
+    jq
+    kubectl
+    kubelogin
+    openssl
+    php83Packages.composer
+    spotify
+    teams-for-linux
+    vivaldi
+    vim
+  ];
+}

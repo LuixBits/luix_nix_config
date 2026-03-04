@@ -20,43 +20,51 @@
 
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, nvf, ... }@inputs:
-  {
-    # NixOS configuration
-    nixosConfigurations.pc = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      specialArgs = { inherit inputs; };
-
-      modules = [
-        ./hosts/pc
-
-        # Home-Manager as a NixOS module
-        home-manager.nixosModules.home-manager
+  outputs = { nixpkgs, home-manager, ... }@inputs:
+    let
+      mkHost =
         {
-          home-manager.useUserPackages = true;
-          home-manager.backupFileExtension = "hm-back";
-          home-manager.extraSpecialArgs = { inherit inputs; };
-          home-manager.users.luix = import ./home/hosts/pc.nix;
-        }
-      ];
+          hostName,
+          homeHost,
+          hmUser,
+        }:
+        nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+
+          modules = [
+            ./hosts/${hostName}
+
+            # Home-Manager as a NixOS module
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useUserPackages = true;
+              home-manager.backupFileExtension = "hm-back";
+              home-manager.extraSpecialArgs = { inherit inputs; };
+              home-manager.users = {
+                "${hmUser}" = import homeHost;
+              };
+            }
+          ];
+        };
+    in
+    {
+      nixosConfigurations = {
+        pc = mkHost {
+          hostName = "pc";
+          homeHost = ./home/hosts/pc.nix;
+          hmUser = "luix";
+        };
+        l = mkHost {
+          hostName = "l";
+          homeHost = ./home/hosts/l.nix;
+          hmUser = "luix";
+        };
+        work = mkHost {
+          hostName = "work";
+          homeHost = ./home/hosts/work.nix;
+          hmUser = "luiz";
+        };
+      };
     };
-
-    nixosConfigurations.l = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      specialArgs = { inherit inputs; };
-
-      modules = [
-        ./hosts/l
-
-        # Home-Manager as a NixOS module
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useUserPackages = true;
-          home-manager.backupFileExtension = "hm-back";
-          home-manager.extraSpecialArgs = { inherit inputs; };
-          home-manager.users.luix = import ./home/hosts/l.nix;
-        }
-      ];
-    };
-  };
 }

@@ -1,5 +1,9 @@
 { config, pkgs, ... }:
 {
+  imports = [
+    ./optimisations.nix
+  ];
+
   # -------- basics --------
   time.timeZone = "Europe/Zurich";
   i18n.defaultLocale = "en_GB.UTF-8";
@@ -9,25 +13,6 @@
   boot.kernel.sysctl = {
     "vm.max_map_count" = 16777216;
     "fs.file-max" = 524288;
-  };
-
-  # --- Updates & maintenance ---
-  system.autoUpgrade = {
-    enable = true;
-    allowReboot = false;
-    flake = "/etc/nixos#${config.networking.hostName}";
-    dates = "daily";
-  };
-
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 20d";
-  };
-
-  nix.optimise = {
-    automatic = true;
-    dates = [ "weekly" ];
   };
 
   nixpkgs.overlays = [
@@ -52,7 +37,6 @@
 
   # Bootloader
   boot.loader.systemd-boot.enable = true;
-  boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.supportedFilesystems = [ "exfat" ];
 
@@ -106,14 +90,6 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  # --- Hardware & firmware ---
-  services.fwupd.enable = true;
-  services.fstrim.enable = true;
-  hardware.bluetooth = {
-    enable = true;
-    powerOnBoot = true;
-  };
-
   # Graphics (25.11 uses hardware.graphics.*)
   hardware.graphics = {
     enable = true;
@@ -122,7 +98,6 @@
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
     warn-dirty = false;
-    auto-optimise-store = true;
   };
 
   xdg.portal = {
