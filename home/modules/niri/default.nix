@@ -1,8 +1,42 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, hostName ? null, ... }:
 let
-  isWorkProfile = config.home.username == "luiz";
+  isWorkProfile = hostName == "work" || (hostName == null && config.home.username == "luiz");
+  isLaptopProfile = hostName == "l";
   mainOutputName = if isWorkProfile then "DVI-I-1" else "HDMI-A-2";
   verticalOutputName = if isWorkProfile then "DVI-I-2" else "HDMI-A-3";
+  outputConfig =
+    if isLaptopProfile then
+      ''
+        output "eDP-1" {
+            mode "2880x1800@120.000"
+            scale 1.75
+            position x=0 y=0
+            focus-at-startup
+        }
+      ''
+    else
+      ''
+        ${lib.optionalString isWorkProfile ''
+        output "eDP-1" {
+            mode "2400x1600"
+            scale 1.5
+            position x=-1600 y=0
+        }
+        ''}
+
+        output "${mainOutputName}" {
+            mode "3440x1440@100.000"
+            position x=0 y=0
+            focus-at-startup
+        }
+
+        output "${verticalOutputName}" {
+            mode "3840x2160@59.997"
+            scale 1.25
+            transform "270"
+            position x=3440 y=0
+        }
+      '';
   baseConfig = builtins.readFile "${pkgs.niri.doc}/share/doc/niri/default-config.kdl";
   noWaybarConfig = lib.replaceStrings [
     "spawn-at-startup \"waybar\"\n"
@@ -60,26 +94,7 @@ in
   xdg.configFile."niri/config.kdl".text =
     noBrightnessConfig
     + ''
-      ${lib.optionalString isWorkProfile ''
-      output "eDP-1" {
-          mode "2400x1600"
-          scale 1.5
-          position x=-1600 y=0
-      }
-      ''}
-
-      output "${mainOutputName}" {
-          mode "3440x1440@100.000"
-          position x=0 y=0
-          focus-at-startup
-      }
-
-      output "${verticalOutputName}" {
-          mode "3840x2160@59.997"
-          scale 1.25
-          transform "270"
-          position x=3440 y=0
-      }
+      ${outputConfig}
 
       // Star Citizen / RSI Launcher (Flatpak -> Proton/Wine) runs under Xwayland.
       // Under niri it may start "minimized"/unmapped; the `rsi-launcher` wrapper

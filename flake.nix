@@ -40,7 +40,9 @@
             {
               home-manager.useUserPackages = true;
               home-manager.backupFileExtension = "hm-back";
-              home-manager.extraSpecialArgs = { inherit inputs; };
+              home-manager.extraSpecialArgs = {
+                inherit inputs hostName;
+              };
               home-manager.users = {
                 "${hmUser}" = import homeHost;
               };

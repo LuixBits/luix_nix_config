@@ -1,4 +1,34 @@
-{ inputs, ... }:
+{ inputs, pkgs, hostName ? null, ... }:
+let
+  baseSettings = builtins.fromJSON (builtins.readFile ./settings.json);
+  lSettings = baseSettings // {
+    bar = baseSettings.bar // {
+      monitors = [ "eDP-1" ];
+    };
+    dock = baseSettings.dock // {
+      monitors = [ "eDP-1" ];
+    };
+    desktopWidgets = baseSettings.desktopWidgets // {
+      monitorWidgets = [
+        {
+          name = "eDP-1";
+          widgets = [ ];
+        }
+      ];
+    };
+    general = baseSettings.general // {
+      avatarImage = "/home/luix/.face";
+    };
+    wallpaper = baseSettings.wallpaper // {
+      directory = "/home/luix/Pictures/Wallpapers";
+    };
+  };
+  settingsFile =
+    if hostName == "l" then
+      pkgs.writeText "noctalia-settings-l.json" (builtins.toJSON lSettings)
+    else
+      ./settings.json;
+in
 {
   imports = [
     inputs.noctalia.homeModules.default
@@ -7,7 +37,7 @@
   programs.noctalia-shell = {
     enable = true;
     systemd.enable = true;
-    settings = ./settings.json;
+    settings = settingsFile;
     colors = ./colors.json;
     plugins = ./plugins.json;
     pluginSettings = {
