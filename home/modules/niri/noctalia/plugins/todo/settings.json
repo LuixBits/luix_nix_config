@@ -1,0 +1,113 @@
+{
+  "pages": [
+    {
+      "id": 0,
+      "name": "General"
+    }
+  ],
+  "current_page_id": 0,
+  "todos": [
+    {
+      "id": 1772637412294,
+      "text": "pawi",
+      "completed": false,
+      "createdAt": "2026-03-04T15:16:52.294Z",
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
+    },
+    {
+      "id": 1772637408427,
+      "text": "rob",
+      "completed": false,
+      "createdAt": "2026-03-04T15:16:48.427Z",
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
+    },
+    {
+      "id": 1772637396358,
+      "text": "mabr",
+      "completed": false,
+      "createdAt": "2026-03-04T15:16:36.358Z",
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
+    },
+    {
+      "id": 1772637393268,
+      "text": "jufi",
+      "completed": false,
+      "createdAt": "2026-03-04T15:16:33.268Z",
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
+    },
+    {
+      "id": 1772637391768,
+      "text": "chae",
+      "completed": false,
+      "createdAt": "2026-03-04T15:16:31.768Z",
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
+    },
+    {
+      "id": 1772637386777,
+      "text": "Daily verschieben nachfragen",
+      "completed": false,
+      "createdAt": "2026-03-04T15:16:26.777Z",
+      "pageId": 0,
+      "priority": "medium",
+      "details": ""
+    }
+  ],
+  "count": 6,
+  "completedCount": 0,
+  "isExpanded": false,
+  "useCustomColors": false,
+  "exportPath": "~/Documents",
+  "exportFormat": "markdown",
+  "exportEmptySections": false,
+  "priorityColors": {
+    "high": {
+      "r": 1,
+      "g": 0.43529412150382996,
+      "b": 0.6078431606292725,
+      "a": 1,
+      "hsvHue": 0.9490833282470703,
+      "hsvSaturation": 0.5647059082984924,
+      "hsvValue": 1,
+      "hslHue": 0.9490833282470703,
+      "hslSaturation": 1,
+      "hslLightness": 0.7176470756530762,
+      "valid": true
+    },
+    "medium": {
+      "r": 0.7098039388656616,
+      "g": 0.5607843399047852,
+      "b": 1,
+      "a": 1,
+      "hsvHue": 0.7232221961021423,
+      "hsvSaturation": 0.43921568989753723,
+      "hsvValue": 1,
+      "hslHue": 0.7232221961021423,
+      "hslSaturation": 1,
+      "hslLightness": 0.7803921699523926,
+      "valid": true
+    },
+    "low": {
+      "r": 0.7098039388656616,
+      "g": 0.5607843399047852,
+      "b": 1,
+      "a": 1,
+      "hsvHue": 0.7232221961021423,
+      "hsvSaturation": 0.43921568989753723,
+      "hsvValue": 1,
+      "hslHue": 0.7232221961021423,
+      "hslSaturation": 1,
+      "hslLightness": 0.7803921699523926,
+      "valid": true
+    }
+  }
+}

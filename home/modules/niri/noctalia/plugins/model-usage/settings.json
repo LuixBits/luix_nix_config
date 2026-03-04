@@ -1,0 +1,10 @@
+{
+  "refreshIntervalSec": 30,
+  "barCycleIntervalSec": 5,
+  "providers": {
+    "claude": {
+      "enabled": false
+    }
+  },
+  "barMetric": "usage"
+}
