@@ -9,6 +9,7 @@ let
     pkgs.git
     pkgs.gnugrep
     pkgs.gnused
+    pkgs.jq
     pkgs.nix
     pkgs.nixos-rebuild
     pkgs.util-linux
@@ -216,6 +217,176 @@ let
     sudo nixos-rebuild switch --flake "''${FLAKE_REF}#''${HOST}"
   '';
 
+  syncNoctalia = pkgs.writeShellScriptBin "syncnoctalia" ''
+    #!${pkgs.bash}/bin/bash
+    set -euo pipefail
+    export PATH=${scriptPath}:$PATH
+
+    info()  { printf "\033[1;34m[INFO]\033[0m %s\n"  "$*"; }
+    warn()  { printf "\033[1;33m[WARN]\033[0m %s\n"  "$*"; }
+    error() { printf "\033[1;31m[ERR ]\033[0m %s\n"  "$*" >&2; }
+
+    choose_source_file() {
+      local live="$1"
+      local backup="''${live}.hm-back"
+
+      if [[ -e "$live" && ! -L "$live" ]]; then
+        printf '%s\n' "$live"
+        return 0
+      fi
+
+      if [[ -e "$backup" && ( ! -e "$live" || "$backup" -nt "$live" ) ]]; then
+        printf '%s\n' "$backup"
+        return 0
+      fi
+
+      if [[ -e "$live" ]]; then
+        printf '%s\n' "$live"
+        return 0
+      fi
+
+      if [[ -e "$backup" ]]; then
+        printf '%s\n' "$backup"
+        return 0
+      fi
+
+      return 1
+    }
+
+    HOST="''${1:-''${CONFIG_HOST:-${defaultHost}}}"
+    FLAKE_RAW="''${CONFIG_FLAKE:-${defaultFlake}}"
+
+    REPO_ROOT="$FLAKE_RAW"
+    if [[ "$REPO_ROOT" == path:* ]]; then
+      REPO_ROOT="''${REPO_ROOT#path:}"
+    fi
+    if [[ -d "$REPO_ROOT" ]]; then
+      REPO_ROOT="$(readlink -f "$REPO_ROOT" 2>/dev/null || printf '%s' "$REPO_ROOT")"
+    fi
+
+    TARGET_DIR="$REPO_ROOT/home/modules/niri/noctalia"
+    SOURCE_DIR="''${XDG_CONFIG_HOME:-$HOME/.config}/noctalia"
+
+    if [[ ! -d "$TARGET_DIR" ]]; then
+      error "No Noctalia module directory found at: $TARGET_DIR"
+      exit 1
+    fi
+
+    if [[ ! -d "$SOURCE_DIR" ]]; then
+      error "No Noctalia runtime directory found at: $SOURCE_DIR"
+      exit 1
+    fi
+
+    SETTINGS_SRC="$(choose_source_file "$SOURCE_DIR/settings.json" || true)"
+    if [[ -z "$SETTINGS_SRC" ]]; then
+      error "Could not find settings.json in $SOURCE_DIR or settings.json.hm-back."
+      exit 1
+    fi
+
+    SETTINGS_DST="$TARGET_DIR/settings.json"
+    SETTINGS_TMP="$(mktemp)"
+
+    if [[ "$HOST" == "pc" || "$HOST" == "l" ]]; then
+      jq -s '
+        .[0] * (.[1] | del(
+          .bar.monitors,
+          .dock.monitors,
+          .desktopWidgets.monitorWidgets,
+          .general.avatarImage,
+          .wallpaper.directory,
+          .wallpaper.setWallpaperOnAllMonitors,
+          .wallpaper.enableMultiMonitorDirectories
+        ))
+      ' "$SETTINGS_DST" "$SETTINGS_SRC" > "$SETTINGS_TMP"
+      info "Synced settings.json from $SETTINGS_SRC (preserving host-specific keys for $HOST)."
+    else
+      jq . "$SETTINGS_SRC" > "$SETTINGS_TMP"
+      info "Synced settings.json from $SETTINGS_SRC."
+    fi
+    mv "$SETTINGS_TMP" "$SETTINGS_DST"
+
+    COLORS_SRC="$(choose_source_file "$SOURCE_DIR/colors.json" || true)"
+    if [[ -n "$COLORS_SRC" ]]; then
+      COLORS_DST="$TARGET_DIR/colors.json"
+      COLORS_TMP="$(mktemp)"
+      jq . "$COLORS_SRC" > "$COLORS_TMP"
+      mv "$COLORS_TMP" "$COLORS_DST"
+      info "Synced colors.json from $COLORS_SRC."
+    else
+      warn "No colors.json found in $SOURCE_DIR (or colors.json.hm-back); skipping."
+    fi
+
+    COLORSCHEMES_SRC_DIR="$SOURCE_DIR/colorschemes"
+    COLORSCHEMES_DST_DIR="$TARGET_DIR/colorschemes"
+    if [[ -d "$COLORSCHEMES_SRC_DIR" ]]; then
+      while IFS= read -r -d "" scheme_src; do
+        rel_path="''${scheme_src#$COLORSCHEMES_SRC_DIR/}"
+        scheme_dst="$COLORSCHEMES_DST_DIR/$rel_path"
+        mkdir -p "$(dirname "$scheme_dst")"
+
+        if [[ "$scheme_src" == *.json ]]; then
+          scheme_tmp="$(mktemp)"
+          jq . "$scheme_src" > "$scheme_tmp"
+          mv "$scheme_tmp" "$scheme_dst"
+        else
+          cp -f "$scheme_src" "$scheme_dst"
+        fi
+        info "Synced colorschemes/$rel_path."
+      done < <(find "$COLORSCHEMES_SRC_DIR" -type f ! -name '*.hm-back' -print0)
+
+      while IFS= read -r -d "" scheme_dst; do
+        rel_path="''${scheme_dst#$COLORSCHEMES_DST_DIR/}"
+        if [[ ! -f "$COLORSCHEMES_SRC_DIR/$rel_path" ]]; then
+          rm -f "$scheme_dst"
+          info "Removed stale colorschemes/$rel_path."
+        fi
+      done < <(find "$COLORSCHEMES_DST_DIR" -type f -print0)
+
+      while IFS= read -r -d "" scheme_dir; do
+        rmdir "$scheme_dir" 2>/dev/null || true
+      done < <(find "$COLORSCHEMES_DST_DIR" -depth -type d -empty -print0)
+    else
+      warn "No colorschemes directory found in $COLORSCHEMES_SRC_DIR; skipping."
+    fi
+
+    PLUGINS_SRC="$(choose_source_file "$SOURCE_DIR/plugins.json" || true)"
+    if [[ -n "$PLUGINS_SRC" ]]; then
+      PLUGINS_DST="$TARGET_DIR/plugins.json"
+      PLUGINS_TMP="$(mktemp)"
+      jq . "$PLUGINS_SRC" > "$PLUGINS_TMP"
+      mv "$PLUGINS_TMP" "$PLUGINS_DST"
+      info "Synced plugins.json from $PLUGINS_SRC."
+    else
+      warn "No plugins.json found in $SOURCE_DIR (or plugins.json.hm-back); skipping."
+    fi
+
+    PLUGIN_SETTINGS_SRC_DIR="$SOURCE_DIR/plugins"
+    PLUGIN_SETTINGS_DST_DIR="$TARGET_DIR/plugins"
+    if [[ -d "$PLUGIN_SETTINGS_SRC_DIR" ]]; then
+      while IFS= read -r rel_path; do
+        plugin_src="$(choose_source_file "$PLUGIN_SETTINGS_SRC_DIR/$rel_path" || true)"
+        if [[ -z "$plugin_src" ]]; then
+          continue
+        fi
+
+        plugin_dst="$PLUGIN_SETTINGS_DST_DIR/$rel_path"
+        mkdir -p "$(dirname "$plugin_dst")"
+        plugin_tmp="$(mktemp)"
+        jq . "$plugin_src" > "$plugin_tmp"
+        mv "$plugin_tmp" "$plugin_dst"
+        info "Synced plugins/$rel_path."
+      done < <(
+        find "$PLUGIN_SETTINGS_SRC_DIR" -type f \( -name 'settings.json' -o -name 'settings.json.hm-back' \) -printf '%P\n' \
+          | sed 's/\.hm-back$//' \
+          | sort -u
+      )
+    else
+      warn "No plugins directory found in $PLUGIN_SETTINGS_SRC_DIR; skipping plugin settings sync."
+    fi
+
+    info "Noctalia sync complete."
+  '';
+
   buildall = pkgs.writeShellScriptBin "buildall" ''
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
@@ -299,23 +470,33 @@ let
       FLAKE_REF="$FLAKE_RAW"
     fi
     usage() {
-      echo "Usage: buildall <pc|l|work> [commit-message...]" >&2
+      echo "Usage: buildall [--sync-noctalia] <pc|l|work> [commit-message...]" >&2
       exit 2
     }
 
-    if [[ $# -lt 1 ]]; then
+    SYNC_NOCTALIA=0
+    HOST=""
+
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --sync-noctalia)
+          SYNC_NOCTALIA=1
+          shift
+          ;;
+        pc|l|work)
+          HOST="$1"
+          shift
+          break
+          ;;
+        *)
+          usage
+          ;;
+      esac
+    done
+
+    if [[ -z "$HOST" ]]; then
       usage
     fi
-
-    case "$1" in
-      pc|l|work)
-        HOST="$1"
-        shift
-        ;;
-      *)
-        usage
-        ;;
-    esac
 
     if ! nix eval --raw "''${FLAKE_REF}#nixosConfigurations.''${HOST}.config.networking.hostName" >/dev/null 2>&1; then
       echo "Host '$HOST' is not defined in this flake." >&2
@@ -323,6 +504,10 @@ let
     fi
 
     MSG="''${*:-update: $(date -Iseconds)}"
+
+    if [[ "$SYNC_NOCTALIA" -eq 1 ]]; then
+      syncnoctalia "$HOST"
+    fi
 
     preflight_fs_guard "$HOST"
     nix flake update --flake "$FLAKE_RAW"
@@ -343,5 +528,6 @@ in
     flakeonly
     pushonly
     pushConfigs
+    syncNoctalia
   ];
 }

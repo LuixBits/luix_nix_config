@@ -49,6 +49,23 @@ let
       pkgs.writeText "noctalia-settings-pc.json" (builtins.toJSON pcSettings)
     else
       ./settings.json;
+  pluginEntries = builtins.readDir ./plugins;
+  pluginSettings = builtins.listToAttrs (
+    builtins.filter (entry: entry != null) (
+      map
+        (
+          pluginName:
+          if pluginEntries.${pluginName} == "directory" && builtins.pathExists (./plugins + "/${pluginName}/settings.json") then
+            {
+              name = pluginName;
+              value = ./plugins + "/${pluginName}/settings.json";
+            }
+          else
+            null
+        )
+        (builtins.attrNames pluginEntries)
+    )
+  );
 in
 {
   imports = [
@@ -61,15 +78,7 @@ in
     settings = settingsFile;
     colors = ./colors.json;
     plugins = ./plugins.json;
-    pluginSettings = {
-      catwalk = ./plugins/catwalk/settings.json;
-      "fancy-audiovisualizer" = ./plugins/fancy-audiovisualizer/settings.json;
-      "ip-monitor" = ./plugins/ip-monitor/settings.json;
-      "keybind-cheatsheet" = ./plugins/keybind-cheatsheet/settings.json;
-      "model-usage" = ./plugins/model-usage/settings.json;
-      "privacy-indicator" = ./plugins/privacy-indicator/settings.json;
-      todo = ./plugins/todo/settings.json;
-    };
+    pluginSettings = pluginSettings;
   };
 
   xdg.configFile."noctalia/colorschemes" = {
