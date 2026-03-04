@@ -2,8 +2,7 @@
 let
   isWorkProfile = hostName == "work" || (hostName == null && config.home.username == "luiz");
   isLaptopProfile = hostName == "l";
-  mainOutputName = if isWorkProfile then "DVI-I-1" else "HDMI-A-2";
-  verticalOutputName = if isWorkProfile then "DVI-I-2" else "HDMI-A-3";
+  isPcProfile = hostName == "pc";
   outputConfig =
     if isLaptopProfile then
       ''
@@ -14,23 +13,51 @@ let
             focus-at-startup
         }
       ''
-    else
+    else if isWorkProfile then
       ''
-        ${lib.optionalString isWorkProfile ''
         output "eDP-1" {
             mode "2400x1600"
             scale 1.5
             position x=-1600 y=0
         }
-        ''}
 
-        output "${mainOutputName}" {
+        output "DVI-I-1" {
             mode "3440x1440@100.000"
             position x=0 y=0
             focus-at-startup
         }
 
-        output "${verticalOutputName}" {
+        output "DVI-I-2" {
+            mode "3840x2160@59.997"
+            scale 1.25
+            transform "270"
+            position x=3440 y=0
+        }
+      ''
+    else if isPcProfile then
+      ''
+        output "HDMI-A-2" {
+            mode "3440x1440@100.000"
+            position x=0 y=0
+            focus-at-startup
+        }
+
+        output "HDMI-A-3" {
+            mode "3840x2160@59.997"
+            scale 1.25
+            transform "270"
+            position x=3440 y=0
+        }
+      ''
+    else
+      ''
+        output "HDMI-A-2" {
+            mode "3440x1440@100.000"
+            position x=0 y=0
+            focus-at-startup
+        }
+
+        output "HDMI-A-3" {
             mode "3840x2160@59.997"
             scale 1.25
             transform "270"
