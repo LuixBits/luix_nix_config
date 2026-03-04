@@ -40,6 +40,7 @@
             {
               home-manager.useUserPackages = true;
               home-manager.backupFileExtension = "hm-back";
+              home-manager.overwriteBackup = true;
               home-manager.extraSpecialArgs = {
                 inherit inputs hostName;
               };
