@@ -1,7 +1,8 @@
-{ pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 let
-  mainOutputName = "HDMI-A-2";
-  verticalOutputName = "HDMI-A-3";
+  isWorkProfile = config.home.username == "luiz";
+  mainOutputName = if isWorkProfile then "DVI-I-1" else "HDMI-A-2";
+  verticalOutputName = if isWorkProfile then "DVI-I-2" else "HDMI-A-3";
   baseConfig = builtins.readFile "${pkgs.niri.doc}/share/doc/niri/default-config.kdl";
   noWaybarConfig = lib.replaceStrings [
     "spawn-at-startup \"waybar\"\n"

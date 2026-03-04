@@ -1,9 +1,9 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
   imports = [
     ./hardware-configuration.nix
-    ../common/optimisations.nix
-    ../features/hardware-intel-cpu.nix
+    ../common/base.nix
+    ../features/hardware-intel.nix
     ../features/work/appimage.nix
     ../features/work/caddy.nix
     ../features/work/cx.nix
@@ -12,11 +12,7 @@
     # ../features/work/pia-manual.nix
   ];
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
   networking.hostName = "work";
-  networking.networkmanager.enable = true;
 
   # services.piaManual = {
   #   # Keep credentials out of git by storing them in /run/secrets/pia.env.
@@ -24,25 +20,15 @@
   #   runAfterLoginForUser = "luiz";
   # };
 
+  # Shared common/base defines user `luix`; disable it on work to keep a single user.
+  users.users.luix.enable = lib.mkForce false;
+
   virtualisation.virtualbox.host.enable = true;
   virtualisation.virtualbox.host.enableExtensionPack = true;
   users.extraGroups.vboxusers.members = [ "luiz" ];
 
-  time.timeZone = "Europe/Zurich";
-  i18n.defaultLocale = "en_GB.UTF-8";
-
-  services.xserver.enable = true;
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
   services.flatpak.enable = true;
-
-  services.xserver.xkb = {
-    layout = "ch";
-    variant = "";
-  };
-  console.keyMap = "sg";
-
-  services.printing.enable = true;
+  services.xserver.videoDrivers = lib.mkForce [ "nvidia" "displaylink" "modesetting" ];
 
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
@@ -72,12 +58,9 @@
     extraGroups = [ "networkmanager" "wheel" "docker" "vboxusers" ];
   };
 
-  programs.bazecor.enable = true;
-
   nixpkgs.config = {
-    allowUnfree = true;
     allowUnsupportedSystem = true;
   };
 
-  system.stateVersion = "25.05";
+  system.stateVersion = lib.mkForce "25.11";
 }
