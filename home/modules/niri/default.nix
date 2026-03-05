@@ -8,6 +8,13 @@ let
   # changes do not break rotation/placement.
   workMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
   workRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
+  starCitizenMainOutput =
+    if isLaptopProfile then
+      workLaptopOutput
+    else if isWorkProfile then
+      workMainOutput
+    else
+      "HDMI-A-2";
   outputConfig =
     if isLaptopProfile then
       ''
@@ -143,11 +150,13 @@ in
       // Star Citizen / RSI Launcher (Flatpak -> Proton/Wine) runs under Xwayland.
       // On mixed-DPI outputs, the game can request an oversized floating geometry
       // (e.g. 2160x3840 on a 1728x3072 logical output), which lands out of bounds.
-      // Force known launcher/game app-ids into tiling and open maximized to edges.
+      // Force known launcher/game app-ids onto the main output, in tiling layout,
+      // and open maximized to edges.
       window-rule {
           match app-id=r#"^rsi launcher\.exe$"#
           match app-id=r#"^starcitizen\.exe$"#
           match app-id=r#"^steam_app_starcitizen$"#
+          open-on-output "${starCitizenMainOutput}"
           open-floating false
           open-maximized-to-edges true
           open-focused true
