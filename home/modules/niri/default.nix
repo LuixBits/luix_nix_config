@@ -29,7 +29,7 @@ let
 
         output "DVI-I-2" {
             mode "3840x2160@59.997"
-            scale 1.25
+            scale 1.5
             transform "270"
             position x=3440 y=0
         }
@@ -44,7 +44,7 @@ let
 
         output "HDMI-A-3" {
             mode "3840x2160@59.997"
-            scale 1.25
+            scale 1.5
             transform "270"
             position x=3440 y=0
         }
@@ -59,7 +59,7 @@ let
 
         output "HDMI-A-3" {
             mode "3840x2160@59.997"
-            scale 1.25
+            scale 1.5
             transform "270"
             position x=3440 y=0
         }
