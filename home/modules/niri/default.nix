@@ -134,12 +134,62 @@ let
     ""
     ""
   ] kittyTerminalConfig;
+  enforceStarCitizenOutput = pkgs.writeShellScript "niri-enforce-starcitizen-output" ''
+    #!${pkgs.bash}/bin/bash
+    set -u
+
+    NIRI="${pkgs.niri}/bin/niri"
+    JQ="${pkgs.jq}/bin/jq"
+    TARGET_OUTPUT="${starCitizenMainOutput}"
+
+    while true; do
+      windows_json="$("$NIRI" msg -j windows 2>/dev/null || true)"
+      workspaces_json="$("$NIRI" msg -j workspaces 2>/dev/null || true)"
+
+      if [ -n "$windows_json" ] && [ -n "$workspaces_json" ]; then
+        while IFS= read -r win_id; do
+          [ -n "$win_id" ] || continue
+
+          "$NIRI" msg action move-window-to-monitor "$TARGET_OUTPUT" --id "$win_id" >/dev/null 2>&1 || true
+          "$NIRI" msg action maximize-window-to-edges --id "$win_id" >/dev/null 2>&1 || true
+        done < <(
+          printf '%s\n' "$windows_json" | "$JQ" -r \
+            --argjson workspaces "$workspaces_json" \
+            --arg target "$TARGET_OUTPUT" '
+              [ $workspaces[] | { key: (.id | tostring), value: .output } ] | from_entries as $ws_output
+              | .[]
+              | select(.app_id == "starcitizen.exe")
+              | select((.workspace_id | tostring) as $wsid | ($ws_output[$wsid] // "") != $target)
+              | .id
+            ' 2>/dev/null
+        )
+      fi
+
+      sleep 1
+    done
+  '';
 in
 {
   imports = [
     ./noctalia
     ./polkit
   ];
+
+  systemd.user.services.niri-starcitizen-output-fix = {
+    Unit = {
+      Description = "Keep Star Citizen on the main niri output";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${enforceStarCitizenOutput}";
+      Restart = "always";
+      RestartSec = 2;
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
 
   xdg.configFile."niri/config.kdl".text =
     noBrightnessConfig
