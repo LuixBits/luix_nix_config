@@ -1,6 +1,73 @@
 { pkgs, ... }:
 let
   flatpakBin = "${pkgs.flatpak}/bin/flatpak";
+  rsiScOutputGuard = pkgs.writeShellScriptBin "rsi-sc-output-guard" ''
+    set -euo pipefail
+
+    NIRI="${pkgs.niri}/bin/niri"
+    JQ="${pkgs.jq}/bin/jq"
+    MAIN_OUTPUT="HDMI-A-2"
+    SIDE_OUTPUT="HDMI-A-3"
+    HOLD_SECONDS=15
+
+    outputs_json="$("$NIRI" msg -j outputs 2>/dev/null || true)"
+    if [ -z "$outputs_json" ]; then
+      exit 0
+    fi
+
+    if ! printf '%s\n' "$outputs_json" | "$JQ" -e --arg o "$MAIN_OUTPUT" 'has($o)' >/dev/null 2>&1; then
+      exit 0
+    fi
+    if ! printf '%s\n' "$outputs_json" | "$JQ" -e --arg o "$SIDE_OUTPUT" 'has($o)' >/dev/null 2>&1; then
+      exit 0
+    fi
+
+    side_off=0
+    restore_side_output() {
+      if [ "$side_off" -eq 1 ]; then
+        "$NIRI" msg output "$SIDE_OUTPUT" on >/dev/null 2>&1 || true
+        side_off=0
+      fi
+    }
+    trap restore_side_output EXIT INT TERM
+
+    "$NIRI" msg output "$SIDE_OUTPUT" off >/dev/null 2>&1 || true
+    "$NIRI" msg action focus-monitor "$MAIN_OUTPUT" >/dev/null 2>&1 || true
+    side_off=1
+
+    no_launcher_ticks=0
+    for _ in $(seq 1 1200); do
+      windows_json="$("$NIRI" msg -j windows 2>/dev/null || true)"
+      if [ -z "$windows_json" ]; then
+        sleep 0.5
+        continue
+      fi
+
+      has_launcher="$(
+        printf '%s\n' "$windows_json" | "$JQ" -r 'any(.[]; (.app_id // "") == "rsi launcher.exe")' 2>/dev/null || echo false
+      )"
+      has_game="$(
+        printf '%s\n' "$windows_json" | "$JQ" -r 'any(.[]; (.app_id // "") == "starcitizen.exe")' 2>/dev/null || echo false
+      )"
+
+      if [ "$has_game" = "true" ]; then
+        sleep "$HOLD_SECONDS"
+        exit 0
+      fi
+
+      if [ "$has_launcher" = "true" ]; then
+        no_launcher_ticks=0
+      else
+        no_launcher_ticks=$((no_launcher_ticks + 1))
+      fi
+
+      if [ "$no_launcher_ticks" -ge 20 ]; then
+        exit 0
+      fi
+
+      sleep 0.5
+    done
+  '';
   rsiLauncher = pkgs.writeShellScriptBin "rsi-launcher" ''
     set -euo pipefail
 
@@ -17,6 +84,7 @@ let
       exit 0
     fi
 
+    "${rsiScOutputGuard}/bin/rsi-sc-output-guard" >/tmp/rsi-sc-output-guard.log 2>&1 &
     flatpak run "$app_id" >/tmp/rsilauncher-flatpak.log 2>&1 &
 
     for _ in $(seq 1 60); do
@@ -63,6 +131,7 @@ in
     pkgs.wmctrl
     pkgs.xwininfo
     rsiLauncher
+    rsiScOutputGuard
   ];
 
   # Workaround: RSI Launcher (Electron via Proton/Wine) sometimes starts minimized on Niri/Xwayland.

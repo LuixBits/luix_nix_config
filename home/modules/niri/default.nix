@@ -15,14 +15,6 @@ let
       workMainOutput
     else
       "HDMI-A-2";
-  # Star Citizen can pick the portrait monitor during startup after EAC.
-  # On the PC profile, temporarily disabling the portrait output while
-  # RSI/SC windows are active prevents wrong startup resolution.
-  starCitizenSideOutput =
-    if isPcProfile then
-      "HDMI-A-3"
-    else
-      null;
   outputConfig =
     if isLaptopProfile then
       ''
@@ -142,76 +134,12 @@ let
     ""
     ""
   ] kittyTerminalConfig;
-  enforceStarCitizenOutput = pkgs.writeShellScript "niri-enforce-starcitizen-output" ''
-    #!${pkgs.bash}/bin/bash
-    set -u
-
-    NIRI="${pkgs.niri}/bin/niri"
-    JQ="${pkgs.jq}/bin/jq"
-    TARGET_OUTPUT="${starCitizenMainOutput}"
-    SIDE_OUTPUT="${if starCitizenSideOutput == null then "" else starCitizenSideOutput}"
-    LOG_TAG="niri-starcitizen-output-fix"
-    LOGGER="${pkgs.util-linux}/bin/logger"
-
-    side_disabled=0
-
-    if [ -z "$SIDE_OUTPUT" ]; then
-      "$LOGGER" -t "$LOG_TAG" "no side output configured; exiting"
-      exit 0
-    fi
-
-    while true; do
-      windows_json="$("$NIRI" msg -j windows 2>/dev/null || true)"
-      if [ -n "$windows_json" ]; then
-        sc_active="$(
-          printf '%s\n' "$windows_json" | "$JQ" -r '
-            any(.[]; (
-              (.app_id // "") == "rsi launcher.exe" or
-              (.app_id // "") == "starcitizen.exe" or
-              ((.title // "") | test("(?i)easy anti[- ]cheat"))
-            ))
-          ' 2>/dev/null || echo false
-        )"
-
-        if [ "$sc_active" = "true" ] && [ "$side_disabled" -eq 0 ]; then
-          "$LOGGER" -t "$LOG_TAG" "RSI/SC active; disabling $SIDE_OUTPUT to force startup on $TARGET_OUTPUT"
-          "$NIRI" msg output "$SIDE_OUTPUT" off >/dev/null 2>&1 || true
-          "$NIRI" msg action focus-monitor "$TARGET_OUTPUT" >/dev/null 2>&1 || true
-          side_disabled=1
-        elif [ "$sc_active" != "true" ] && [ "$side_disabled" -eq 1 ]; then
-          "$LOGGER" -t "$LOG_TAG" "RSI/SC inactive; re-enabling $SIDE_OUTPUT"
-          "$NIRI" msg output "$SIDE_OUTPUT" on >/dev/null 2>&1 || true
-          side_disabled=0
-        fi
-      fi
-
-      sleep 0.5
-    done
-  '';
 in
 {
   imports = [
     ./noctalia
     ./polkit
   ];
-
-  systemd.user.services = lib.mkIf (starCitizenSideOutput != null) {
-    niri-starcitizen-output-fix = {
-      Unit = {
-        Description = "Keep Star Citizen startup on the main niri output";
-        After = [ "graphical-session.target" ];
-        PartOf = [ "graphical-session.target" ];
-      };
-      Service = {
-        ExecStart = "${enforceStarCitizenOutput}";
-        Restart = "always";
-        RestartSec = 2;
-      };
-      Install = {
-        WantedBy = [ "default.target" ];
-      };
-    };
-  };
 
   xdg.configFile."niri/config.kdl".text =
     noBrightnessConfig
