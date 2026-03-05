@@ -67,13 +67,10 @@ let
   workRenderConfig =
     if isWorkProfile then
       ''
-        // Work host uses DisplayLink outputs; pin a stable render node to avoid
-        // unpredictable render-device selection across boots.
+        // Keep work on the Intel render node: this is the only path that
+        // consistently brings both DisplayLink outputs up.
         debug {
-            render-drm-device "/dev/dri/by-path/pci-0000:f3:00.0-render"
-            // Work around partial-frame artifacts on the DisplayLink portrait output.
-            disable-direct-scanout
-            disable-cursor-plane
+            render-drm-device "/dev/dri/by-path/pci-0000:00:02.0-render"
         }
       ''
     else
