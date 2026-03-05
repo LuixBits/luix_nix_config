@@ -29,7 +29,7 @@ let
 
         output "DVI-I-2" {
             mode "3840x2160@59.997"
-            scale 1.5
+            scale 1.25
             transform "270"
             position x=3440 y=0
         }
@@ -44,7 +44,7 @@ let
 
         output "HDMI-A-3" {
             mode "3840x2160@59.997"
-            scale 1.5
+            scale 1.25
             transform "270"
             position x=3440 y=0
         }
@@ -59,11 +59,22 @@ let
 
         output "HDMI-A-3" {
             mode "3840x2160@59.997"
-            scale 1.5
+            scale 1.25
             transform "270"
             position x=3440 y=0
         }
       '';
+  workRenderConfig =
+    if isWorkProfile then
+      ''
+        // Work host uses DisplayLink outputs; pin a stable render node to avoid
+        // unpredictable render-device selection across boots.
+        debug {
+            render-drm-device "/dev/dri/by-path/pci-0000:f3:00.0-render"
+        }
+      ''
+    else
+      "";
   baseConfig = builtins.readFile "${pkgs.niri.doc}/share/doc/niri/default-config.kdl";
   noWaybarConfig = lib.replaceStrings [
     "spawn-at-startup \"waybar\"\n"
@@ -122,6 +133,7 @@ in
     noBrightnessConfig
     + ''
       ${outputConfig}
+      ${workRenderConfig}
 
       // Star Citizen / RSI Launcher (Flatpak -> Proton/Wine) runs under Xwayland.
       // Under niri it may start "minimized"/unmapped; the `rsi-launcher` wrapper
