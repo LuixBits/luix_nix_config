@@ -135,11 +135,11 @@
         "noctalia-qs": "noctalia-qs"
       },
       "locked": {
-        "lastModified": 1772741261,
-        "narHash": "sha256-4gPMiV8AreHB+2lrTXVKNWHj2gbJI2RWCIfxujeY4+I=",
+        "lastModified": 1772741773,
+        "narHash": "sha256-zFtqWrk2YSI7ZNUxg42N5GlBOPGP3vj+BLMvnW00hr4=",
         "owner": "noctalia-dev",
         "repo": "noctalia-shell",
-        "rev": "7a3f549648ac50c5c3c18cb7c6392dfdaa1697d3",
+        "rev": "6eb5085d049fdf84541e7580f867b3d7b23a4375",
         "type": "github"
       },
       "original": {
