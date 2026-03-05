@@ -141,11 +141,14 @@ in
       ${workRenderConfig}
 
       // Star Citizen / RSI Launcher (Flatpak -> Proton/Wine) runs under Xwayland.
-      // Under niri it may start "minimized"/unmapped; the `rsi-launcher` wrapper
-      // focuses it. Once mapped, this rule makes it behave like a normal maximized
-      // window instead of opening as a small tile.
+      // On mixed-DPI outputs, the game can request an oversized floating geometry
+      // (e.g. 2160x3840 on a 1728x3072 logical output), which lands out of bounds.
+      // Force known launcher/game app-ids into tiling and open maximized to edges.
       window-rule {
-          match app-id=r#"^steam_app_starcitizen$"# title=r#"^RSI Launcher$"#
+          match app-id=r#"^rsi launcher\.exe$"#
+          match app-id=r#"^starcitizen\.exe$"#
+          match app-id=r#"^steam_app_starcitizen$"#
+          open-floating false
           open-maximized-to-edges true
           open-focused true
       }
