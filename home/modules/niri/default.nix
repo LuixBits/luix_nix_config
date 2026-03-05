@@ -15,6 +15,14 @@ let
       workMainOutput
     else
       "HDMI-A-2";
+  # Star Citizen can pick the portrait monitor during startup after EAC.
+  # On the PC profile, temporarily disabling the portrait output while
+  # RSI/SC windows are active prevents wrong startup resolution.
+  starCitizenSideOutput =
+    if isPcProfile then
+      "HDMI-A-3"
+    else
+      null;
   outputConfig =
     if isLaptopProfile then
       ''
@@ -141,42 +149,43 @@ let
     NIRI="${pkgs.niri}/bin/niri"
     JQ="${pkgs.jq}/bin/jq"
     TARGET_OUTPUT="${starCitizenMainOutput}"
+    SIDE_OUTPUT="${if starCitizenSideOutput == null then "" else starCitizenSideOutput}"
     LOG_TAG="niri-starcitizen-output-fix"
     LOGGER="${pkgs.util-linux}/bin/logger"
 
-    declare -A moved_once=()
+    side_disabled=0
+
+    if [ -z "$SIDE_OUTPUT" ]; then
+      "$LOGGER" -t "$LOG_TAG" "no side output configured; exiting"
+      exit 0
+    fi
 
     while true; do
       windows_json="$("$NIRI" msg -j windows 2>/dev/null || true)"
       if [ -n "$windows_json" ]; then
-        declare -A currently_present=()
-
-        while IFS= read -r win_id; do
-          [ -n "$win_id" ] || continue
-          currently_present["$win_id"]=1
-
-          if [ -z "''${moved_once[$win_id]:-}" ]; then
-            "$LOGGER" -t "$LOG_TAG" "detected starcitizen.exe window id=$win_id; moving to $TARGET_OUTPUT"
-            "$NIRI" msg action move-window-to-monitor "$TARGET_OUTPUT" --id "$win_id" >/dev/null 2>&1 || true
-            "$NIRI" msg action maximize-window-to-edges --id "$win_id" >/dev/null 2>&1 || true
-            moved_once["$win_id"]=1
-          fi
-        done < <(
+        sc_active="$(
           printf '%s\n' "$windows_json" | "$JQ" -r '
-            .[]
-            | select(.app_id == "starcitizen.exe")
-            | .id
-          ' 2>/dev/null
-        )
+            any(.[]; (
+              (.app_id // "") == "rsi launcher.exe" or
+              (.app_id // "") == "starcitizen.exe" or
+              ((.title // "") | test("(?i)easy anti[- ]cheat"))
+            ))
+          ' 2>/dev/null || echo false
+        )"
 
-        for win_id in "''${!moved_once[@]}"; do
-          if [ -z "''${currently_present[$win_id]:-}" ]; then
-            unset "moved_once[$win_id]"
-          fi
-        done
+        if [ "$sc_active" = "true" ] && [ "$side_disabled" -eq 0 ]; then
+          "$LOGGER" -t "$LOG_TAG" "RSI/SC active; disabling $SIDE_OUTPUT to force startup on $TARGET_OUTPUT"
+          "$NIRI" msg output "$SIDE_OUTPUT" off >/dev/null 2>&1 || true
+          "$NIRI" msg action focus-monitor "$TARGET_OUTPUT" >/dev/null 2>&1 || true
+          side_disabled=1
+        elif [ "$sc_active" != "true" ] && [ "$side_disabled" -eq 1 ]; then
+          "$LOGGER" -t "$LOG_TAG" "RSI/SC inactive; re-enabling $SIDE_OUTPUT"
+          "$NIRI" msg output "$SIDE_OUTPUT" on >/dev/null 2>&1 || true
+          side_disabled=0
+        fi
       fi
 
-      sleep 1
+      sleep 0.5
     done
   '';
 in
@@ -186,19 +195,21 @@ in
     ./polkit
   ];
 
-  systemd.user.services.niri-starcitizen-output-fix = {
-    Unit = {
-      Description = "Keep Star Citizen on the main niri output";
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
-    };
-    Service = {
-      ExecStart = "${enforceStarCitizenOutput}";
-      Restart = "always";
-      RestartSec = 2;
-    };
-    Install = {
-      WantedBy = [ "default.target" ];
+  systemd.user.services = lib.mkIf (starCitizenSideOutput != null) {
+    niri-starcitizen-output-fix = {
+      Unit = {
+        Description = "Keep Star Citizen startup on the main niri output";
+        After = [ "graphical-session.target" ];
+        PartOf = [ "graphical-session.target" ];
+      };
+      Service = {
+        ExecStart = "${enforceStarCitizenOutput}";
+        Restart = "always";
+        RestartSec = 2;
+      };
+      Install = {
+        WantedBy = [ "default.target" ];
+      };
     };
   };
 
