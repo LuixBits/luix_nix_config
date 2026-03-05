@@ -55,6 +55,8 @@
   console.keyMap = "sg";
 
   services.printing.enable = true;
+  services.gvfs.enable = true;
+  services.udisks2.enable = true;
 
   # default Shell
   environment.shells = with pkgs; [ fish ];

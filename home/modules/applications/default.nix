@@ -14,8 +14,10 @@
     chromium
     discord
     firefox
+    gnome-disk-utility
     gimp-with-plugins
     libreoffice
+    nautilus
     obs-studio
     obsidian
     qownnotes
@@ -37,4 +39,11 @@
     picard
     termsonic
   ];
+
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
+    };
+  };
 }
