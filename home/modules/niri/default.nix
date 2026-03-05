@@ -141,28 +141,39 @@ let
     NIRI="${pkgs.niri}/bin/niri"
     JQ="${pkgs.jq}/bin/jq"
     TARGET_OUTPUT="${starCitizenMainOutput}"
+    LOG_TAG="niri-starcitizen-output-fix"
+    LOGGER="${pkgs.util-linux}/bin/logger"
+
+    declare -A moved_once=()
 
     while true; do
       windows_json="$("$NIRI" msg -j windows 2>/dev/null || true)"
-      workspaces_json="$("$NIRI" msg -j workspaces 2>/dev/null || true)"
+      if [ -n "$windows_json" ]; then
+        declare -A currently_present=()
 
-      if [ -n "$windows_json" ] && [ -n "$workspaces_json" ]; then
         while IFS= read -r win_id; do
           [ -n "$win_id" ] || continue
+          currently_present["$win_id"]=1
 
-          "$NIRI" msg action move-window-to-monitor "$TARGET_OUTPUT" --id "$win_id" >/dev/null 2>&1 || true
-          "$NIRI" msg action maximize-window-to-edges --id "$win_id" >/dev/null 2>&1 || true
+          if [ -z "''${moved_once[$win_id]:-}" ]; then
+            "$LOGGER" -t "$LOG_TAG" "detected starcitizen.exe window id=$win_id; moving to $TARGET_OUTPUT"
+            "$NIRI" msg action move-window-to-monitor "$TARGET_OUTPUT" --id "$win_id" >/dev/null 2>&1 || true
+            "$NIRI" msg action maximize-window-to-edges --id "$win_id" >/dev/null 2>&1 || true
+            moved_once["$win_id"]=1
+          fi
         done < <(
-          printf '%s\n' "$windows_json" | "$JQ" -r \
-            --argjson workspaces "$workspaces_json" \
-            --arg target "$TARGET_OUTPUT" '
-              [ $workspaces[] | { key: (.id | tostring), value: .output } ] | from_entries as $ws_output
-              | .[]
-              | select(.app_id == "starcitizen.exe")
-              | select((.workspace_id | tostring) as $wsid | ($ws_output[$wsid] // "") != $target)
-              | .id
-            ' 2>/dev/null
+          printf '%s\n' "$windows_json" | "$JQ" -r '
+            .[]
+            | select(.app_id == "starcitizen.exe")
+            | .id
+          ' 2>/dev/null
         )
+
+        for win_id in "''${!moved_once[@]}"; do
+          if [ -z "''${currently_present[$win_id]:-}" ]; then
+            unset "moved_once[$win_id]"
+          fi
+        done
       fi
 
       sleep 1
