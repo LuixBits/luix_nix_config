@@ -71,6 +71,9 @@ let
         // unpredictable render-device selection across boots.
         debug {
             render-drm-device "/dev/dri/by-path/pci-0000:f3:00.0-render"
+            // Work around partial-frame artifacts on the DisplayLink portrait output.
+            disable-direct-scanout
+            disable-cursor-plane
         }
       ''
     else
