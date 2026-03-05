@@ -286,7 +286,7 @@ let
     SETTINGS_DST="$TARGET_DIR/settings.json"
     SETTINGS_TMP="$(mktemp)"
 
-    if [[ "$HOST" == "pc" || "$HOST" == "l" ]]; then
+    if [[ "$HOST" == "pc" || "$HOST" == "l" || "$HOST" == "work" ]]; then
       jq -s '
         .[0] * (.[1] | del(
           .bar.monitors,

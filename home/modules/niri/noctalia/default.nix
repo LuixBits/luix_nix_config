@@ -42,11 +42,23 @@ let
       directory = "/home/luix/Pictures/Wallpapers";
     };
   };
+  workSettings = baseSettings // {
+    # Keep work panels on both external monitors so the portrait screen
+    # remains fully usable regardless of connector reorder.
+    bar = baseSettings.bar // {
+      monitors = [ "DVI-I-1" "DVI-I-2" ];
+    };
+    dock = baseSettings.dock // {
+      monitors = [ "DVI-I-1" ];
+    };
+  };
   settingsFile =
     if hostName == "l" then
       pkgs.writeText "noctalia-settings-l.json" (builtins.toJSON lSettings)
     else if hostName == "pc" then
       pkgs.writeText "noctalia-settings-pc.json" (builtins.toJSON pcSettings)
+    else if hostName == "work" then
+      pkgs.writeText "noctalia-settings-work.json" (builtins.toJSON workSettings)
     else
       ./settings.json;
   pluginEntries = builtins.readDir ./plugins;

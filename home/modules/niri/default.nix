@@ -3,6 +3,11 @@ let
   isWorkProfile = hostName == "work" || (hostName == null && config.home.username == "luiz");
   isLaptopProfile = hostName == "l";
   isPcProfile = hostName == "pc";
+  workLaptopOutput = "eDP-1";
+  # Match external displays by make/model/serial so DisplayLink connector order
+  # changes do not break rotation/placement.
+  workMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
+  workRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
   outputConfig =
     if isLaptopProfile then
       ''
@@ -15,19 +20,19 @@ let
       ''
     else if isWorkProfile then
       ''
-        output "eDP-1" {
+        output "${workLaptopOutput}" {
             mode "2400x1600"
             scale 1.5
             position x=-1600 y=0
         }
 
-        output "DVI-I-1" {
+        output "${workMainOutput}" {
             mode "3440x1440@100.000"
             position x=0 y=0
             focus-at-startup
         }
 
-        output "DVI-I-2" {
+        output "${workRightPortraitOutput}" {
             mode "3840x2160@59.997"
             scale 1.25
             transform "270"

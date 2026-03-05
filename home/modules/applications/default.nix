@@ -3,11 +3,13 @@
   home.packages = with pkgs; [
     # Core utilities
     clinfo
+    cliphist
     freshfetch
     ripgrep
     stow
     unzip
     wget
+    wl-clipboard
 
     # Desktop apps
     bottles
