@@ -613,14 +613,14 @@
         "enabled": true,
         "fadeDuration": 5,
         "lockCommand": "",
-        "lockTimeout": 1860,
+        "lockTimeout": 10800,
         "resumeLockCommand": "",
         "resumeScreenOffCommand": "",
         "resumeSuspendCommand": "",
         "screenOffCommand": "",
-        "screenOffTimeout": 1800,
+        "screenOffTimeout": 10800,
         "suspendCommand": "",
-        "suspendTimeout": 1800
+        "suspendTimeout": 14400
     },
     "location": {
         "analogClockInCalendar": false,
