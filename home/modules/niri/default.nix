@@ -33,7 +33,8 @@ let
         }
 
         output "${workRightPortraitOutput}" {
-            mode "2560x1440@59.951"
+            mode "3840x2160@59.997"
+            scale 1.25
             transform "270"
             position x=3440 y=0
         }
