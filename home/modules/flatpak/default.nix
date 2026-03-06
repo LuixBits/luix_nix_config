@@ -1,54 +1,6 @@
 { pkgs, ... }:
 let
   flatpakBin = "${pkgs.flatpak}/bin/flatpak";
-  rsiLauncher = pkgs.writeShellScriptBin "rsi-launcher" ''
-    set -euo pipefail
-
-    FLATPAK="${flatpakBin}"
-    XWAYLAND_RUN="${pkgs.xwayland-run}/bin/xwayland-run"
-    NIRI="${pkgs.niri}/bin/niri"
-    JQ="${pkgs.jq}/bin/jq"
-    app_id="io.github.mactan_sc.RSILauncher"
-    main_output="HDMI-A-2"
-    game_width="3440"
-    game_height="1440"
-    log_file="/tmp/rsi-launcher-wrapper.log"
-    log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$log_file"; }
-    log "wrapper invoked (xwayland-run path)"
-
-    is_app_running() {
-      "$FLATPAK" ps --columns=application 2>/dev/null | grep -Fx "$app_id" >/dev/null
-    }
-
-    windows_json="$("$NIRI" msg -j windows 2>/dev/null || true)"
-    if [ -n "$windows_json" ]; then
-      existing_id="$(
-        printf '%s\n' "$windows_json" \
-          | "$JQ" -r '.[] | select(((.app_id // "") == "rsi launcher.exe") or ((.app_id // "") == "starcitizen.exe") or ((.app_id // "") == "steam_app_starcitizen") or ((.app_id // "") == "Xwayland") or ((.app_id // "") == "xwayland")) | .id' \
-          | head -n1
-      )"
-      if [ -n "''${existing_id:-}" ]; then
-        "$NIRI" msg action focus-window --id "$existing_id" >/dev/null 2>&1 || true
-        log "focused existing RSI/SC window id=$existing_id"
-        exit 0
-      fi
-    fi
-
-    if is_app_running; then
-      log "flatpak app already running; no new launch"
-      exit 0
-    fi
-
-    "$NIRI" msg action focus-monitor "$main_output" >/dev/null 2>&1 || true
-    log "focused monitor $main_output and launching RSI in isolated Xwayland"
-
-    # New approach: run RSI/SC inside a dedicated rootful Xwayland server, and
-    # force X11 in Flatpak for this launch. This avoids multi-monitor X11
-    # enumeration from niri's normal Xwayland path.
-    exec "$XWAYLAND_RUN" -geometry "''${game_width}x''${game_height}" -fullscreen -- \
-      "$FLATPAK" run --nosocket=wayland --socket=fallback-x11 "$app_id" \
-      >/tmp/rsilauncher-flatpak.log 2>&1
-  '';
   ensureRsiLauncher = pkgs.writeShellScript "ensure-rsi-launcher" ''
     set -euo pipefail
     FLATPAK="${flatpakBin}"
@@ -75,8 +27,7 @@ let
       --env=WINEPREFIX="$PREFIX_PATH" \
       "$APP_ID"
 
-    # Flatpak may re-export its own desktop symlink in ~/.local/share/applications.
-    # Force a local override that launches our host-side wrapper.
+    # Use a direct flatpak launch command; monitor placement is handled in niri.
     mkdir -p "$DESKTOP_DIR"
     rm -f "$DESKTOP_FILE"
     cat >"$DESKTOP_FILE" <<'EOF'
@@ -84,7 +35,7 @@ let
 Type=Application
 Name=RSI Launcher
 Comment=RSI Launcher
-Exec=rsi-launcher
+Exec=flatpak run io.github.mactan_sc.RSILauncher
 Icon=io.github.mactan_sc.RSILauncher
 Terminal=false
 Categories=Game;
@@ -94,12 +45,6 @@ EOF
   '';
 in
 {
-  # Tools used by the RSI launcher wrapper
-  home.packages = [
-    pkgs.xwayland-run
-    rsiLauncher
-  ];
-
   # Ensure remotes and RSI Launcher are present on each activation/login (idempotent)
   systemd.user.services.flatpak-rsi-launcher = {
     Unit = {

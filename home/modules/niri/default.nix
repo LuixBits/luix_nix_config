@@ -142,15 +142,18 @@ in
       ${outputConfig}
       ${workRenderConfig}
 
-      // RSI Launcher and Star Citizen are started through a dedicated rootful
-      // Xwayland wrapper. Pin the outer Xwayland window to the main output.
+      // Always open RSI/Star Citizen windows on the main output.
       window-rule {
-          match app-id=r#"^Xwayland$"#
-          match app-id=r#"^xwayland$"#
+          match app-id=r#"^io\.github\.mactan_sc\.RSILauncher$"#
+          match app-id=r#"^rsi launcher\.exe$"#
           open-on-output "${starCitizenMainOutput}"
-          open-floating false
-          open-maximized-to-edges true
-          open-focused true
+      }
+
+      window-rule {
+          match app-id=r#"^starcitizen\.exe$"#
+          match app-id=r#"^steam_app_starcitizen$"#
+          open-on-output "${starCitizenMainOutput}"
+          open-fullscreen true
       }
     '';
 }
