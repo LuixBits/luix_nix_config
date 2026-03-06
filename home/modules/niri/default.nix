@@ -8,6 +8,13 @@ let
   # changes do not break rotation/placement.
   workMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
   workRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
+  starCitizenMainOutput =
+    if isLaptopProfile then
+      workLaptopOutput
+    else if isWorkProfile then
+      workMainOutput
+    else
+      "HDMI-A-2";
   outputConfig =
     if isLaptopProfile then
       ''
@@ -35,20 +42,7 @@ let
         }
       ''
     else if isPcProfile then
-      ''
-        output "HDMI-A-2" {
-            mode "3440x1440@100.000"
-            position x=0 y=0
-            focus-at-startup
-        }
-
-        output "HDMI-A-3" {
-            mode "3840x2160@59.997"
-            scale 1.25
-            transform "270"
-            position x=3440 y=0
-        }
-      ''
+      ""
     else
       ''
         output "HDMI-A-2" {
@@ -134,5 +128,19 @@ in
     + ''
       ${outputConfig}
       ${workRenderConfig}
+
+      // Always open RSI/Star Citizen windows on the main output.
+      window-rule {
+          match app-id=r#"^io\.github\.mactan_sc\.RSILauncher$"#
+          match app-id=r#"^rsi launcher\.exe$"#
+          open-on-output "${starCitizenMainOutput}"
+      }
+
+      window-rule {
+          match app-id=r#"^starcitizen\.exe$"#
+          match app-id=r#"^steam_app_starcitizen$"#
+          open-on-output "${starCitizenMainOutput}"
+          open-fullscreen true
+      }
     '';
 }
