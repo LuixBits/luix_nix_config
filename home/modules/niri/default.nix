@@ -35,7 +35,19 @@ let
         }
       ''
     else if isPcProfile then
-      ""
+      ''
+        output "HDMI-A-2" {
+            mode "3440x1440@59.973"
+            position x=0 y=0
+            focus-at-startup
+        }
+
+        output "HDMI-A-3" {
+            mode "3840x2160@59.997"
+            scale 1.25
+            position x=3440 y=0
+        }
+      ''
     else
       ''
         output "HDMI-A-2" {
