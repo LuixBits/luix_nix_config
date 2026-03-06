@@ -8,13 +8,6 @@ let
   # changes do not break rotation/placement.
   workMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
   workRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
-  starCitizenMainOutput =
-    if isLaptopProfile then
-      workLaptopOutput
-    else if isWorkProfile then
-      workMainOutput
-    else
-      "HDMI-A-2";
   outputConfig =
     if isLaptopProfile then
       ''
@@ -128,19 +121,5 @@ in
     + ''
       ${outputConfig}
       ${workRenderConfig}
-
-      // Always open RSI/Star Citizen windows on the main output.
-      window-rule {
-          match app-id=r#"^io\.github\.mactan_sc\.RSILauncher$"#
-          match app-id=r#"^rsi launcher\.exe$"#
-          open-on-output "${starCitizenMainOutput}"
-      }
-
-      window-rule {
-          match app-id=r#"^starcitizen\.exe$"#
-          match app-id=r#"^steam_app_starcitizen$"#
-          open-on-output "${starCitizenMainOutput}"
-          open-fullscreen true
-      }
     '';
 }

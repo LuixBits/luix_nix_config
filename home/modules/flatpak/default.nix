@@ -1,29 +1,41 @@
 { pkgs, ... }:
 let
-  starCitizenMainOutput = "HDMI-A-2";
   flatpakBin = "${pkgs.flatpak}/bin/flatpak";
-  launchRsiLauncher = pkgs.writeShellScript "launch-rsi-launcher" ''
+  rsiLauncher = pkgs.writeShellScriptBin "rsi-launcher" ''
     set -euo pipefail
-    APP_ID="io.github.mactan_sc.RSILauncher"
-    TARGET_OUTPUT="${starCitizenMainOutput}"
 
-    # Lightweight guard: only start if the main output exists.
-    if command -v niri >/dev/null 2>&1; then
-      if ! niri msg outputs 2>/dev/null | grep -Fq "($TARGET_OUTPUT)"; then
-        echo "SC launch blocked: required output $TARGET_OUTPUT is not present." >&2
-        exit 1
-      fi
+    app_id="io.github.mactan_sc.RSILauncher"
+    title="RSI Launcher"
+
+    find_win_id() {
+      # xwininfo lists both mapped and unmapped windows, which is what we want here.
+      xwininfo -root -tree 2>/dev/null | awk -v t="\"$title\"" '$0 ~ t { print $1; exit }'
+    }
+
+    if id="$(find_win_id)"; [ -n "''${id:-}" ]; then
+      wmctrl -ia "$id" || true
+      exit 0
     fi
 
-    exec "${flatpakBin}" run "$APP_ID"
+    flatpak run "$app_id" >/tmp/rsilauncher-flatpak.log 2>&1 &
+
+    for _ in $(seq 1 60); do
+      id="$(find_win_id || true)"
+      if [ -n "''${id:-}" ]; then
+        wmctrl -ia "$id" || true
+        exit 0
+      fi
+      sleep 0.25
+    done
+
+    echo "RSI Launcher started but no X11 window titled \"$title\" appeared. See /tmp/rsilauncher-flatpak.log" >&2
+    exit 1
   '';
   ensureRsiLauncher = pkgs.writeShellScript "ensure-rsi-launcher" ''
     set -euo pipefail
     FLATPAK="${flatpakBin}"
     APP_ID="io.github.mactan_sc.RSILauncher"
     PREFIX_PATH="$HOME/.var/app/$APP_ID/data/prefix"
-    DESKTOP_DIR="$HOME/.local/share/applications"
-    DESKTOP_FILE="$DESKTOP_DIR/$APP_ID.desktop"
 
     "$FLATPAK" remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     "$FLATPAK" remote-add --user --if-not-exists RSILauncher https://mactan-sc.github.io/rsilauncher/RSILauncher.flatpakrepo
@@ -42,25 +54,27 @@ let
       --filesystem="$PREFIX_PATH" \
       --env=WINEPREFIX="$PREFIX_PATH" \
       "$APP_ID"
-
-    # Use the launcher wrapper with a lightweight output presence check.
-    mkdir -p "$DESKTOP_DIR"
-    rm -f "$DESKTOP_FILE"
-    cat >"$DESKTOP_FILE" <<EOF
-[Desktop Entry]
-Type=Application
-Name=RSI Launcher
-Comment=RSI Launcher
-Exec=${launchRsiLauncher}
-Icon=io.github.mactan_sc.RSILauncher
-Terminal=false
-Categories=Game;
-StartupNotify=true
-X-Flatpak=io.github.mactan_sc.RSILauncher
-EOF
   '';
 in
 {
+  # Tools used by the RSI launcher workaround
+  home.packages = [
+    # Needed to un-minimize/focus the RSI Launcher window under Xwayland.
+    pkgs.wmctrl
+    pkgs.xwininfo
+    rsiLauncher
+  ];
+
+  # Workaround: RSI Launcher (Electron via Proton/Wine) sometimes starts minimized on Niri/Xwayland.
+  # Provide a user desktop entry with the same id as the Flatpak export to override it cleanly.
+  xdg.desktopEntries."io.github.mactan_sc.RSILauncher" = {
+    name = "RSI Launcher";
+    exec = "rsi-launcher";
+    icon = "io.github.mactan_sc.RSILauncher";
+    terminal = false;
+    categories = [ "Game" ];
+  };
+
   # Ensure remotes and RSI Launcher are present on each activation/login (idempotent)
   systemd.user.services.flatpak-rsi-launcher = {
     Unit = {
