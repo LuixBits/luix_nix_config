@@ -5,7 +5,7 @@ let
     set -euo pipefail
 
     FLATPAK="${flatpakBin}"
-    GAMESCOPE="${pkgs.gamescope}/bin/gamescope"
+    XWAYLAND_RUN="${pkgs.xwayland-run}/bin/xwayland-run"
     NIRI="${pkgs.niri}/bin/niri"
     JQ="${pkgs.jq}/bin/jq"
     app_id="io.github.mactan_sc.RSILauncher"
@@ -14,13 +14,17 @@ let
     game_height="1440"
     log_file="/tmp/rsi-launcher-wrapper.log"
     log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$log_file"; }
-    log "wrapper invoked (gamescope path)"
+    log "wrapper invoked (xwayland-run path)"
+
+    is_app_running() {
+      "$FLATPAK" ps --columns=application 2>/dev/null | grep -Fx "$app_id" >/dev/null
+    }
 
     windows_json="$("$NIRI" msg -j windows 2>/dev/null || true)"
     if [ -n "$windows_json" ]; then
       existing_id="$(
         printf '%s\n' "$windows_json" \
-          | "$JQ" -r '.[] | select(((.app_id // "") == "rsi launcher.exe") or ((.app_id // "") == "starcitizen.exe") or ((.app_id // "") == "steam_app_starcitizen")) | .id' \
+          | "$JQ" -r '.[] | select(((.app_id // "") == "rsi launcher.exe") or ((.app_id // "") == "starcitizen.exe") or ((.app_id // "") == "steam_app_starcitizen") or ((.app_id // "") == "Xwayland") or ((.app_id // "") == "xwayland")) | .id' \
           | head -n1
       )"
       if [ -n "''${existing_id:-}" ]; then
@@ -30,11 +34,19 @@ let
       fi
     fi
 
-    "$NIRI" msg action focus-monitor "$main_output" >/dev/null 2>&1 || true
-    log "focused monitor $main_output and launching RSI under gamescope"
+    if is_app_running; then
+      log "flatpak app already running; no new launch"
+      exit 0
+    fi
 
-    # New approach: keep RSI/SC inside a single gamescope output on the main monitor.
-    exec "$GAMESCOPE" -f -W "$game_width" -H "$game_height" -- "$FLATPAK" run "$app_id" \
+    "$NIRI" msg action focus-monitor "$main_output" >/dev/null 2>&1 || true
+    log "focused monitor $main_output and launching RSI in isolated Xwayland"
+
+    # New approach: run RSI/SC inside a dedicated rootful Xwayland server, and
+    # force X11 in Flatpak for this launch. This avoids multi-monitor X11
+    # enumeration from niri's normal Xwayland path.
+    exec "$XWAYLAND_RUN" -geometry "''${game_width}x''${game_height}" -fullscreen -- \
+      "$FLATPAK" run --nosocket=wayland --socket=fallback-x11 "$app_id" \
       >/tmp/rsilauncher-flatpak.log 2>&1
   '';
   ensureRsiLauncher = pkgs.writeShellScript "ensure-rsi-launcher" ''
@@ -84,7 +96,7 @@ in
 {
   # Tools used by the RSI launcher wrapper
   home.packages = [
-    pkgs.gamescope
+    pkgs.xwayland-run
     rsiLauncher
   ];
 

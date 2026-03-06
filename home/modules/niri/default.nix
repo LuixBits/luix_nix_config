@@ -142,10 +142,11 @@ in
       ${outputConfig}
       ${workRenderConfig}
 
-      // RSI Launcher and Star Citizen are started through a dedicated gamescope
-      // wrapper. Pin the outer gamescope window to the main output.
+      // RSI Launcher and Star Citizen are started through a dedicated rootful
+      // Xwayland wrapper. Pin the outer Xwayland window to the main output.
       window-rule {
-          match app-id=r#"^gamescope$"#
+          match app-id=r#"^Xwayland$"#
+          match app-id=r#"^xwayland$"#
           open-on-output "${starCitizenMainOutput}"
           open-floating false
           open-maximized-to-edges true
