@@ -4,28 +4,41 @@ let
   rsiLauncher = pkgs.writeShellScriptBin "rsi-launcher" ''
     set -euo pipefail
 
-    FLATPAK="${flatpakBin}"
-    XWAYLAND_RUN="${pkgs.xwayland-run}/bin/xwayland-run"
-    APP_ID="io.github.mactan_sc.RSILauncher"
-    GEOMETRY="3440x1440"
+    app_id="io.github.mactan_sc.RSILauncher"
+    title="RSI Launcher"
 
-    # Avoid spawning duplicate launcher instances.
-    if "$FLATPAK" ps --columns=application 2>/dev/null | grep -Fx "$APP_ID" >/dev/null; then
+    find_win_id() {
+      # xwininfo lists both mapped and unmapped windows, which is what we want here.
+      xwininfo -root -tree 2>/dev/null | awk -v t="\"$title\"" '$0 ~ t { print $1; exit }'
+    }
+
+    if id="$(find_win_id)"; [ -n "''${id:-}" ]; then
+      wmctrl -ia "$id" || true
       exit 0
     fi
 
-    # Run RSI/SC in a dedicated Xwayland server with a stable geometry.
-    # This keeps Star Citizen startup deterministic and avoids transient
-    # Wayland/Xwayland monitor handoff issues.
-    exec "$XWAYLAND_RUN" -geometry "$GEOMETRY" -fullscreen -- \
-      "$FLATPAK" run --nosocket=wayland --socket=fallback-x11 "$APP_ID" \
-      >/tmp/rsilauncher-flatpak.log 2>&1
+    flatpak run "$app_id" >/tmp/rsilauncher-flatpak.log 2>&1 &
+
+    for _ in $(seq 1 60); do
+      id="$(find_win_id || true)"
+      if [ -n "''${id:-}" ]; then
+        wmctrl -ia "$id" || true
+        exit 0
+      fi
+      sleep 0.25
+    done
+
+    echo "RSI Launcher started but no X11 window titled \"$title\" appeared. See /tmp/rsilauncher-flatpak.log" >&2
+    exit 1
   '';
   ensureRsiLauncher = pkgs.writeShellScript "ensure-rsi-launcher" ''
     set -euo pipefail
     FLATPAK="${flatpakBin}"
     APP_ID="io.github.mactan_sc.RSILauncher"
     PREFIX_PATH="$HOME/.var/app/$APP_ID/data/prefix"
+    DESKTOP_DIR="$HOME/.local/share/applications"
+    DESKTOP_FILE="$DESKTOP_DIR/$APP_ID.desktop"
+    USER_REG="$PREFIX_PATH/user.reg"
 
     "$FLATPAK" remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     "$FLATPAK" remote-add --user --if-not-exists RSILauncher https://mactan-sc.github.io/rsilauncher/RSILauncher.flatpakrepo
@@ -44,11 +57,52 @@ let
       --filesystem="$PREFIX_PATH" \
       --env=WINEPREFIX="$PREFIX_PATH" \
       "$APP_ID"
+
+    # Remove stale Wine virtual-desktop overrides from old SC experiments.
+    # They can persist in the prefix and cause Star Citizen to fail creating
+    # its first game window.
+    if [ -f "$USER_REG" ]; then
+      tmp_reg="$(mktemp)"
+      awk '
+        BEGIN { skip = 0 }
+        /^\[/ {
+          if ($0 ~ /^\[Software\\\\Wine\\\\Explorer\\\\Desktops\]/) {
+            skip = 1
+          } else if ($0 ~ /^\[Software\\\\Wine\\\\AppDefaults\\\\[Ss]tarcitizen\.exe\\\\Explorer\]/) {
+            skip = 1
+          } else {
+            skip = 0
+          }
+        }
+        !skip { print }
+      ' "$USER_REG" >"$tmp_reg"
+      mv "$tmp_reg" "$USER_REG"
+    fi
+
+    # Force a local desktop entry that calls our wrapper. This also replaces
+    # stale manual overrides from previous troubleshooting.
+    mkdir -p "$DESKTOP_DIR"
+    rm -f "$DESKTOP_FILE"
+    cat >"$DESKTOP_FILE" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=RSI Launcher
+Comment=RSI Launcher
+Exec=rsi-launcher
+Icon=io.github.mactan_sc.RSILauncher
+Terminal=false
+Categories=Game;
+StartupNotify=true
+X-Flatpak=io.github.mactan_sc.RSILauncher
+EOF
   '';
 in
 {
   # Tools used by the RSI launcher workaround
   home.packages = [
+    # Needed to un-minimize/focus the RSI Launcher window under Xwayland.
+    pkgs.wmctrl
+    pkgs.xwininfo
     rsiLauncher
   ];
 
