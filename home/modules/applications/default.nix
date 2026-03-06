@@ -24,6 +24,7 @@
     obsidian
     qownnotes
     vlc
+    wdisplays
     kdePackages.okular
 
 

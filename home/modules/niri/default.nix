@@ -28,22 +28,17 @@ let
     else if isWorkProfile then
       ''
         output "${workLaptopOutput}" {
-            mode "2400x1600@60.000"
-            scale 1.5
-            position x=-1600 y=0
+            position x=0 y=0
         }
 
         output "${workMainOutput}" {
-            mode "3440x1440@59.973"
-            position x=0 y=0
+            position x=1600 y=0
             focus-at-startup
         }
 
         output "${workRightPortraitOutput}" {
-            mode "3840x2160@59.997"
-            scale 1.25
             transform "270"
-            position x=3440 y=0
+            position x=5040 y=0
         }
       ''
     else if isPcProfile then

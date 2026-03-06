@@ -23,4 +23,8 @@ in
   boot.initrd.kernelModules = lib.mkDefault [ "evdi" ];
 
   environment.systemPackages = lib.mkDefault [ pkgs.displaylink ];
+
+  # NixOS 25.11 + this DisplayLink packaging can leave dlm with no WantedBy,
+  # so it never auto-starts and external displays stay black after login.
+  systemd.services.dlm.wantedBy = [ "display-manager.service" ];
 }
