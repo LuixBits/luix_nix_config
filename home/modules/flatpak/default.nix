@@ -4,32 +4,42 @@ let
   rsiLauncher = pkgs.writeShellScriptBin "rsi-launcher" ''
     set -euo pipefail
 
-    app_id="io.github.mactan_sc.RSILauncher"
-    title="RSI Launcher"
+    FLATPAK="${flatpakBin}"
+    XWAYLAND_RUN="${pkgs.xwayland-run}/bin/xwayland-run"
+    APP_ID="io.github.mactan_sc.RSILauncher"
+    TARGET_OUTPUT="HDMI-A-2"
+    TARGET_OUTPUT_MODEL="BenQ EX3415R"
+    TARGET_GEOMETRY="3440x1440"
 
-    find_win_id() {
-      # xwininfo lists both mapped and unmapped windows, which is what we want here.
-      xwininfo -root -tree 2>/dev/null | awk -v t="\"$title\"" '$0 ~ t { print $1; exit }'
-    }
+    if command -v niri >/dev/null 2>&1; then
+      detected_output="$(
+        niri msg outputs 2>/dev/null | awk -v model="$TARGET_OUTPUT_MODEL" '
+          /^Output / && index($0, model) {
+            if (match($0, /\(([^)]+)\)/, m)) {
+              print m[1]
+              exit
+            }
+          }
+        '
+      )"
+      if [ -n "''${detected_output:-}" ]; then
+        TARGET_OUTPUT="$detected_output"
+      fi
+    fi
 
-    if id="$(find_win_id)"; [ -n "''${id:-}" ]; then
-      wmctrl -ia "$id" || true
+    # Avoid duplicate container instances.
+    if "$FLATPAK" ps --columns=application 2>/dev/null | grep -Fx "$APP_ID" >/dev/null; then
       exit 0
     fi
 
-    flatpak run "$app_id" >/tmp/rsilauncher-flatpak.log 2>&1 &
-
-    for _ in $(seq 1 60); do
-      id="$(find_win_id || true)"
-      if [ -n "''${id:-}" ]; then
-        wmctrl -ia "$id" || true
-        exit 0
-      fi
-      sleep 0.25
-    done
-
-    echo "RSI Launcher started but no X11 window titled \"$title\" appeared. See /tmp/rsilauncher-flatpak.log" >&2
-    exit 1
+    # Force RSI + SC into a dedicated rootful Xwayland pinned to BenQ.
+    # This prevents monitor hopping during EAC/SC window recreation.
+    exec "$XWAYLAND_RUN" \
+      -fullscreen \
+      -output "$TARGET_OUTPUT" \
+      -geometry "$TARGET_GEOMETRY" \
+      -- "$FLATPAK" run --nosocket=wayland --socket=fallback-x11 "$APP_ID" \
+      >/tmp/rsilauncher-flatpak.log 2>&1
   '';
   ensureRsiLauncher = pkgs.writeShellScript "ensure-rsi-launcher" ''
     set -euo pipefail
@@ -100,9 +110,6 @@ in
 {
   # Tools used by the RSI launcher workaround
   home.packages = [
-    # Needed to un-minimize/focus the RSI Launcher window under Xwayland.
-    pkgs.wmctrl
-    pkgs.xwininfo
     rsiLauncher
   ];
 
