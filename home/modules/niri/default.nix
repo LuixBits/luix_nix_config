@@ -27,12 +27,18 @@ let
       ''
     else if isWorkProfile then
       ''
+        output "${workLaptopOutput}" {
+            position x=0 y=0
+        }
+
         output "${workMainOutput}" {
+            position x=1600 y=0
             focus-at-startup
         }
 
         output "${workRightPortraitOutput}" {
             transform "270"
+            position x=5040 y=0
         }
       ''
     else if isPcProfile then
