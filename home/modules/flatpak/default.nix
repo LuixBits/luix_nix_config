@@ -1,14 +1,20 @@
 { pkgs, ... }:
 let
   flatpakBin = "${pkgs.flatpak}/bin/flatpak";
+  mainOutput = "HDMI-A-2";
+  sideOutput = "HDMI-A-3";
   rsiScOutputGuard = pkgs.writeShellScriptBin "rsi-sc-output-guard" ''
     set -euo pipefail
 
     NIRI="${pkgs.niri}/bin/niri"
     JQ="${pkgs.jq}/bin/jq"
-    MAIN_OUTPUT="HDMI-A-2"
-    SIDE_OUTPUT="HDMI-A-3"
-    HOLD_SECONDS=15
+    FLATPAK="${flatpakBin}"
+    APP_ID="io.github.mactan_sc.RSILauncher"
+    MAIN_OUTPUT="${mainOutput}"
+    SIDE_OUTPUT="${sideOutput}"
+    HOLD_SECONDS=30
+    MAX_WAIT_SECONDS=900
+    APP_GONE_TICKS=20
     LOG_FILE="/tmp/rsi-sc-output-guard.log"
     log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$LOG_FILE"; }
 
@@ -29,6 +35,15 @@ let
       exit 0
     fi
 
+    windows_json="$("$NIRI" msg -j windows 2>/dev/null || true)"
+    has_game="$(
+      printf '%s\n' "$windows_json" | "$JQ" -r 'any(.[]; ((.app_id // "") == "starcitizen.exe") or ((.app_id // "") == "steam_app_starcitizen"))' 2>/dev/null || echo false
+    )"
+    if [ "$has_game" = "true" ]; then
+      log "game already running; skipping guard"
+      exit 0
+    fi
+
     side_off=0
     restore_side_output() {
       if [ "$side_off" -eq 1 ]; then
@@ -44,45 +59,99 @@ let
     log "disabled $SIDE_OUTPUT and focused $MAIN_OUTPUT"
     side_off=1
 
-    no_launcher_ticks=0
-    for _ in $(seq 1 1200); do
+    app_gone_ticks=0
+    for _ in $(seq 1 "$((MAX_WAIT_SECONDS * 2))"); do
       windows_json="$("$NIRI" msg -j windows 2>/dev/null || true)"
       if [ -z "$windows_json" ]; then
         sleep 0.5
         continue
       fi
 
-      has_launcher="$(
-        printf '%s\n' "$windows_json" | "$JQ" -r 'any(.[]; (.app_id // "") == "rsi launcher.exe")' 2>/dev/null || echo false
-      )"
-      has_game="$(
-        printf '%s\n' "$windows_json" | "$JQ" -r 'any(.[]; (.app_id // "") == "starcitizen.exe")' 2>/dev/null || echo false
+      game_window_ids="$(
+        printf '%s\n' "$windows_json" \
+          | "$JQ" -r '.[] | select(((.app_id // "") == "starcitizen.exe") or ((.app_id // "") == "steam_app_starcitizen")) | .id' 2>/dev/null || true
       )"
 
-      if [ "$has_game" = "true" ]; then
-        log "detected starcitizen.exe; holding $HOLD_SECONDS s before restore"
+      if [ -n "$game_window_ids" ]; then
+        for id in $game_window_ids; do
+          "$NIRI" msg action move-window-to-monitor --id "$id" "$MAIN_OUTPUT" >/dev/null 2>&1 || true
+          "$NIRI" msg action maximize-window-to-edges --id "$id" >/dev/null 2>&1 || true
+        done
+        log "detected game window(s): $(printf '%s' "$game_window_ids" | tr '\n' ' ')"
+        log "holding $HOLD_SECONDS s before restore"
         sleep "$HOLD_SECONDS"
         log "hold done; exiting"
         exit 0
       fi
 
-      if [ "$has_launcher" = "true" ]; then
-        no_launcher_ticks=0
+      if "$FLATPAK" ps --columns=application 2>/dev/null | grep -Fx "$APP_ID" >/dev/null; then
+        app_gone_ticks=0
       else
-        no_launcher_ticks=$((no_launcher_ticks + 1))
+        app_gone_ticks=$((app_gone_ticks + 1))
       fi
 
-      if [ "$no_launcher_ticks" -ge 20 ]; then
-        log "launcher gone before game start; exiting"
+      if [ "$app_gone_ticks" -ge "$APP_GONE_TICKS" ]; then
+        log "flatpak app disappeared before game start; exiting"
         exit 0
       fi
 
       sleep 0.5
     done
+
+    log "timed out waiting for game start; exiting"
+    exit 0
+  '';
+  rsiScConfigFix = pkgs.writeShellScriptBin "rsi-sc-config-fix" ''
+    set -euo pipefail
+
+    XRANDR="${pkgs.xorg.xrandr}/bin/xrandr"
+    MAIN_OUTPUT="${mainOutput}"
+    APP_ID="io.github.mactan_sc.RSILauncher"
+    SC_ROOT="$HOME/.var/app/$APP_ID/data/prefix/drive_c/Program Files/Roberts Space Industries/StarCitizen"
+    LOG_FILE="/tmp/rsi-sc-config-fix.log"
+    log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$LOG_FILE"; }
+
+    monitor_index=1
+    connected_outputs="$("$XRANDR" --query 2>/dev/null | awk '/ connected/{print $1}' || true)"
+    if [ -n "$connected_outputs" ]; then
+      detected="$(
+        printf '%s\n' "$connected_outputs" | awk -v main="$MAIN_OUTPUT" 'BEGIN { i = 0 } { i++; if ($1 == main) { print i; exit } }'
+      )"
+      if [ -n "''${detected:-}" ]; then
+        monitor_index="$detected"
+      fi
+    fi
+
+    set_cfg_value() {
+      file="$1"
+      key="$2"
+      value="$3"
+
+      [ -f "$file" ] || return 0
+
+      if grep -Eq "^[[:space:]]*#?[[:space:]]*''${key}[[:space:]]*=" "$file"; then
+        sed -E -i "s|^[[:space:]]*#?[[:space:]]*''${key}[[:space:]]*=.*|''${key} = ''${value}|" "$file"
+      else
+        printf '\n%s = %s\n' "$key" "$value" >> "$file"
+      fi
+    }
+
+    changed_files=0
+    for cfg in "$SC_ROOT/USER.cfg" "$SC_ROOT/LIVE/USER.cfg"; do
+      if [ -f "$cfg" ]; then
+        set_cfg_value "$cfg" "r_PreferredMonitor" "$monitor_index"
+        set_cfg_value "$cfg" "r_overrideDXGIOutput" "$monitor_index"
+        set_cfg_value "$cfg" "r_overrideDXGIFullScreenOutput" "$monitor_index"
+        changed_files=$((changed_files + 1))
+      fi
+    done
+
+    log "applied monitor index $monitor_index to $changed_files USER.cfg file(s)"
   '';
   rsiLauncher = pkgs.writeShellScriptBin "rsi-launcher" ''
     set -euo pipefail
 
+    FLATPAK="${flatpakBin}"
     app_id="io.github.mactan_sc.RSILauncher"
     title="RSI Launcher"
     log_file="/tmp/rsi-launcher-wrapper.log"
@@ -94,6 +163,13 @@ let
       xwininfo -root -tree 2>/dev/null | awk -v t="\"$title\"" '$0 ~ t { print $1; exit }'
     }
 
+    is_app_running() {
+      "$FLATPAK" ps --columns=application 2>/dev/null | grep -Fx "$app_id" >/dev/null
+    }
+
+    "${rsiScConfigFix}/bin/rsi-sc-config-fix" >/tmp/rsi-sc-config-fix.log 2>&1 || true
+    log "applied Star Citizen monitor override config"
+
     if id="$(find_win_id)"; [ -n "''${id:-}" ]; then
       "${rsiScOutputGuard}/bin/rsi-sc-output-guard" >/tmp/rsi-sc-output-guard.log 2>&1 &
       wmctrl -ia "$id" || true
@@ -103,8 +179,12 @@ let
 
     "${rsiScOutputGuard}/bin/rsi-sc-output-guard" >/tmp/rsi-sc-output-guard.log 2>&1 &
     log "started output guard"
-    flatpak run "$app_id" >/tmp/rsilauncher-flatpak.log 2>&1 &
-    log "started flatpak run"
+    if is_app_running; then
+      log "flatpak app already running; not starting a duplicate instance"
+    else
+      "$FLATPAK" run "$app_id" >/tmp/rsilauncher-flatpak.log 2>&1 &
+      log "started flatpak run"
+    fi
 
     for _ in $(seq 1 60); do
       id="$(find_win_id || true)"
@@ -171,6 +251,7 @@ in
     pkgs.xwininfo
     rsiLauncher
     rsiScOutputGuard
+    rsiScConfigFix
   ];
 
   # Ensure remotes and RSI Launcher are present on each activation/login (idempotent)
