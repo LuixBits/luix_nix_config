@@ -1,6 +1,29 @@
 { pkgs, ... }:
 let
+  starCitizenMainOutput = "HDMI-A-2";
+  starCitizenResolution = "3440x1440";
   flatpakBin = "${pkgs.flatpak}/bin/flatpak";
+  xwaylandRunBin = "${pkgs.xwayland-run}/bin/xwayland-run";
+  launchRsiLauncher = pkgs.writeShellScript "launch-rsi-launcher" ''
+    set -euo pipefail
+    APP_ID="io.github.mactan_sc.RSILauncher"
+    TARGET_OUTPUT="${starCitizenMainOutput}"
+    GEOMETRY="${starCitizenResolution}"
+
+    # Hard requirement: SC may only run on the BenQ output at 3440x1440.
+    if command -v niri >/dev/null 2>&1; then
+      if ! niri msg outputs 2>/dev/null | grep -Fq "($TARGET_OUTPUT)"; then
+        echo "SC launch blocked: required output $TARGET_OUTPUT is not present." >&2
+        exit 1
+      fi
+    fi
+
+    exec "${xwaylandRunBin}" \
+      -output "$TARGET_OUTPUT" \
+      -geometry "$GEOMETRY" \
+      -fullscreen \
+      -- "${flatpakBin}" run "$APP_ID"
+  '';
   ensureRsiLauncher = pkgs.writeShellScript "ensure-rsi-launcher" ''
     set -euo pipefail
     FLATPAK="${flatpakBin}"
@@ -27,15 +50,16 @@ let
       --env=WINEPREFIX="$PREFIX_PATH" \
       "$APP_ID"
 
-    # Use a direct flatpak launch command; monitor placement is handled in niri.
+    # Use the xwayland-run wrapper desktop command to expose a single
+    # fullscreen monitor to Wine and prevent SC monitor hopping.
     mkdir -p "$DESKTOP_DIR"
     rm -f "$DESKTOP_FILE"
-    cat >"$DESKTOP_FILE" <<'EOF'
+    cat >"$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Type=Application
 Name=RSI Launcher
 Comment=RSI Launcher
-Exec=flatpak run io.github.mactan_sc.RSILauncher
+Exec=${launchRsiLauncher}
 Icon=io.github.mactan_sc.RSILauncher
 Terminal=false
 Categories=Game;
