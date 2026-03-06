@@ -142,15 +142,10 @@ in
       ${outputConfig}
       ${workRenderConfig}
 
-      // Star Citizen / RSI Launcher (Flatpak -> Proton/Wine) runs under Xwayland.
-      // On mixed-DPI outputs, the game can request an oversized floating geometry
-      // (e.g. 2160x3840 on a 1728x3072 logical output), which lands out of bounds.
-      // Force known launcher/game app-ids onto the main output, in tiling layout,
-      // and open maximized to edges.
+      // RSI Launcher and Star Citizen are started through a dedicated gamescope
+      // wrapper. Pin the outer gamescope window to the main output.
       window-rule {
-          match app-id=r#"^rsi launcher\.exe$"#
-          match app-id=r#"^starcitizen\.exe$"#
-          match app-id=r#"^steam_app_starcitizen$"#
+          match app-id=r#"^gamescope$"#
           open-on-output "${starCitizenMainOutput}"
           open-floating false
           open-maximized-to-edges true
