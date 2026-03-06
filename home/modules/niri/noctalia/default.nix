@@ -66,7 +66,9 @@ let
   workSettings = baseSettings // {
     # Keep work shell lightweight when driving DisplayLink outputs.
     bar = baseSettings.bar // {
-      monitors = [ "DVI-I-1" ];
+      # Include both DisplayLink connectors plus laptop panel as a fallback,
+      # so the shell remains usable during hotplug/order/timing changes.
+      monitors = [ "DVI-I-1" "DVI-I-2" "eDP-1" ];
       widgets = baseSettings.bar.widgets // {
         left = builtins.filter (
           widget:
@@ -76,7 +78,7 @@ let
       };
     };
     dock = baseSettings.dock // {
-      monitors = [ "DVI-I-1" ];
+      monitors = [ "DVI-I-1" "DVI-I-2" "eDP-1" ];
     };
     desktopWidgets = baseSettings.desktopWidgets // {
       monitorWidgets = [ ];
