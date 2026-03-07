@@ -18,6 +18,9 @@
     noctalia.url = "github:noctalia-dev/noctalia-shell";
     noctalia.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
+    # Star Citizen helper flake
+    nix-citizen.url = "github:LovingMelody/nix-citizen";
+
   };
 
   outputs = { nixpkgs, home-manager, ... }@inputs:

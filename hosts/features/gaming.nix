@@ -1,6 +1,18 @@
-{ ... }:
+{ inputs, ... }:
 {
+  imports = [
+    inputs.nix-citizen.nixosModules.default
+  ];
+
   programs.steam.enable = true; # enables Steam and required 32-bit runtime
+  programs.gamemode.enable = true;
+
+  programs.rsi-launcher = {
+    enable = true;
+    # Helps with common pointer issues on Wayland compositors.
+    patchXwayland = true;
+  };
+
   hardware.graphics.enable32Bit = true;
 
   nix.settings = {
