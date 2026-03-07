@@ -1,140 +1,38 @@
 { pkgs, ... }:
 let
   flatpakBin = "${pkgs.flatpak}/bin/flatpak";
+  pinnedProton = "GE-Proton10-29";
   rsiLauncher = pkgs.writeShellScriptBin "rsi-launcher" ''
     set -euo pipefail
 
-    FLATPAK="${flatpakBin}"
-    XWAYLAND_RUN="${pkgs.xwayland-run}/bin/xwayland-run"
     APP_ID="io.github.mactan_sc.RSILauncher"
-    TARGET_OUTPUT="HDMI-A-2"
-    TARGET_OUTPUT_MODEL="BenQ EX3415R"
-    TARGET_GEOMETRY="3440x1440"
-    STAR_CITIZEN_APP_ID='App ID: "starcitizen.exe"'
-    MAX_WAIT_SECONDS=1800
-    LOG_FILE="/tmp/rsi-launcher-wrapper.log"
-    SECONDARY_OUTPUT=""
-    SECONDARY_OUTPUT_WAS_ON=0
-    RESTORE_WATCHER_PID=""
+    TITLE="RSI Launcher"
+    PROTONPATH_PIN="${pinnedProton}"
 
-    log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$LOG_FILE"; }
-
-    cleanup() {
-      if [ -n "''${RESTORE_WATCHER_PID:-}" ]; then
-        kill "''${RESTORE_WATCHER_PID}" >/dev/null 2>&1 || true
-      fi
-      if [ "''${SECONDARY_OUTPUT_WAS_ON:-0}" = "1" ] && [ -n "''${SECONDARY_OUTPUT:-}" ]; then
-        niri msg output "$SECONDARY_OUTPUT" on >/dev/null 2>&1 || true
-        log "restored output=$SECONDARY_OUTPUT"
-      fi
+    find_win_id() {
+      # xwininfo lists both mapped and unmapped windows, which is what we want here.
+      xwininfo -root -tree 2>/dev/null | awk -v t="\"$TITLE\"" '$0 ~ t { print $1; exit }'
     }
-    trap cleanup EXIT INT TERM
 
-    # Avoid duplicate container instances.
-    if "$FLATPAK" ps --columns=application 2>/dev/null | grep -Fx "$APP_ID" >/dev/null; then
-      log "app already running, skipping new launch"
+    if id="$(find_win_id)"; [ -n "''${id:-}" ]; then
+      wmctrl -ia "$id" || true
       exit 0
     fi
 
-    # Detect outputs on niri and temporarily disable the secondary output during
-    # launch so SC can only initialize against the BenQ output.
-    if command -v niri >/dev/null 2>&1; then
-      detected_output="$(
-        niri msg outputs 2>/dev/null | awk -v model="$TARGET_OUTPUT_MODEL" '
-          /^Output / && index($0, model) {
-            if (match($0, /\(([^()]+)\)[[:space:]]*$/, m)) {
-              out = m[1]
-            }
-          }
-          END {
-            if (out != "") {
-              print out
-            }
-          }
-        '
-      )"
-      if [ -n "''${detected_output:-}" ]; then
-        TARGET_OUTPUT="$detected_output"
-      fi
+    # Some shells/tooling export Electron Node-mode flags, which makes
+    # the Windows RSI Electron app exit immediately.
+    unset ELECTRON_RUN_AS_NODE || true
+    unset ELECTRON_NO_ATTACH_CONSOLE || true
 
-      SECONDARY_OUTPUT="$(
-        niri msg outputs 2>/dev/null | awk -v target="$TARGET_OUTPUT" '
-          /^Output / {
-            if (match($0, /\(([^()]+)\)[[:space:]]*$/, m)) {
-              if (m[1] != target && out == "") {
-                out = m[1]
-              }
-            }
-          }
-          END {
-            if (out != "") {
-              print out
-            }
-          }
-        '
-      )"
-
-      if [ -n "''${SECONDARY_OUTPUT:-}" ]; then
-        secondary_state="$(
-          niri msg outputs 2>/dev/null | awk -v out="$SECONDARY_OUTPUT" '
-            /^Output / {
-              in_output = 0
-              if (index($0, "(" out ")")) {
-                in_output = 1
-              }
-            }
-            in_output && /Disabled/ {
-              state = "disabled"
-            }
-            in_output && /Current mode:/ {
-              state = "enabled"
-            }
-            END {
-              if (state != "") {
-                print state
-              }
-            }
-          '
-        )"
-
-        if [ "''${secondary_state:-}" = "enabled" ]; then
-          if niri msg output "$SECONDARY_OUTPUT" off >/dev/null 2>&1; then
-            SECONDARY_OUTPUT_WAS_ON=1
-            log "temporarily disabled output=$SECONDARY_OUTPUT"
-
-            (
-              for _ in $(seq 1 "$MAX_WAIT_SECONDS"); do
-                if niri msg windows 2>/dev/null | grep -F "$STAR_CITIZEN_APP_ID" >/dev/null; then
-                  sleep 12
-                  niri msg output "$SECONDARY_OUTPUT" on >/dev/null 2>&1 || true
-                  exit 0
-                fi
-                sleep 1
-              done
-            ) &
-            RESTORE_WATCHER_PID="$!"
-          else
-            log "failed to disable output=$SECONDARY_OUTPUT"
-          fi
-        fi
-      fi
-    fi
-    log "launch request output=$TARGET_OUTPUT geometry=$TARGET_GEOMETRY secondary=$SECONDARY_OUTPUT"
-
-    # Force RSI + SC into a dedicated rootful Xwayland pinned to BenQ.
-    # This prevents monitor hopping during EAC/SC window recreation.
-    "$XWAYLAND_RUN" \
-      -fullscreen \
-      -output "$TARGET_OUTPUT" \
-      -geometry "$TARGET_GEOMETRY" \
-      -- "$FLATPAK" run --nosocket=wayland --socket=fallback-x11 "$APP_ID" \
-      >/tmp/rsilauncher-flatpak.log 2>&1
-    status="$?"
-    log "launcher exited status=$status"
-    exit "$status"
+    # Keep launcher behavior simple and stable: run Flatpak directly with a known-good Proton.
+    exec "${flatpakBin}" run \
+      --env=PROTONPATH="$PROTONPATH_PIN" \
+      "$APP_ID"
   '';
+
   ensureRsiLauncher = pkgs.writeShellScript "ensure-rsi-launcher" ''
     set -euo pipefail
+
     FLATPAK="${flatpakBin}"
     WRAPPER="${rsiLauncher}/bin/rsi-launcher"
     APP_ID="io.github.mactan_sc.RSILauncher"
@@ -144,6 +42,7 @@ let
     FLATPAK_EXPORT_DIR="$HOME/.local/share/flatpak/exports/share/applications"
     FLATPAK_EXPORT_DESKTOP="$FLATPAK_EXPORT_DIR/$APP_ID.desktop"
     USER_REG="$PREFIX_PATH/user.reg"
+    LAUNCHER_CFG="$HOME/.var/app/$APP_ID/config/starcitizen-lug/launcher.cfg"
 
     "$FLATPAK" remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     "$FLATPAK" remote-add --user --if-not-exists RSILauncher https://mactan-sc.github.io/rsilauncher/RSILauncher.flatpakrepo
@@ -155,15 +54,15 @@ let
 
     "$FLATPAK" install -y --user --noninteractive RSILauncher "$APP_ID"
 
-    # Keep permissions minimal and explicit: remove broad host access and expose only
-    # the launcher prefix path used by Wine.
+    # Reset any stale troubleshooting overrides, then apply only the minimal required set.
+    "$FLATPAK" override --user --reset "$APP_ID"
     "$FLATPAK" override --user --nofilesystem=host "$APP_ID"
     "$FLATPAK" override --user \
-      --nosocket=wayland \
-      --socket=fallback-x11 \
       --filesystem="$PREFIX_PATH" \
       --env=WINEPREFIX="$PREFIX_PATH" \
-      --env=PROTON_ENABLE_WAYLAND=0 \
+      --env=PROTONPATH="${pinnedProton}" \
+      --unset-env=ELECTRON_RUN_AS_NODE \
+      --unset-env=ELECTRON_NO_ATTACH_CONSOLE \
       "$APP_ID"
 
     # Remove stale Wine virtual-desktop overrides from old SC experiments.
@@ -187,11 +86,15 @@ let
       mv "$tmp_reg" "$USER_REG"
     fi
 
-    # Force a local desktop entry that calls our wrapper. This also replaces
-    # stale manual overrides from previous troubleshooting.
+    # Keep launcher.cfg from re-enabling Proton Wayland unexpectedly.
+    if [ -f "$LAUNCHER_CFG" ]; then
+      sed -i 's/^PROTON_ENABLE_WAYLAND=1$/# PROTON_ENABLE_WAYLAND=1/' "$LAUNCHER_CFG"
+    fi
+
+    # Force a local desktop entry that calls our wrapper.
     mkdir -p "$DESKTOP_DIR"
     rm -f "$DESKTOP_FILE"
-    cat >"$DESKTOP_FILE" <<EOF
+    cat >"$DESKTOP_FILE" <<EOF_DESKTOP
 [Desktop Entry]
 Type=Application
 Name=RSI Launcher
@@ -202,13 +105,13 @@ Terminal=false
 Categories=Game;
 StartupNotify=true
 X-Flatpak=io.github.mactan_sc.RSILauncher
-EOF
+EOF_DESKTOP
 
     # Some launchers index the Flatpak export path directly. Override that
     # desktop file too so every launcher path executes the same wrapper.
     mkdir -p "$FLATPAK_EXPORT_DIR"
     rm -f "$FLATPAK_EXPORT_DESKTOP"
-    cat >"$FLATPAK_EXPORT_DESKTOP" <<EOF
+    cat >"$FLATPAK_EXPORT_DESKTOP" <<EOF_EXPORT
 [Desktop Entry]
 Type=Application
 Name=RSI Launcher
@@ -219,17 +122,18 @@ Terminal=false
 Categories=Game;
 StartupNotify=true
 X-Flatpak=io.github.mactan_sc.RSILauncher
-EOF
+EOF_EXPORT
   '';
 in
 {
-  # Tools used by the RSI launcher workaround
+  # Tools used by the RSI launcher wrapper.
   home.packages = [
+    pkgs.wmctrl
+    pkgs.xwininfo
     rsiLauncher
   ];
 
-  # Workaround: RSI Launcher (Electron via Proton/Wine) sometimes starts minimized on Niri/Xwayland.
-  # Provide a user desktop entry with the same id as the Flatpak export to override it cleanly.
+  # Provide a user desktop entry with the same id as the Flatpak export.
   xdg.desktopEntries."io.github.mactan_sc.RSILauncher" = {
     name = "RSI Launcher";
     exec = "${rsiLauncher}/bin/rsi-launcher";
@@ -238,7 +142,7 @@ in
     categories = [ "Game" ];
   };
 
-  # Ensure remotes and RSI Launcher are present on each activation/login (idempotent)
+  # Ensure remotes and RSI Launcher are present on each activation/login (idempotent).
   systemd.user.services.flatpak-rsi-launcher = {
     Unit = {
       Description = "Ensure RSI Launcher flatpak is installed";
