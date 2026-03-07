@@ -6,11 +6,21 @@
 
   programs.steam.enable = true; # enables Steam and required 32-bit runtime
   programs.gamemode.enable = true;
+  programs.gamescope = {
+    enable = true;
+    capSysNice = true;
+  };
 
   programs.rsi-launcher = {
     enable = true;
     # Helps with common pointer issues on Wayland compositors.
     patchXwayland = true;
+    # Prefer native Wayland behavior for Wine on Niri.
+    enforceWaylandDrv = true;
+    gamescope = {
+      enable = true;
+      args = [ "-f" ];
+    };
   };
 
   hardware.graphics.enable32Bit = true;
