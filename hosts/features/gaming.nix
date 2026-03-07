@@ -19,7 +19,7 @@
     enforceWaylandDrv = true;
     gamescope = {
       enable = true;
-      args = [ "-f" ];
+      args = [ ];
     };
     preCommands = ''
       # Keep SC USER.cfg aligned with ultrawide resolution and cursor workaround.
