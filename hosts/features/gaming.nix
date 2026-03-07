@@ -21,6 +21,18 @@
       enable = true;
       args = [ "-f" ];
     };
+    preCommands = ''
+      # Keep SC USER.cfg aligned with ultrawide resolution and cursor workaround.
+      for channel in LIVE PTU; do
+        cfg_dir="$WINEPREFIX/drive_c/Program Files/Roberts Space Industries/StarCitizen/$channel"
+        mkdir -p "$cfg_dir"
+        cat > "$cfg_dir/USER.cfg" <<'EOF'
+r_width = 3440
+r_height = 1440
+pl_pit.forceSoftwareCursor = 1
+EOF
+      done
+    '';
   };
 
   hardware.graphics.enable32Bit = true;
