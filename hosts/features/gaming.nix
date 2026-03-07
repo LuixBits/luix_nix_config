@@ -19,9 +19,18 @@
     enforceWaylandDrv = true;
     gamescope = {
       enable = true;
-      args = [ ];
+      args = [
+        "-W"
+        "3440"
+        "-H"
+        "1440"
+        "--force-grab-cursor"
+      ];
     };
     preCommands = ''
+      # Hint Wine Wayland to use the ultrawide as the primary monitor.
+      export WAYLANDDRV_PRIMARY_MONITOR="HDMI-A-2"
+
       # Keep SC USER.cfg aligned with ultrawide resolution and cursor workaround.
       for channel in LIVE PTU; do
         cfg_dir="$WINEPREFIX/drive_c/Program Files/Roberts Space Industries/StarCitizen/$channel"
