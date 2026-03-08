@@ -15,8 +15,8 @@
     enable = true;
     # Helps with common pointer issues on Wayland compositors.
     patchXwayland = true;
-    # Prefer native Wayland behavior for Wine on Niri.
-    enforceWaylandDrv = true;
+    # More stable pointer coordinates on Niri than forcing Wine Wayland.
+    enforceWaylandDrv = false;
     gamescope = {
       enable = true;
       args = [
