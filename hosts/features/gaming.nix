@@ -28,8 +28,19 @@
       ];
     };
     preCommands = ''
-      # Hint Wine Wayland to use the ultrawide as the primary monitor.
-      export WAYLANDDRV_PRIMARY_MONITOR="HDMI-A-2"
+      # Hint Wine Wayland to use the BenQ ultrawide as primary.
+      # Connector IDs can shift when displays are toggled, so detect by mode.
+      for status_file in /sys/class/drm/card*-*/status; do
+        [ -r "$status_file" ] || continue
+        [ "$(cat "$status_file")" = "connected" ] || continue
+
+        conn_dir="''${status_file%/status}"
+        if grep -q '^3440x1440' "$conn_dir/modes" 2>/dev/null; then
+          monitor="''${conn_dir##*/}"
+          export WAYLANDDRV_PRIMARY_MONITOR="''${monitor#*-}"
+          break
+        fi
+      done
 
       # Keep SC USER.cfg aligned with ultrawide resolution and cursor workaround.
       for channel in LIVE PTU; do

@@ -8,39 +8,22 @@
     alsa.support32Bit = true;
     pulse.enable = true;
 
-    extraConfig.pipewire."92-low-latency" = {
+    # Keep a single 48 kHz clock and conservative quantum to avoid capture glitches.
+    extraConfig.pipewire."92-audio-stability" = {
       "context.properties" = {
         "default.clock.rate" = 48000;
-        "default.clock.quantum" = 4096;
-        "default.clock.min-quantum" = 1024;
-        "default.clock.max-quantum" = 4096;
+        "default.clock.allowed-rates" = [ 48000 ];
+        "default.clock.quantum" = 1024;
+        "default.clock.min-quantum" = 512;
+        "default.clock.max-quantum" = 2048;
       };
     };
 
     extraConfig.pipewire-pulse."99-no-flat-volume" = {
       "pulse.properties" = {
-        "pulse.min.quantum" = "4096/48000";
+        "pulse.min.quantum" = "1024/48000";
         "pulse.flat-volume" = false;
       };
-    };
-
-    wireplumber.extraConfig."99-optical-fix" = {
-      "monitor.alsa.rules" = [
-        {
-          "matches" = [
-            { "node.name" = "~.*SPDIF.*"; }
-            { "node.name" = "~.*optical.*"; }
-            { "node.name" = "~.*iec958.*"; }
-            { "node.name" = "~.*digital-stereo.*"; }
-          ];
-          "actions" = {
-            "update-props" = {
-              "api.alsa.soft-mixer" = true;
-              "api.alsa.ignore-dB" = true;
-            };
-          };
-        }
-      ];
     };
   };
 
