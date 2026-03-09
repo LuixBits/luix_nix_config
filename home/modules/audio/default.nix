@@ -27,7 +27,6 @@
       ];
     };
     Service = {
-      Environment = [ "QT_QPA_PLATFORM=offscreen" ];
       Restart = lib.mkForce "always";
       RestartSec = lib.mkForce 2;
     };
