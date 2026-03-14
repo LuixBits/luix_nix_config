@@ -18,9 +18,16 @@
     # More stable pointer coordinates on Niri than forcing Wine Wayland.
     enforceWaylandDrv = false;
     gamescope = {
-      # Wrapping the entire launcher -> game chain in gamescope reintroduced
-      # fullscreen and cursor regressions on this setup.
-      enable = false;
+      # The launcher itself does not present reliably on this setup without
+      # running inside gamescope.
+      enable = true;
+      args = [
+        "-W"
+        "3440"
+        "-H"
+        "1440"
+        "--force-grab-cursor"
+      ];
     };
     preCommands = ''
       # Hint Wine Wayland to use the BenQ ultrawide as primary.
