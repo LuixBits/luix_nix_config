@@ -32,7 +32,6 @@
     audacity
     ffmpeg
     orca-slicer
-    shotcut
     yt-dlp
 
     # Music tools
