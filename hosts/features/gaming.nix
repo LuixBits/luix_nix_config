@@ -18,16 +18,31 @@
     # More stable pointer coordinates on Niri than forcing Wine Wayland.
     enforceWaylandDrv = false;
     gamescope = {
+      # The launcher itself does not present reliably on this setup without
+      # running inside gamescope.
       enable = true;
       args = [
+        "-f"
         "-W"
         "3440"
         "-H"
         "1440"
+        "--force-windows-fullscreen"
         "--force-grab-cursor"
       ];
     };
     preCommands = ''
+      # SC cursor mapping is unreliable with the secondary LG output active on
+      # this Niri setup. Turn it off for the session and restore it on exit.
+      if command -v niri >/dev/null 2>&1; then
+        sc_aux_output="LG Electronics LG HDR 4K 405NTQDBG628"
+        if niri msg outputs 2>/dev/null | grep -Fq "Output \"$sc_aux_output\""; then
+          export SC_REENABLE_OUTPUT="$sc_aux_output"
+          niri msg output "$sc_aux_output" off || true
+          sleep 1
+        fi
+      fi
+
       # Hint Wine Wayland to use the BenQ ultrawide as primary.
       # Connector IDs can shift when displays are toggled, so detect by mode.
       for status_file in /sys/class/drm/card*-*/status; do
@@ -50,8 +65,14 @@
 r_width = 3440
 r_height = 1440
 pl_pit.forceSoftwareCursor = 1
+r_WindowMode = 1
 EOF
       done
+    '';
+    postCommands = ''
+      if [ -n "''${SC_REENABLE_OUTPUT:-}" ] && command -v niri >/dev/null 2>&1; then
+        niri msg output "$SC_REENABLE_OUTPUT" on || true
+      fi
     '';
   };
 
