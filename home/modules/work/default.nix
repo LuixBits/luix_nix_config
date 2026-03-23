@@ -12,6 +12,7 @@
       pull.rebase = false;
       color.ui = "auto";
       core.editor = "vim";
+      core.fileMode = false;
       credential.helper = "cache";
     };
   };

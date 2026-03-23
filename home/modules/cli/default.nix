@@ -2,9 +2,12 @@
 {
   programs.git = {
     enable = true;
-    settings.user = {
-      name = lib.mkDefault "Luix";
-      email = lib.mkDefault "luix@users.noreply.github.com";
+    settings = {
+      core.fileMode = false;
+      user = {
+        name = lib.mkDefault "Luix";
+        email = lib.mkDefault "luix@users.noreply.github.com";
+      };
     };
   };
   programs.tmux.enable = true;
