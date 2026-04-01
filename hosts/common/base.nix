@@ -17,6 +17,8 @@
 
   nixpkgs.overlays = [
     (final: prev: {
+      # 25.11 exposes unixODBC; some pinned packages still expect unixodbc.
+      unixodbc = prev.unixODBC;
       atopile = prev.writeShellScriptBin "atopile" ''
         echo "Atopile placeholder; real package not available on this channel."
       '';

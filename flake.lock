@@ -389,8 +389,6 @@
         ],
         "systems": "systems_2",
         "treefmt-nix": "treefmt-nix_2"
-        "systems": "systems_2",
-        "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
         "lastModified": 1774994931,
