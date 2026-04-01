@@ -8,6 +8,8 @@ let
   # changes do not break rotation/placement.
   workMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
   workRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
+  pcMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
+  pcRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
   outputConfig =
     if isLaptopProfile then
       ''
@@ -35,7 +37,20 @@ let
         }
       ''
     else if isPcProfile then
-      ""
+      ''
+        output "${pcMainOutput}" {
+            mode "3440x1440@100.000"
+            position x=0 y=0
+            focus-at-startup
+        }
+
+        output "${pcRightPortraitOutput}" {
+            mode "3840x2160@59.997"
+            scale 1.25
+            transform "90"
+            position x=3440 y=0
+        }
+      ''
     else
       ''
         output "HDMI-A-2" {
