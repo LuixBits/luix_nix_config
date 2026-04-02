@@ -47,7 +47,7 @@ let
         output "${pcRightPortraitOutput}" {
             mode "3840x2160@59.997"
             scale 1.25
-            transform "90"
+            transform "270"
             position x=3440 y=0
         }
       ''
