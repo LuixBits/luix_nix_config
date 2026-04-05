@@ -55,6 +55,8 @@
   console.keyMap = "sg";
 
   services.printing.enable = true;
+  services.upower.enable = true;
+  services.power-profiles-daemon.enable = true;
 
   # default Shell
   environment.shells = with pkgs; [ fish ];

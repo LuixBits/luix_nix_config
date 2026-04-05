@@ -225,6 +225,109 @@ let
     warn()  { printf "\033[1;33m[WARN]\033[0m %s\n"  "$*"; }
     error() { printf "\033[1;31m[ERR ]\033[0m %s\n"  "$*" >&2; }
 
+    git_repo() {
+      local dir="$1"
+      shift
+      if [[ -w "$dir/.git" || -w "$dir/.git/config" ]]; then
+        git -C "$dir" "$@"
+      elif [[ -n "''${SSH_AUTH_SOCK:-}" ]]; then
+        sudo env SSH_AUTH_SOCK="''${SSH_AUTH_SOCK}" git -C "$dir" "$@"
+      else
+        sudo git -C "$dir" "$@"
+      fi
+    }
+
+    sync_flake_repo() {
+      local dir="$1"
+
+      if [[ ! -d "$dir" ]]; then
+        warn "Flake path is not a local directory; skipping git pull for $dir."
+        return 0
+      fi
+
+      if ! git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        warn "Flake path is not a git repo; skipping git pull for $dir."
+        return 0
+      fi
+
+      if ! git_repo "$dir" remote get-url origin >/dev/null 2>&1; then
+        warn "No 'origin' remote in $dir; skipping git pull."
+        return 0
+      fi
+
+      if ! git_repo "$dir" symbolic-ref -q HEAD >/dev/null 2>&1; then
+        warn "Detached HEAD in $dir; skipping git pull."
+        return 0
+      fi
+
+      local branch upstream original_head stash_ref restore_ref pull_out pop_out
+      branch="$(git_repo "$dir" rev-parse --abbrev-ref HEAD)"
+
+      if ! upstream="$(git_repo "$dir" rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null)"; then
+        warn "Branch '$branch' in $dir has no upstream; skipping git pull."
+        return 0
+      fi
+
+      original_head="$(git_repo "$dir" rev-parse HEAD)"
+      stash_ref=""
+      restore_ref="$original_head"
+
+      if [[ -n "$(git_repo "$dir" status --porcelain=v1 --untracked-files=all)" ]]; then
+        info "Stashing local changes in $dir before pulling $upstream..."
+        git_repo "$dir" stash push --include-untracked --message "buildall-pre-pull $(date -Iseconds)" >/dev/null
+        stash_ref="$(git_repo "$dir" rev-parse -q --verify refs/stash)"
+      fi
+
+      info "Pulling latest changes for '$branch' from '$upstream'..."
+      if ! pull_out="$(git_repo "$dir" pull --rebase 2>&1)"; then
+        printf '%s\n' "$pull_out" >&2
+        if git_repo "$dir" rev-parse -q --verify REBASE_HEAD >/dev/null 2>&1; then
+          warn "Pull hit a rebase conflict; aborting pull."
+          git_repo "$dir" rebase --abort >/dev/null
+        fi
+        if [[ -n "$stash_ref" ]]; then
+          info "Restoring stashed local changes after failed pull..."
+          git_repo "$dir" stash apply --index "$stash_ref" >/dev/null
+          git_repo "$dir" stash drop "$stash_ref" >/dev/null || true
+        fi
+        error "Git pull failed for $dir. Build cancelled."
+        return 1
+      fi
+
+      if [[ -n "$pull_out" ]]; then
+        printf '%s\n' "$pull_out"
+      fi
+
+      if [[ -n "$(git_repo "$dir" diff --name-only --diff-filter=U)" ]]; then
+        error "Pull left unresolved conflicts in $dir. Cancelling pull."
+        git_repo "$dir" reset --merge "$restore_ref" >/dev/null
+        if [[ -n "$stash_ref" ]]; then
+          info "Restoring stashed local changes after cancelling pull..."
+          git_repo "$dir" stash apply --index "$stash_ref" >/dev/null
+          git_repo "$dir" stash drop "$stash_ref" >/dev/null || true
+        fi
+        return 1
+      fi
+
+      if [[ -n "$stash_ref" ]]; then
+        info "Restoring stashed local changes after pull..."
+        if ! pop_out="$(git_repo "$dir" stash pop --index 2>&1)"; then
+          printf '%s\n' "$pop_out" >&2
+          warn "Local changes conflict with the pulled state; cancelling pull."
+          git_repo "$dir" reset --merge "$restore_ref" >/dev/null
+          if git_repo "$dir" rev-parse -q --verify "$stash_ref" >/dev/null 2>&1; then
+            git_repo "$dir" stash apply --index "$stash_ref" >/dev/null
+            git_repo "$dir" stash drop "$stash_ref" >/dev/null || true
+          fi
+          error "Git pull would conflict with local changes in $dir. Build cancelled."
+          return 1
+        fi
+        if [[ -n "$pop_out" ]]; then
+          printf '%s\n' "$pop_out"
+        fi
+      fi
+    }
+
     check_fs_match() {
       local mountpoint="$1"
       local expected_dev="$2"
@@ -316,6 +419,8 @@ let
         usage
         ;;
     esac
+
+    sync_flake_repo "$FLAKE_RAW"
 
     if ! nix eval --raw "''${FLAKE_REF}#nixosConfigurations.''${HOST}.config.networking.hostName" >/dev/null 2>&1; then
       echo "Host '$HOST' is not defined in this flake." >&2
