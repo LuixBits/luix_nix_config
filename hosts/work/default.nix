@@ -23,10 +23,6 @@
   # Shared common/base defines user `luix`; disable it on work to keep a single user.
   users.users.luix.enable = lib.mkForce false;
 
-  virtualisation.virtualbox.host.enable = true;
-  virtualisation.virtualbox.host.enableExtensionPack = true;
-  users.extraGroups.vboxusers.members = [ "luiz" ];
-
   services.flatpak.enable = true;
   services.xserver.videoDrivers = lib.mkForce [ "nvidia" "displaylink" "modesetting" ];
 
@@ -55,7 +51,7 @@
     description = "Luiz";
     uid = 1000;
     home = "/home/luiz";
-    extraGroups = [ "networkmanager" "wheel" "docker" "vboxusers" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
   };
 
   nixpkgs.config = {

@@ -2,8 +2,14 @@
 let
   isWorkProfile = hostName == "work" || (hostName == null && config.home.username == "luiz");
   isLaptopProfile = hostName == "l";
-  mainOutputName = if isWorkProfile then "DVI-I-1" else "HDMI-A-2";
-  verticalOutputName = if isWorkProfile then "DVI-I-2" else "HDMI-A-3";
+  isPcProfile = hostName == "pc";
+  workLaptopOutput = "eDP-1";
+  # Match external displays by make/model/serial so DisplayLink connector order
+  # changes do not break rotation/placement.
+  workMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
+  workRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
+  pcMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
+  pcRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
   outputConfig =
     if isLaptopProfile then
       ''
@@ -14,29 +20,63 @@ let
             focus-at-startup
         }
       ''
-    else
+    else if isWorkProfile then
       ''
-        ${lib.optionalString isWorkProfile ''
-        output "eDP-1" {
-            mode "2400x1600"
-            scale 1.5
-            position x=-1600 y=0
+        output "${workLaptopOutput}" {
+            position x=0 y=0
         }
-        ''}
 
-        output "${mainOutputName}" {
+        output "${workMainOutput}" {
+            position x=1600 y=0
+            focus-at-startup
+        }
+
+        output "${workRightPortraitOutput}" {
+            transform "270"
+            position x=5040 y=0
+        }
+      ''
+    else if isPcProfile then
+      ''
+        output "${pcMainOutput}" {
             mode "3440x1440@100.000"
             position x=0 y=0
             focus-at-startup
         }
 
-        output "${verticalOutputName}" {
+        output "${pcRightPortraitOutput}" {
+            mode "3840x2160@59.997"
+            scale 1.25
+            transform "270"
+            position x=3440 y=0
+        }
+      ''
+    else
+      ''
+        output "HDMI-A-2" {
+            mode "3440x1440@100.000"
+            position x=0 y=0
+            focus-at-startup
+        }
+
+        output "HDMI-A-3" {
             mode "3840x2160@59.997"
             scale 1.25
             transform "270"
             position x=3440 y=0
         }
       '';
+  workRenderConfig =
+    if isWorkProfile then
+      ''
+        // Keep work on the Intel render node: this is the only path that
+        // consistently brings both DisplayLink outputs up.
+        debug {
+            render-drm-device "/dev/dri/by-path/pci-0000:00:02.0-render"
+        }
+      ''
+    else
+      "";
   baseConfig = builtins.readFile "${pkgs.niri.doc}/share/doc/niri/default-config.kdl";
   noWaybarConfig = lib.replaceStrings [
     "spawn-at-startup \"waybar\"\n"
@@ -95,15 +135,6 @@ in
     noBrightnessConfig
     + ''
       ${outputConfig}
-
-      // Star Citizen / RSI Launcher (Flatpak -> Proton/Wine) runs under Xwayland.
-      // Under niri it may start "minimized"/unmapped; the `rsi-launcher` wrapper
-      // focuses it. Once mapped, this rule makes it behave like a normal maximized
-      // window instead of opening as a small tile.
-      window-rule {
-          match app-id=r#"^steam_app_starcitizen$"# title=r#"^RSI Launcher$"#
-          open-maximized-to-edges true
-          open-focused true
-      }
+      ${workRenderConfig}
     '';
 }

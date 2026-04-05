@@ -3,23 +3,28 @@
   home.packages = with pkgs; [
     # Core utilities
     clinfo
+    cliphist
     freshfetch
     ripgrep
     stow
     unzip
     wget
+    wl-clipboard
 
     # Desktop apps
     bottles
     chromium
     discord
     firefox
+    gnome-disk-utility
     gimp-with-plugins
     libreoffice
+    nautilus
     obs-studio
     obsidian
     qownnotes
     vlc
+    wdisplays
     kdePackages.okular
 
 
@@ -27,7 +32,6 @@
     audacity
     ffmpeg
     orca-slicer
-    shotcut
     yt-dlp
 
     # Music tools
@@ -37,4 +41,11 @@
     picard
     termsonic
   ];
+
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
+    };
+  };
 }
