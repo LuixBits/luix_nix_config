@@ -5,7 +5,26 @@
   ];
 
   programs.steam.enable = true; # enables Steam and required 32-bit runtime
-  programs.rsi-launcher.enable = true;
+  programs.gamemode.enable = true;
+  programs.gamescope = {
+    enable = true;
+    capSysNice = true;
+  };
+
+  programs.rsi-launcher = {
+    enable = true;
+    patchXwayland = true;
+    gamescope = {
+      enable = true;
+      args = [
+        "-W"
+        "3440"
+        "-H"
+        "1440"
+        "--force-grab-cursor"
+      ];
+    };
+  };
 
   hardware.graphics.enable32Bit = true;
 
