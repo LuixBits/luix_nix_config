@@ -17,6 +17,8 @@
     patchXwayland = true;
     # More stable pointer coordinates on Niri than forcing Wine Wayland.
     enforceWaylandDrv = false;
+    # Use the Proton/UMU runner path instead of plain Wine for launcher startup.
+    umu.enable = true;
     gamescope = {
       # The launcher itself does not present reliably on this setup without
       # running inside gamescope.
