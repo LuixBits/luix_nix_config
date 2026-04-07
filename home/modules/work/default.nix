@@ -6,7 +6,7 @@
     settings = {
       user = {
         name = "Luiz Perren";
-        email = "luiz.perren@siga.swiss";
+        email = "dummy@example.invalid";
       };
       init.defaultBranch = "main";
       pull.rebase = false;

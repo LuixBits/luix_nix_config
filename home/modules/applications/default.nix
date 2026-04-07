@@ -22,6 +22,7 @@
     nautilus
     obs-studio
     obsidian
+    qpwgraph
     qownnotes
     vlc
     wdisplays
