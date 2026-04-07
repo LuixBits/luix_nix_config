@@ -3,6 +3,7 @@
   imports = [
     ./hardware-configuration.nix
     ../common/base.nix
+    ../../audiofix.nix
     ../features/hardware-intel.nix
     ../features/work/appimage.nix
     ../features/work/caddy.nix
@@ -25,15 +26,6 @@
 
   services.flatpak.enable = true;
   services.xserver.videoDrivers = lib.mkForce [ "nvidia" "displaylink" "modesetting" ];
-
-  services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-  };
 
   # Certificates are intentionally not committed to this repo.
   # Add them in a local, untracked module if needed.

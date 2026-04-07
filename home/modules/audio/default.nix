@@ -2,6 +2,8 @@
 {
   home.packages = with pkgs; [
     playerctl
+    pavucontrol
+    pwvucontrol
   ];
 
   services.easyeffects = {
