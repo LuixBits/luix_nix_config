@@ -3,7 +3,7 @@
   programs.git = {
     enable = true;
     settings = {
-      core.fileMode = false;
+      core.filemode = false;
       user = {
         name = lib.mkDefault "Luix";
         email = lib.mkDefault "luix@users.noreply.github.com";
