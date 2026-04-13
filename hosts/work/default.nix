@@ -31,13 +31,6 @@
   # Add them in a local, untracked module if needed.
   security.pki.certificateFiles = [ ];
 
-  nix = {
-    package = pkgs.nixVersions.stable;
-    settings = {
-      experimental-features = [ "nix-command" "flakes" ];
-    };
-  };
-
   users.users.luiz = {
     isNormalUser = true;
     description = "Luiz";

@@ -8,24 +8,6 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-
-    # Keep a single 48 kHz clock and conservative quantum to avoid capture glitches.
-    extraConfig.pipewire."92-audio-stability" = {
-      "context.properties" = {
-        "default.clock.rate" = 48000;
-        "default.clock.allowed-rates" = [ 48000 ];
-        "default.clock.quantum" = 1024;
-        "default.clock.min-quantum" = 512;
-        "default.clock.max-quantum" = 2048;
-      };
-    };
-
-    extraConfig.pipewire-pulse."99-no-flat-volume" = {
-      "pulse.properties" = {
-        "pulse.min.quantum" = "1024/48000";
-        "pulse.flat-volume" = false;
-      };
-    };
   };
 
   environment.systemPackages = with pkgs; [

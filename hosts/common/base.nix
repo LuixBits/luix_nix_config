@@ -104,6 +104,9 @@
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
     warn-dirty = false;
+
+    # Only local admins should be able to submit builds to the daemon.
+    allowed-users = [ "@wheel" ];
   };
 
   xdg.portal = {

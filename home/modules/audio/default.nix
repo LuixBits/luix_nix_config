@@ -15,22 +15,9 @@
     };
   };
 
-  # Keep EasyEffects available for OBS even if GUI display variables are late.
   systemd.user.services.easyeffects = {
-    Unit = {
-      After = [
-        "graphical-session.target"
-        "pipewire.service"
-        "wireplumber.service"
-      ];
-      Wants = [
-        "pipewire.service"
-        "wireplumber.service"
-      ];
-    };
-    Service = {
-      Restart = lib.mkForce "always";
-      RestartSec = lib.mkForce 2;
+    Install = {
+      WantedBy = lib.mkForce [ ];
     };
   };
 }
