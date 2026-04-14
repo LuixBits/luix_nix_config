@@ -29,6 +29,14 @@
   # Ensure old DisplayLink modules never load on this host.
   boot.blacklistedKernelModules = [ "evdi" ];
 
+  # Work around firmware reboot/power button issues on this host.
+  boot.kernelParams = [ "reboot=efi" ];
+  services.logind.settings.Login = {
+    HandlePowerKey = "poweroff";
+    HandlePowerKeyLongPress = "poweroff";
+    PowerKeyIgnoreInhibited = true;
+  };
+
   # Certificates are intentionally not committed to this repo.
   # Add them in a local, untracked module if needed.
   security.pki.certificateFiles = [ ];
