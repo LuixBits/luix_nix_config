@@ -25,8 +25,6 @@
     })
   ];
 
-  virtualisation.libvirtd.enable = true;
-  programs.virt-manager.enable = true;
   virtualisation.docker = {
     enable = true;
     daemon.settings = {
@@ -71,8 +69,6 @@
     extraGroups = [
       "networkmanager"
       "wheel"
-      "vboxusers"
-      "libvirtd"
       "docker"
     ];
     shell = pkgs.fish;

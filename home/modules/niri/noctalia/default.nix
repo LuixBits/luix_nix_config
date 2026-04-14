@@ -64,11 +64,9 @@ let
     states = workPluginStates;
   };
   workSettings = baseSettings // {
-    # Keep work shell lightweight when driving DisplayLink outputs.
+    # Keep work shell lightweight when driving multiple external outputs.
     bar = baseSettings.bar // {
-      # Include both DisplayLink connectors plus laptop panel as a fallback,
-      # so the shell remains usable during hotplug/order/timing changes.
-      monitors = [ "DVI-I-1" "DVI-I-2" "eDP-1" ];
+      monitors = [ "DP-2" "DP-1" "eDP-1" ];
       widgets = baseSettings.bar.widgets // {
         left = builtins.filter (
           widget:
@@ -78,7 +76,7 @@ let
       };
     };
     dock = baseSettings.dock // {
-      monitors = [ "DVI-I-1" "DVI-I-2" "eDP-1" ];
+      monitors = [ "DP-2" "DP-1" "eDP-1" ];
     };
     desktopWidgets = baseSettings.desktopWidgets // {
       monitorWidgets = [ ];
@@ -93,6 +91,11 @@ let
       boxBorderEnabled = false;
       panelBackgroundOpacity = 1.0;
       tooltipsEnabled = false;
+    };
+    idle = baseSettings.idle // {
+      # This host only supports s2idle, which can drain badly overnight.
+      # Disable Noctalia's automatic idle suspend; manual suspend remains available.
+      suspendTimeout = 0;
     };
     wallpaper = baseSettings.wallpaper // {
       overviewBlur = 0;

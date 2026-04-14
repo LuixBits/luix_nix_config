@@ -9,7 +9,6 @@
     ../features/work/caddy.nix
     ../features/work/cx.nix
     ../features/work/db.nix
-    ../features/work/displaylink.nix
     # ../features/work/pia-manual.nix
   ];
 
@@ -25,7 +24,6 @@
   users.users.luix.enable = lib.mkForce false;
 
   services.flatpak.enable = true;
-  services.xserver.videoDrivers = lib.mkForce [ "nvidia" "displaylink" "modesetting" ];
 
   # Certificates are intentionally not committed to this repo.
   # Add them in a local, untracked module if needed.
