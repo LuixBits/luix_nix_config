@@ -24,6 +24,10 @@
   users.users.luix.enable = lib.mkForce false;
 
   services.flatpak.enable = true;
+  services.xserver.videoDrivers = lib.mkForce [ "nvidia" "modesetting" ];
+
+  # Ensure old DisplayLink modules never load on this host.
+  boot.blacklistedKernelModules = [ "evdi" ];
 
   # Certificates are intentionally not committed to this repo.
   # Add them in a local, untracked module if needed.
