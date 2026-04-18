@@ -8,4 +8,5 @@
   ];
 
   networking.hostName = "l";
+  services.hardware.bolt.enable = true;
 }
