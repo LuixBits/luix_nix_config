@@ -122,6 +122,7 @@
 
   environment.systemPackages = with pkgs; [
     exfatprogs
+    logseq
     usbutils
     wireguard-tools
     xwayland-satellite

@@ -21,7 +21,6 @@
     ../modules/kdenlive
     ../modules/nvfvim
     ../modules/work
-    ../modules/logseq
   ];
 
   home.activation.cleanupBrokenNvimConfig = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
