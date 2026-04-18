@@ -4,6 +4,7 @@ let
   isLaptopProfile = hostName == "l";
   isPcProfile = hostName == "pc";
   workLaptopOutput = "eDP-1";
+  laptopInternalOutput = "Samsung Display Corp. 0x419F Unknown";
   sharedMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
   sharedRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
   # Match external displays by make/model/serial so DisplayLink connector order
@@ -15,21 +16,21 @@ let
   outputConfig =
     if isLaptopProfile then
       ''
-        output "eDP-1" {
+        output "${laptopInternalOutput}" {
             mode "2880x1800@120.000"
             scale 1.75
             position x=0 y=0
         }
 
         output "${sharedMainOutput}" {
-            position x=1645 y=0
+            position x=1646 y=0
             focus-at-startup
         }
 
         output "${sharedRightPortraitOutput}" {
             scale 1.25
             transform "270"
-            position x=5085 y=0
+            position x=5086 y=0
         }
       ''
     else if isWorkProfile then
