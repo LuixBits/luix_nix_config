@@ -59,6 +59,7 @@
   services.power-profiles-daemon.enable = true;
   services.gvfs.enable = true;
   services.udisks2.enable = true;
+  services.hardware.bolt.enable = true;
 
   # default Shell
   environment.shells = with pkgs; [ fish ];

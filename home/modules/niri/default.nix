@@ -4,12 +4,14 @@ let
   isLaptopProfile = hostName == "l";
   isPcProfile = hostName == "pc";
   workLaptopOutput = "eDP-1";
+  sharedMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
+  sharedRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
   # Match external displays by make/model/serial so DisplayLink connector order
   # changes do not break rotation/placement.
-  workMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
-  workRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
-  pcMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
-  pcRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
+  workMainOutput = sharedMainOutput;
+  workRightPortraitOutput = sharedRightPortraitOutput;
+  pcMainOutput = sharedMainOutput;
+  pcRightPortraitOutput = sharedRightPortraitOutput;
   outputConfig =
     if isLaptopProfile then
       ''
@@ -17,7 +19,17 @@ let
             mode "2880x1800@120.000"
             scale 1.75
             position x=0 y=0
+        }
+
+        output "${sharedMainOutput}" {
+            position x=1645 y=0
             focus-at-startup
+        }
+
+        output "${sharedRightPortraitOutput}" {
+            scale 1.25
+            transform "270"
+            position x=5085 y=0
         }
       ''
     else if isWorkProfile then

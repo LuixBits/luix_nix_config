@@ -4,7 +4,7 @@ let
   basePlugins = builtins.fromJSON (builtins.readFile ./plugins.json);
   lSettings = baseSettings // {
     bar = baseSettings.bar // {
-      monitors = [ "eDP-1" ];
+      monitors = [ "eDP-1" "DP-5" "DP-6" ];
     };
     dock = baseSettings.dock // {
       monitors = [ "eDP-1" ];
