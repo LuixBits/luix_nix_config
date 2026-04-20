@@ -141,7 +141,6 @@ in
 
   programs.noctalia-shell = {
     enable = true;
-    systemd.enable = true;
     settings = settingsFile;
     colors = ./colors.json;
     plugins = pluginsFile;

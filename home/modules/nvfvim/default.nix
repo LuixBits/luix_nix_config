@@ -107,7 +107,7 @@
         # Languages (LSP servers). NVF exposes many language modules; enable those
         # corresponding to your setup. For Vue, add a custom LSP under vim.lsp.servers.
         languages = {
-          ts.enable = true; # TypeScript/JavaScript
+          typescript.enable = true; # TypeScript/JavaScript
           css.enable = true;
           json.enable = true;
           lua.enable = true;
