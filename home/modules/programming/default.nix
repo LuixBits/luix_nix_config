@@ -14,6 +14,7 @@
     vscode
     whois
     dig
+    nmap
     opencode
   ];
 }
