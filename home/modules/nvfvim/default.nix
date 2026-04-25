@@ -7,6 +7,76 @@
   ...
 }: let
   notesDir = "${config.home.homeDirectory}/notes";
+  orgDir = "${notesDir}/org";
+  orgmodeSetup = {
+    org_agenda_files = [ "${orgDir}/*" ];
+    org_default_notes_file = "${orgDir}/refile.org";
+    org_todo_keywords = [ "TODO(t)" "NEXT(n)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELLED(c@)" ];
+    org_agenda_span = "week";
+    org_agenda_start_on_weekday = 1;
+    org_agenda_remove_tags = true;
+    org_startup_folded = "content";
+    org_startup_indented = true;
+    org_hide_emphasis_markers = true;
+    org_log_done = "time";
+    org_log_into_drawer = "LOGBOOK";
+    win_split_mode = "float";
+    win_border = "rounded";
+    org_capture_templates = {
+      t = {
+        description = "Task";
+        target = "${orgDir}/tasks.org";
+        headline = "Inbox";
+        template = "* TODO %?\nSCHEDULED: %^t\n:PROPERTIES:\n:CREATED: %U\n:END:";
+      };
+      n = {
+        description = "Note";
+        target = "${orgDir}/refile.org";
+        headline = "Notes";
+        template = "* %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n\n%a";
+      };
+      j = {
+        description = "Journal";
+        target = "${orgDir}/journal.org";
+        datetree = true;
+        template = "* %<%H:%M> %?\n%U";
+      };
+      m = {
+        description = "Meeting";
+        target = "${orgDir}/projects.org";
+        headline = "Meetings";
+        template = "* %? :meeting:\nSCHEDULED: %^T\n:PROPERTIES:\n:CREATED: %U\n:END:\n\n** Notes\n** Actions";
+      };
+    };
+    org_agenda_custom_commands = {
+      d = {
+        description = "Daily dashboard";
+        types = [
+          {
+            type = "agenda";
+            org_agenda_overriding_header = "Today";
+            org_agenda_span = "day";
+          }
+          {
+            type = "tags_todo";
+            match = "+PRIORITY=\"A\"";
+            org_agenda_overriding_header = "High priority";
+          }
+        ];
+      };
+      w = {
+        description = "Week";
+        types = [
+          {
+            type = "agenda";
+            org_agenda_overriding_header = "Week";
+            org_agenda_span = "week";
+            org_agenda_start_on_weekday = 1;
+          }
+        ];
+      };
+    };
+  };
   keymaps = import ./keymaps.nix;
 in {
   # Import NVF’s Home‑Manager module
@@ -14,24 +84,63 @@ in {
 
   home.activation.ensureNotesWorkspace = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     notes_dir="${notesDir}"
+    org_dir="${orgDir}"
+    journal_dir="$notes_dir/journal"
 
-    run mkdir -p "$notes_dir"
+    ensure_file() {
+      file="$1"
+      shift
 
-    if [ ! -e "$notes_dir/index.norg" ]; then
-      printf '%s\n' \
-        '* My Notes' \
-        "" \
-        '- {:$notes/youtube:}[YouTube notes]' \
-        '- {:$notes/work:}[Work notes]' \
-        '- {:$notes/japanese:}[Japanese notes]' \
-        > "$notes_dir/index.norg"
-    fi
-
-    for note in youtube work japanese; do
-      if [ ! -e "$notes_dir/$note.norg" ]; then
-        run touch "$notes_dir/$note.norg"
+      if [ ! -e "$file" ]; then
+        printf '%s\n' "$@" > "$file"
       fi
-    done
+    }
+
+    run mkdir -p "$notes_dir" "$journal_dir" "$org_dir"
+
+    ensure_file "$notes_dir/index.norg" \
+      '* Notes' \
+      "" \
+      '** Capture' \
+      '- {:$notes/inbox:}[Inbox]' \
+      '- {:$notes/tasks:}[Tasks]' \
+      '- {:$notes/projects:}[Projects]' \
+      '- {:$notes/someday:}[Someday]' \
+      "" \
+      '** Areas' \
+      '- {:$notes/work:}[Work notes]' \
+      '- {:$notes/japanese:}[Japanese notes]' \
+      '- {:$notes/youtube:}[YouTube notes]' \
+      "" \
+      '** Knowledge' \
+      '- {:$notes/references:}[References]' \
+      '- {:$notes/areas:}[Areas]'
+
+    ensure_file "$notes_dir/inbox.norg" '* Inbox' ""
+    ensure_file "$notes_dir/tasks.norg" '* Tasks' "" '** Next' "" '** Waiting' "" '** Done'
+    ensure_file "$notes_dir/projects.norg" '* Projects' "" '** Active' "" '** Later'
+    ensure_file "$notes_dir/areas.norg" '* Areas' ""
+    ensure_file "$notes_dir/references.norg" '* References' ""
+    ensure_file "$notes_dir/someday.norg" '* Someday' ""
+    ensure_file "$notes_dir/youtube.norg" '* YouTube notes' ""
+    ensure_file "$notes_dir/work.norg" '* Work notes' ""
+    ensure_file "$notes_dir/japanese.norg" '* Japanese notes' ""
+
+    ensure_file "$journal_dir/index.norg" '* Journal' ""
+    ensure_file "$journal_dir/template.norg" \
+      '* Journal' \
+      "" \
+      '** Notes' \
+      '- ' \
+      "" \
+      '** Tasks' \
+      '- ( ) '
+
+    ensure_file "$org_dir/inbox.org" '#+title: Inbox' "" '* Inbox'
+    ensure_file "$org_dir/tasks.org" '#+title: Tasks' "" '* Inbox' "" '* Next' "" '* Waiting' "" '* Done'
+    ensure_file "$org_dir/projects.org" '#+title: Projects' "" '* Active' "" '* Meetings' "" '* Done'
+    ensure_file "$org_dir/journal.org" '#+title: Journal' ""
+    ensure_file "$org_dir/refile.org" '#+title: Refile' "" '* Notes' "" '* Inbox'
   '';
 
   programs.nvf = {
@@ -45,6 +154,11 @@ in {
 
         globals.mapleader = " ";
 
+        startPlugins = with pkgs.vimPlugins; [
+          orgmode
+          zen-mode-nvim
+        ];
+
         options = {
           # general settings
           clipboard = "unnamedplus";
@@ -53,6 +167,8 @@ in {
           splitright = true;
           timeoutlen = 500;
           termguicolors = true;
+          hidden = true;
+          confirm = true;
           completeopt = "menuone,noselect";
           updatetime = 300;
 
@@ -89,6 +205,8 @@ in {
           # text stuff
           list = true;
           listchars = "tab:→\\ ,trail:°,extends:›,precedes:‹";
+          conceallevel = 2;
+          concealcursor = "nc";
 
           # fold your laundry
           foldmethod = "indent";
@@ -97,6 +215,8 @@ in {
         };
 
         inherit keymaps;
+
+        treesitter.grammars = [ pkgs.tree-sitter-grammars.tree-sitter-org-nvim ];
 
         # Languages (LSP servers). NVF exposes many language modules; enable those
         # corresponding to your setup. For Vue, add a custom LSP under vim.lsp.servers.
@@ -134,6 +254,7 @@ in {
             "<leader>e" = "+Explorer";
             "<leader>l" = "+Git";
             "<leader>n" = "+Notes";
+            "<leader>o" = "+Org";
             "<leader>x" = "+Diagnostics";
           };
         };
@@ -194,12 +315,27 @@ in {
                   index = "index.norg";
                 };
               };
+              "core.journal" = {
+                config = {
+                  workspace = "notes";
+                  journal_folder = "journal";
+                  strategy = "nested";
+                  use_template = true;
+                };
+              };
               "core.summary" = {};
               "core.qol.toc" = {};
               "core.qol.todo_items" = {};
               "core.export" = {};
+              "core.export.markdown" = {};
+              "core.export.html" = {};
               "core.integrations.telescope" = {};
-              "core.presenter" = {};
+              "core.text-objects" = {};
+              "core.presenter" = {
+                config = {
+                  zen_mode = "zen-mode";
+                };
+              };
             };
           };
         };
@@ -285,6 +421,10 @@ in {
         };
 
         # Example: tiny Lua tweak when Nix doesn't cover a case.
+        luaConfigRC.orgmode = ''
+          require("orgmode").setup(vim.json.decode([==[${builtins.toJSON orgmodeSetup}]==]))
+        '';
+
         luaConfigRC.example = ''
           vim.api.nvim_create_autocmd("TextYankPost", {
             callback = function()
@@ -293,7 +433,7 @@ in {
           })
 
           vim.api.nvim_create_autocmd("FileType", {
-            pattern = { "norg", "markdown" },
+            pattern = { "norg", "org", "markdown" },
             callback = function()
               vim.opt_local.wrap = true
               vim.opt_local.linebreak = true

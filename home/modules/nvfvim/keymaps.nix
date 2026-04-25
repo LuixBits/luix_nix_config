@@ -69,15 +69,39 @@
   }
   {
     mode = "n";
+    key = "<leader>ni";
+    action = "<cmd>Neorg index<CR>";
+    desc = "Open notes index";
+  }
+  {
+    mode = "n";
     key = "<leader>nj";
     action = "<cmd>Neorg journal today<CR>";
     desc = "Open today's journal";
   }
   {
     mode = "n";
+    key = "<leader>ny";
+    action = "<cmd>Neorg journal yesterday<CR>";
+    desc = "Open yesterday's journal";
+  }
+  {
+    mode = "n";
+    key = "<leader>nt";
+    action = "<cmd>Neorg journal tomorrow<CR>";
+    desc = "Open tomorrow's journal";
+  }
+  {
+    mode = "n";
     key = "<leader>nJ";
     action = "<cmd>Neorg journal toc open<CR>";
     desc = "Open journal index";
+  }
+  {
+    mode = "n";
+    key = "<leader>nU";
+    action = "<cmd>Neorg journal toc update<CR>";
+    desc = "Update journal index";
   }
   {
     mode = "n";
@@ -99,9 +123,81 @@
   }
   {
     mode = "n";
+    key = "<leader>n/";
+    action = "<cmd>lua require('telescope.builtin').live_grep({ search_dirs = { vim.fn.expand('~/notes') } })<CR>";
+    desc = "Search notes";
+  }
+  {
+    mode = "n";
+    key = "<leader>nc";
+    action = "<cmd>Neorg toggle-concealer<CR>";
+    desc = "Toggle Neorg concealer";
+  }
+  {
+    mode = "n";
+    key = "<leader>nS";
+    action = "<cmd>Neorg generate-workspace-summary<CR>";
+    desc = "Generate notes summary";
+  }
+  {
+    mode = "n";
+    key = "<leader>nM";
+    action = "<cmd>Neorg inject-metadata<CR>";
+    desc = "Insert note metadata";
+  }
+  {
+    mode = "n";
+    key = "<leader>nE";
+    action = "<cmd>Neorg export to-file<CR>";
+    desc = "Export note";
+  }
+  {
+    mode = "n";
+    key = "<leader>nC";
+    action = "<cmd>Neorg export to-clipboard<CR>";
+    desc = "Copy exported note";
+  }
+  {
+    mode = "n";
+    key = "<leader>nT";
+    action = "<cmd>Neorg tangle current-file<CR>";
+    desc = "Tangle note";
+  }
+  {
+    mode = "n";
     key = "<leader>np";
     action = "<cmd>Neorg presenter start<CR>";
     desc = "Start Neorg presentation";
+  }
+  {
+    mode = "n";
+    key = "<leader>oa";
+    action = "<cmd>Org agenda<CR>";
+    desc = "Open Org agenda";
+  }
+  {
+    mode = "n";
+    key = "<leader>oc";
+    action = "<cmd>Org capture<CR>";
+    desc = "Capture Org item";
+  }
+  {
+    mode = "n";
+    key = "<leader>ol";
+    action = "<cmd>Org store_link<CR>";
+    desc = "Store Org link";
+  }
+  {
+    mode = "n";
+    key = "<leader>oi";
+    action = "<cmd>edit ~/notes/org/inbox.org<CR>";
+    desc = "Open Org inbox";
+  }
+  {
+    mode = "n";
+    key = "<leader>ot";
+    action = "<cmd>edit ~/notes/org/tasks.org<CR>";
+    desc = "Open Org tasks";
   }
   {
     mode = "n";
