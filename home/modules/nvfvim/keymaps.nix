@@ -75,6 +75,18 @@
   }
   {
     mode = "n";
+    key = "<leader>nN";
+    action = "<cmd>NeorgNewNote<CR>";
+    desc = "Create Neorg note";
+  }
+  {
+    mode = "n";
+    key = "<leader>nG";
+    action = "<cmd>NeorgNewMeeting<CR>";
+    desc = "Create meeting note";
+  }
+  {
+    mode = "n";
     key = "<leader>nj";
     action = "<cmd>Neorg journal today<CR>";
     desc = "Open today's journal";
@@ -117,9 +129,33 @@
   }
   {
     mode = "n";
+    key = "<leader>nL";
+    action = "<cmd>Telescope neorg insert_file_link<CR>";
+    desc = "Insert file link";
+  }
+  {
+    mode = "n";
+    key = "<leader>nA";
+    action = "<cmd>Telescope neorg find_linkable<CR>";
+    desc = "Find link targets";
+  }
+  {
+    mode = "n";
     key = "<leader>nb";
     action = "<cmd>Telescope neorg find_backlinks<CR>";
     desc = "Find note backlinks";
+  }
+  {
+    mode = "n";
+    key = "<leader>nv";
+    action = "<cmd>NeorgFlashcards<CR>";
+    desc = "Open Japanese flashcards";
+  }
+  {
+    mode = "n";
+    key = "<leader>nF";
+    action = "<cmd>NeorgExportFlashcards<CR>";
+    desc = "Export Japanese flashcards";
   }
   {
     mode = "n";
@@ -171,33 +207,21 @@
   }
   {
     mode = "n";
-    key = "<leader>oa";
-    action = "<cmd>Org agenda<CR>";
-    desc = "Open Org agenda";
+    key = "<leader>n]";
+    action = "<Plug>(neorg.presenter.next-page)";
+    desc = "Next presentation slide";
   }
   {
     mode = "n";
-    key = "<leader>oc";
-    action = "<cmd>Org capture<CR>";
-    desc = "Capture Org item";
+    key = "<leader>n[";
+    action = "<Plug>(neorg.presenter.previous-page)";
+    desc = "Previous presentation slide";
   }
   {
     mode = "n";
-    key = "<leader>ol";
-    action = "<cmd>Org store_link<CR>";
-    desc = "Store Org link";
-  }
-  {
-    mode = "n";
-    key = "<leader>oi";
-    action = "<cmd>edit ~/notes/org/inbox.org<CR>";
-    desc = "Open Org inbox";
-  }
-  {
-    mode = "n";
-    key = "<leader>ot";
-    action = "<cmd>edit ~/notes/org/tasks.org<CR>";
-    desc = "Open Org tasks";
+    key = "<leader>nQ";
+    action = "<Plug>(neorg.presenter.close)";
+    desc = "Close presentation";
   }
   {
     mode = "n";

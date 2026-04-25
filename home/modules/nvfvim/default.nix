@@ -7,76 +7,6 @@
   ...
 }: let
   notesDir = "${config.home.homeDirectory}/notes";
-  orgDir = "${notesDir}/org";
-  orgmodeSetup = {
-    org_agenda_files = [ "${orgDir}/*" ];
-    org_default_notes_file = "${orgDir}/refile.org";
-    org_todo_keywords = [ "TODO(t)" "NEXT(n)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELLED(c@)" ];
-    org_agenda_span = "week";
-    org_agenda_start_on_weekday = 1;
-    org_agenda_remove_tags = true;
-    org_startup_folded = "content";
-    org_startup_indented = true;
-    org_hide_emphasis_markers = true;
-    org_log_done = "time";
-    org_log_into_drawer = "LOGBOOK";
-    win_split_mode = "float";
-    win_border = "rounded";
-    org_capture_templates = {
-      t = {
-        description = "Task";
-        target = "${orgDir}/tasks.org";
-        headline = "Inbox";
-        template = "* TODO %?\nSCHEDULED: %^t\n:PROPERTIES:\n:CREATED: %U\n:END:";
-      };
-      n = {
-        description = "Note";
-        target = "${orgDir}/refile.org";
-        headline = "Notes";
-        template = "* %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n\n%a";
-      };
-      j = {
-        description = "Journal";
-        target = "${orgDir}/journal.org";
-        datetree = true;
-        template = "* %<%H:%M> %?\n%U";
-      };
-      m = {
-        description = "Meeting";
-        target = "${orgDir}/projects.org";
-        headline = "Meetings";
-        template = "* %? :meeting:\nSCHEDULED: %^T\n:PROPERTIES:\n:CREATED: %U\n:END:\n\n** Notes\n** Actions";
-      };
-    };
-    org_agenda_custom_commands = {
-      d = {
-        description = "Daily dashboard";
-        types = [
-          {
-            type = "agenda";
-            org_agenda_overriding_header = "Today";
-            org_agenda_span = "day";
-          }
-          {
-            type = "tags_todo";
-            match = "+PRIORITY=\"A\"";
-            org_agenda_overriding_header = "High priority";
-          }
-        ];
-      };
-      w = {
-        description = "Week";
-        types = [
-          {
-            type = "agenda";
-            org_agenda_overriding_header = "Week";
-            org_agenda_span = "week";
-            org_agenda_start_on_weekday = 1;
-          }
-        ];
-      };
-    };
-  };
   keymaps = import ./keymaps.nix;
 in {
   # Import NVF’s Home‑Manager module
@@ -84,8 +14,10 @@ in {
 
   home.activation.ensureNotesWorkspace = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     notes_dir="${notesDir}"
-    org_dir="${orgDir}"
     journal_dir="$notes_dir/journal"
+    templates_dir="$notes_dir/templates"
+    meetings_dir="$notes_dir/meetings"
+    flashcards_dir="$notes_dir/flashcards"
 
     ensure_file() {
       file="$1"
@@ -96,7 +28,7 @@ in {
       fi
     }
 
-    run mkdir -p "$notes_dir" "$journal_dir" "$org_dir"
+    run mkdir -p "$notes_dir" "$journal_dir" "$templates_dir" "$meetings_dir" "$flashcards_dir"
 
     ensure_file "$notes_dir/index.norg" \
       '* Notes' \
@@ -106,10 +38,13 @@ in {
       '- {:$notes/tasks:}[Tasks]' \
       '- {:$notes/projects:}[Projects]' \
       '- {:$notes/someday:}[Someday]' \
+      '- {:$notes/journal/index:}[Journal]' \
+      '- {:$notes/meetings/index:}[Meetings]' \
       "" \
       '** Areas' \
       '- {:$notes/work:}[Work notes]' \
       '- {:$notes/japanese:}[Japanese notes]' \
+      '- {:$notes/flashcards/japanese:}[Japanese flashcards]' \
       '- {:$notes/youtube:}[YouTube notes]' \
       "" \
       '** Knowledge' \
@@ -124,23 +59,84 @@ in {
     ensure_file "$notes_dir/someday.norg" '* Someday' ""
     ensure_file "$notes_dir/youtube.norg" '* YouTube notes' ""
     ensure_file "$notes_dir/work.norg" '* Work notes' ""
-    ensure_file "$notes_dir/japanese.norg" '* Japanese notes' ""
+    ensure_file "$notes_dir/japanese.norg" \
+      '* Japanese notes' \
+      "" \
+      '** Vocabulary' \
+      '- {:$notes/flashcards/japanese:}[Japanese flashcards]' \
+      "" \
+      '** Grammar' \
+      '- '
 
     ensure_file "$journal_dir/index.norg" '* Journal' ""
     ensure_file "$journal_dir/template.norg" \
-      '* Journal' \
+      '* Daily note' \
+      "" \
+      '** Focus' \
+      '- ' \
       "" \
       '** Notes' \
       '- ' \
       "" \
       '** Tasks' \
+      '- ( ) ' \
+      "" \
+      '** Japanese' \
+      '- '
+
+    ensure_file "$templates_dir/note.norg" \
+      '* {{title}}' \
+      "" \
+      '- Created :: {{datetime}}' \
+      "" \
+      '** Notes' \
+      '- '
+
+    ensure_file "$templates_dir/daily.norg" \
+      '* {{date}}' \
+      "" \
+      '** Focus' \
+      '- ' \
+      "" \
+      '** Notes' \
+      '- ' \
+      "" \
+      '** Tasks' \
+      '- ( ) ' \
+      "" \
+      '** Japanese' \
+      '- '
+
+    ensure_file "$templates_dir/meeting.norg" \
+      '* {{title}}' \
+      "" \
+      '- Date :: {{date}}' \
+      "" \
+      '** Attendees' \
+      '- ' \
+      "" \
+      '** Notes' \
+      '- ' \
+      "" \
+      '** Decisions' \
+      '- ' \
+      "" \
+      '** Actions' \
       '- ( ) '
 
-    ensure_file "$org_dir/inbox.org" '#+title: Inbox' "" '* Inbox'
-    ensure_file "$org_dir/tasks.org" '#+title: Tasks' "" '* Inbox' "" '* Next' "" '* Waiting' "" '* Done'
-    ensure_file "$org_dir/projects.org" '#+title: Projects' "" '* Active' "" '* Meetings' "" '* Done'
-    ensure_file "$org_dir/journal.org" '#+title: Journal' ""
-    ensure_file "$org_dir/refile.org" '#+title: Refile' "" '* Notes' "" '* Inbox'
+    ensure_file "$meetings_dir/index.norg" \
+      '* Meetings' \
+      "" \
+      '- New meetings are created with `<leader>nG`.'
+
+    ensure_file "$flashcards_dir/japanese.norg" \
+      '* Japanese flashcards' \
+      "" \
+      '** Format' \
+      '- term | reading | meaning | example sentence' \
+      "" \
+      '** Cards' \
+      '- 日本語 :: にほんご :: Japanese language :: 日本語を勉強しています。'
   '';
 
   programs.nvf = {
@@ -155,7 +151,6 @@ in {
         globals.mapleader = " ";
 
         startPlugins = with pkgs.vimPlugins; [
-          orgmode
           zen-mode-nvim
         ];
 
@@ -216,8 +211,6 @@ in {
 
         inherit keymaps;
 
-        treesitter.grammars = [ pkgs.tree-sitter-grammars.tree-sitter-org-nvim ];
-
         # Languages (LSP servers). NVF exposes many language modules; enable those
         # corresponding to your setup. For Vue, add a custom LSP under vim.lsp.servers.
         languages = {
@@ -254,7 +247,6 @@ in {
             "<leader>e" = "+Explorer";
             "<leader>l" = "+Git";
             "<leader>n" = "+Notes";
-            "<leader>o" = "+Org";
             "<leader>x" = "+Diagnostics";
           };
         };
@@ -420,9 +412,173 @@ in {
           style = "moon";
         };
 
-        # Example: tiny Lua tweak when Nix doesn't cover a case.
-        luaConfigRC.orgmode = ''
-          require("orgmode").setup(vim.json.decode([==[${builtins.toJSON orgmodeSetup}]==]))
+        luaConfigRC.neorg-tools = ''
+          _G.neorg_notes = _G.neorg_notes or {}
+
+          local notes_dir = vim.fn.expand("${notesDir}")
+
+          local function join(...)
+            return table.concat({ ... }, "/")
+          end
+
+          local function ensure_dir(path)
+            vim.fn.mkdir(path, "p")
+          end
+
+          local function slugify(input)
+            local slug = vim.trim(input or ""):lower()
+            slug = slug:gsub("%s+", "-")
+            slug = slug:gsub("[^%w%-_]", "")
+            slug = slug:gsub("%-+", "-")
+            slug = slug:gsub("^%-", ""):gsub("%-$", "")
+
+            if slug == "" then
+              slug = os.date("%Y-%m-%d-%H%M%S")
+            end
+
+            return slug
+          end
+
+          local function read_template(path, fallback)
+            if vim.fn.filereadable(path) == 1 then
+              return vim.fn.readfile(path)
+            end
+
+            return fallback
+          end
+
+          local function render(lines, vars)
+            local rendered = {}
+
+            for _, line in ipairs(lines) do
+              for key, value in pairs(vars) do
+                line = line:gsub("{{" .. key .. "}}", function()
+                  return value
+                end)
+              end
+              table.insert(rendered, line)
+            end
+
+            return rendered
+          end
+
+          local function open_from_template(file, template, fallback, vars)
+            ensure_dir(vim.fn.fnamemodify(file, ":h"))
+
+            if vim.fn.filereadable(file) == 0 then
+              vim.fn.writefile(render(read_template(template, fallback), vars), file)
+            end
+
+            vim.cmd.edit(vim.fn.fnameescape(file))
+          end
+
+          local function ask_title(prompt, callback)
+            vim.ui.input({ prompt = prompt }, function(input)
+              local title = vim.trim(input or "")
+
+              if title == "" then
+                return
+              end
+
+              callback(title)
+            end)
+          end
+
+          _G.neorg_notes.new_note = function()
+            ask_title("Note title: ", function(title)
+              local file = join(notes_dir, slugify(title) .. ".norg")
+              open_from_template(file, join(notes_dir, "templates", "note.norg"), {
+                "* {{title}}",
+                "",
+                "- Created :: {{datetime}}",
+                "",
+                "** Notes",
+                "- ",
+              }, {
+                title = title,
+                date = os.date("%Y-%m-%d"),
+                datetime = os.date("%Y-%m-%d %H:%M"),
+              })
+            end)
+          end
+
+          _G.neorg_notes.new_meeting = function()
+            ask_title("Meeting title: ", function(title)
+              local file = join(notes_dir, "meetings", os.date("%Y-%m-%d-") .. slugify(title) .. ".norg")
+              open_from_template(file, join(notes_dir, "templates", "meeting.norg"), {
+                "* {{title}}",
+                "",
+                "- Date :: {{date}}",
+                "",
+                "** Attendees",
+                "- ",
+                "",
+                "** Notes",
+                "- ",
+                "",
+                "** Decisions",
+                "- ",
+                "",
+                "** Actions",
+                "- ( ) ",
+              }, {
+                title = title,
+                date = os.date("%Y-%m-%d"),
+                datetime = os.date("%Y-%m-%d %H:%M"),
+              })
+            end)
+          end
+
+          _G.neorg_notes.open_flashcards = function()
+            vim.cmd.edit(vim.fn.fnameescape(join(notes_dir, "flashcards", "japanese.norg")))
+          end
+
+          _G.neorg_notes.export_flashcards = function()
+            local source = join(notes_dir, "flashcards", "japanese.norg")
+            local output = join(notes_dir, "flashcards", "japanese.tsv")
+
+            if vim.fn.filereadable(source) == 0 then
+              vim.notify("No flashcard source found at " .. source, vim.log.levels.WARN)
+              return
+            end
+
+            local function clean(value)
+              return tostring(value or ""):gsub("\t", " "):gsub("\r", " "):gsub("\n", " ")
+            end
+
+            local rows = { "Expression\tReading\tMeaning\tSentence\tTags" }
+
+            for _, line in ipairs(vim.fn.readfile(source)) do
+              local body = line:match("^%s*-%s+(.+)$")
+
+              if body and body:find("::", 1, true) then
+                local fields = vim.split(body, "%s*::%s*", { trimempty = false })
+
+                if #fields >= 3 then
+                  while #fields < 4 do
+                    table.insert(fields, "")
+                  end
+
+                  table.insert(rows, table.concat({
+                    clean(fields[1]),
+                    clean(fields[2]),
+                    clean(fields[3]),
+                    clean(fields[4]),
+                    "japanese neorg",
+                  }, "\t"))
+                end
+              end
+            end
+
+            ensure_dir(vim.fn.fnamemodify(output, ":h"))
+            vim.fn.writefile(rows, output)
+            vim.notify(("Exported %d flashcards to %s"):format(#rows - 1, output), vim.log.levels.INFO)
+          end
+
+          vim.api.nvim_create_user_command("NeorgNewNote", _G.neorg_notes.new_note, {})
+          vim.api.nvim_create_user_command("NeorgNewMeeting", _G.neorg_notes.new_meeting, {})
+          vim.api.nvim_create_user_command("NeorgFlashcards", _G.neorg_notes.open_flashcards, {})
+          vim.api.nvim_create_user_command("NeorgExportFlashcards", _G.neorg_notes.export_flashcards, {})
         '';
 
         luaConfigRC.example = ''
@@ -433,7 +589,7 @@ in {
           })
 
           vim.api.nvim_create_autocmd("FileType", {
-            pattern = { "norg", "org", "markdown" },
+            pattern = { "norg", "markdown" },
             callback = function()
               vim.opt_local.wrap = true
               vim.opt_local.linebreak = true
