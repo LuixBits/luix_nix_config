@@ -77,13 +77,49 @@
     mode = "n";
     key = "<leader>nN";
     action = "<cmd>NeorgNewNote<CR>";
-    desc = "Create Neorg note";
+    desc = "Create categorized note";
+  }
+  {
+    mode = "n";
+    key = "<leader>nw";
+    action = "<cmd>NeorgNewWorkNote<CR>";
+    desc = "Create work note";
+  }
+  {
+    mode = "n";
+    key = "<leader>nY";
+    action = "<cmd>NeorgNewYoutubeNote<CR>";
+    desc = "Create YouTube note";
+  }
+  {
+    mode = "n";
+    key = "<leader>nP";
+    action = "<cmd>NeorgNewPrivateNote<CR>";
+    desc = "Create private note";
+  }
+  {
+    mode = "n";
+    key = "<leader>nK";
+    action = "<cmd>NeorgNewJapaneseNote<CR>";
+    desc = "Create Japanese note";
   }
   {
     mode = "n";
     key = "<leader>nG";
     action = "<cmd>NeorgNewMeeting<CR>";
     desc = "Create meeting note";
+  }
+  {
+    mode = "n";
+    key = "<leader>nD";
+    action = "<cmd>NeorgNewFolder<CR>";
+    desc = "Create notes folder";
+  }
+  {
+    mode = "n";
+    key = "<leader>nm";
+    action = "<cmd>NeorgMoveNote<CR>";
+    desc = "Move current note";
   }
   {
     mode = "n";

@@ -16,115 +16,13 @@ in {
     notes_dir="${notesDir}"
     journal_dir="$notes_dir/journal"
     templates_dir="$notes_dir/templates"
+    work_dir="$notes_dir/work"
+    youtube_dir="$notes_dir/youtube"
+    private_dir="$notes_dir/private"
+    japanese_dir="$notes_dir/japanese"
     meetings_dir="$notes_dir/meetings"
-    flashcards_dir="$notes_dir/flashcards"
 
-    ensure_file() {
-      file="$1"
-      shift
-
-      if [ ! -e "$file" ]; then
-        printf '%s\n' "$@" > "$file"
-      fi
-    }
-
-    run mkdir -p "$notes_dir" "$journal_dir" "$templates_dir" "$meetings_dir" "$flashcards_dir"
-
-    ensure_file "$notes_dir/index.norg" \
-      '* Notes' \
-      "" \
-      '** Capture' \
-      '- {:$notes/inbox:}[Inbox]' \
-      '- {:$notes/tasks:}[Tasks]' \
-      '- {:$notes/projects:}[Projects]' \
-      '- {:$notes/someday:}[Someday]' \
-      '- {:$notes/journal/index:}[Journal]' \
-      '- {:$notes/meetings/index:}[Meetings]' \
-      "" \
-      '** Areas' \
-      '- {:$notes/work:}[Work notes]' \
-      '- {:$notes/japanese:}[Japanese notes]' \
-      '- {:$notes/flashcards/japanese:}[Japanese flashcards]' \
-      '- {:$notes/youtube:}[YouTube notes]' \
-      "" \
-      '** Knowledge' \
-      '- {:$notes/references:}[References]' \
-      '- {:$notes/areas:}[Areas]'
-
-    ensure_file "$notes_dir/inbox.norg" '* Inbox' ""
-    ensure_file "$notes_dir/tasks.norg" '* Tasks' "" '** Next' "" '** Waiting' "" '** Done'
-    ensure_file "$notes_dir/projects.norg" '* Projects' "" '** Active' "" '** Later'
-    ensure_file "$notes_dir/areas.norg" '* Areas' ""
-    ensure_file "$notes_dir/references.norg" '* References' ""
-    ensure_file "$notes_dir/someday.norg" '* Someday' ""
-    ensure_file "$notes_dir/youtube.norg" '* YouTube notes' ""
-    ensure_file "$notes_dir/work.norg" '* Work notes' ""
-    ensure_file "$notes_dir/japanese.norg" \
-      '* Japanese notes' \
-      "" \
-      '** Vocabulary' \
-      '- {:$notes/flashcards/japanese:}[Japanese flashcards]' \
-      "" \
-      '** Grammar' \
-      '- '
-
-    ensure_file "$journal_dir/index.norg" '* Journal' ""
-    ensure_file "$journal_dir/template.norg" \
-      '* Daily note' \
-      "" \
-      '** Focus' \
-      '- ' \
-      "" \
-      '** Notes' \
-      '- ' \
-      "" \
-      '** Tasks' \
-      '- ( ) ' \
-      "" \
-      '** Japanese' \
-      '- '
-
-    ensure_file "$templates_dir/note.norg" \
-      '* {{title}}' \
-      "" \
-      '- Created :: {{datetime}}' \
-      "" \
-      '** Notes' \
-      '- ' \
-      "" \
-      '** References' \
-      '- Parent :: {{parent}}'
-
-    ensure_file "$templates_dir/meeting.norg" \
-      '* {{title}}' \
-      "" \
-      '- Date :: {{date}}' \
-      "" \
-      '** Attendees' \
-      '- ' \
-      "" \
-      '** Notes' \
-      '- ' \
-      "" \
-      '** Decisions' \
-      '- ' \
-      "" \
-      '** Actions' \
-      '- ( ) '
-
-    ensure_file "$meetings_dir/index.norg" \
-      '* Meetings' \
-      "" \
-      '- New meetings are created with `<leader>nG`.'
-
-    ensure_file "$flashcards_dir/japanese.norg" \
-      '* Japanese flashcards' \
-      "" \
-      '** Format' \
-      '- term | reading | meaning | example sentence' \
-      "" \
-      '** Cards' \
-      '- 日本語 :: にほんご :: Japanese language :: 日本語を勉強しています。'
+    run mkdir -p "$notes_dir" "$templates_dir" "$work_dir" "$youtube_dir" "$private_dir" "$japanese_dir" "$journal_dir" "$meetings_dir"
   '';
 
   programs.nvf = {
@@ -427,12 +325,20 @@ in {
             return slug
           end
 
-          local function read_template(path, fallback)
+          local function read_template(path)
             if vim.fn.filereadable(path) == 1 then
               return vim.fn.readfile(path)
             end
 
-            return fallback
+            vim.notify("Missing Neorg template: " .. path, vim.log.levels.WARN)
+            return {
+              "* {{title}}",
+              "",
+              "- Created :: {{datetime}}",
+              "",
+              "** Notes",
+              "- ",
+            }
           end
 
           local function render(lines, vars)
@@ -450,11 +356,11 @@ in {
             return rendered
           end
 
-          local function open_from_template(file, template, fallback, vars)
+          local function open_from_template(file, template, vars)
             ensure_dir(vim.fn.fnamemodify(file, ":h"))
 
             if vim.fn.filereadable(file) == 0 then
-              vim.fn.writefile(render(read_template(template, fallback), vars), file)
+              vim.fn.writefile(render(read_template(template), vars), file)
             end
 
             vim.cmd.edit(vim.fn.fnameescape(file))
@@ -503,64 +409,181 @@ in {
             return ("{:$notes/%s:}[%s]"):format(relative, note_title(absolute_path))
           end
 
-          _G.neorg_notes.new_note = function()
-            ask_title("Note title: ", function(title)
-              local file = join(notes_dir, slugify(title) .. ".norg")
-              local parent = link_for_note(vim.api.nvim_buf_get_name(0))
+          local note_types = {
+            { label = "Work notes", folder = "work", template = "work.norg" },
+            { label = "YouTube notes", folder = "youtube", template = "youtube.norg" },
+            { label = "Private notes", folder = "private", template = "private.norg" },
+            { label = "Japanese notes", folder = "japanese", template = "japanese.norg" },
+          }
 
-              open_from_template(file, join(notes_dir, "templates", "note.norg"), {
-                "* {{title}}",
-                "",
-                "- Created :: {{datetime}}",
-                "",
-                "** Notes",
-                "- ",
-                "",
-                "** References",
-                "- Parent :: {{parent}}",
-              }, {
-                title = title,
-                date = os.date("%Y-%m-%d"),
-                datetime = os.date("%Y-%m-%d %H:%M"),
-                parent = parent,
-              })
+          local function note_vars(title)
+            return {
+              title = title,
+              date = os.date("%Y-%m-%d"),
+              datetime = os.date("%Y-%m-%d %H:%M"),
+              parent = link_for_note(vim.api.nvim_buf_get_name(0)),
+            }
+          end
+
+          local function create_note(kind)
+            ask_title(kind.label .. " title: ", function(title)
+              local file = join(notes_dir, kind.folder, slugify(title) .. ".norg")
+              open_from_template(file, join(notes_dir, "templates", kind.template), note_vars(title))
             end)
+          end
+
+          local function clean_relative_path(input)
+            local path = vim.trim(input or ""):gsub("\\", "/")
+            path = path:gsub("^/+", ""):gsub("/+$", "")
+
+            if path == "" then
+              return nil
+            end
+
+            if path:find("..", 1, true) then
+              vim.notify("Use a path inside ~/notes, without '..'", vim.log.levels.WARN)
+              return nil
+            end
+
+            return path
+          end
+
+          local function title_from_path(path)
+            local title = vim.fn.fnamemodify(path, ":t:r")
+            title = title:gsub("[-_]+", " ")
+            title = title:gsub("(%a)([%w']*)", function(first, rest)
+              return first:upper() .. rest
+            end)
+
+            return title
+          end
+
+          _G.neorg_notes.new_note = function()
+            vim.ui.select(note_types, {
+              prompt = "Note type:",
+              format_item = function(item)
+                return item.label
+              end,
+            }, function(kind)
+              if kind then
+                create_note(kind)
+              end
+            end)
+          end
+
+          _G.neorg_notes.new_work_note = function()
+            create_note(note_types[1])
+          end
+
+          _G.neorg_notes.new_youtube_note = function()
+            create_note(note_types[2])
+          end
+
+          _G.neorg_notes.new_private_note = function()
+            create_note(note_types[3])
+          end
+
+          _G.neorg_notes.new_japanese_note = function()
+            create_note(note_types[4])
           end
 
           _G.neorg_notes.new_meeting = function()
             ask_title("Meeting title: ", function(title)
               local file = join(notes_dir, "meetings", os.date("%Y-%m-%d-") .. slugify(title) .. ".norg")
               open_from_template(file, join(notes_dir, "templates", "meeting.norg"), {
-                "* {{title}}",
-                "",
-                "- Date :: {{date}}",
-                "",
-                "** Attendees",
-                "- ",
-                "",
-                "** Notes",
-                "- ",
-                "",
-                "** Decisions",
-                "- ",
-                "",
-                "** Actions",
-                "- ( ) ",
-              }, {
                 title = title,
                 date = os.date("%Y-%m-%d"),
                 datetime = os.date("%Y-%m-%d %H:%M"),
+                parent = link_for_note(vim.api.nvim_buf_get_name(0)),
               })
             end)
           end
 
+          _G.neorg_notes.new_folder = function()
+            vim.ui.input({ prompt = "Folder under ~/notes: " }, function(input)
+              local folder = clean_relative_path(input)
+
+              if not folder then
+                return
+              end
+
+              local dir = join(notes_dir, folder)
+              local index = join(dir, "index.norg")
+              ensure_dir(dir)
+
+              if vim.fn.filereadable(index) == 0 then
+                vim.fn.writefile({
+                  "* " .. title_from_path(folder),
+                  "",
+                  "** Notes",
+                  "- ",
+                }, index)
+              end
+
+              vim.cmd.edit(vim.fn.fnameescape(index))
+            end)
+          end
+
+          _G.neorg_notes.move_current_note = function()
+            local current = vim.api.nvim_buf_get_name(0)
+
+            if current == "" or not current:match("%.norg$") then
+              vim.notify("Open a .norg note before moving it", vim.log.levels.WARN)
+              return
+            end
+
+            local absolute_notes_dir = vim.fn.fnamemodify(notes_dir, ":p")
+            local absolute_current = vim.fn.fnamemodify(current, ":p")
+
+            if not vim.startswith(absolute_current, absolute_notes_dir) then
+              vim.notify("Can only move notes inside ~/notes", vim.log.levels.WARN)
+              return
+            end
+
+            if vim.bo.modified then
+              vim.cmd.write()
+            end
+
+            local current_relative = absolute_current:sub(#absolute_notes_dir + 1)
+            vim.ui.input({ prompt = "Move note to: ", default = current_relative }, function(input)
+              local target_relative = clean_relative_path(input)
+
+              if not target_relative then
+                return
+              end
+
+              if not target_relative:match("%.norg$") then
+                target_relative = target_relative .. ".norg"
+              end
+
+              local target = join(notes_dir, target_relative)
+
+              if vim.fn.filereadable(target) == 1 then
+                vim.notify("Target already exists: " .. target, vim.log.levels.WARN)
+                return
+              end
+
+              ensure_dir(vim.fn.fnamemodify(target, ":h"))
+
+              local ok, err = os.rename(absolute_current, target)
+
+              if not ok then
+                vim.notify("Could not move note: " .. tostring(err), vim.log.levels.ERROR)
+                return
+              end
+
+              vim.cmd.edit(vim.fn.fnameescape(target))
+              vim.notify("Moved note to " .. target_relative, vim.log.levels.INFO)
+            end)
+          end
+
           _G.neorg_notes.open_flashcards = function()
-            vim.cmd.edit(vim.fn.fnameescape(join(notes_dir, "flashcards", "japanese.norg")))
+            vim.cmd.edit(vim.fn.fnameescape(join(notes_dir, "japanese", "flashcards.norg")))
           end
 
           _G.neorg_notes.export_flashcards = function()
-            local source = join(notes_dir, "flashcards", "japanese.norg")
-            local output = join(notes_dir, "flashcards", "japanese.tsv")
+            local source = join(notes_dir, "japanese", "flashcards.norg")
+            local output = join(notes_dir, "japanese", "flashcards.tsv")
 
             if vim.fn.filereadable(source) == 0 then
               vim.notify("No flashcard source found at " .. source, vim.log.levels.WARN)
@@ -601,7 +624,13 @@ in {
           end
 
           vim.api.nvim_create_user_command("NeorgNewNote", _G.neorg_notes.new_note, {})
+          vim.api.nvim_create_user_command("NeorgNewWorkNote", _G.neorg_notes.new_work_note, {})
+          vim.api.nvim_create_user_command("NeorgNewYoutubeNote", _G.neorg_notes.new_youtube_note, {})
+          vim.api.nvim_create_user_command("NeorgNewPrivateNote", _G.neorg_notes.new_private_note, {})
+          vim.api.nvim_create_user_command("NeorgNewJapaneseNote", _G.neorg_notes.new_japanese_note, {})
           vim.api.nvim_create_user_command("NeorgNewMeeting", _G.neorg_notes.new_meeting, {})
+          vim.api.nvim_create_user_command("NeorgNewFolder", _G.neorg_notes.new_folder, {})
+          vim.api.nvim_create_user_command("NeorgMoveNote", _G.neorg_notes.move_current_note, {})
           vim.api.nvim_create_user_command("NeorgFlashcards", _G.neorg_notes.open_flashcards, {})
           vim.api.nvim_create_user_command("NeorgExportFlashcards", _G.neorg_notes.export_flashcards, {})
         '';
