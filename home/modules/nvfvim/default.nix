@@ -90,22 +90,10 @@ in {
       '- Created :: {{datetime}}' \
       "" \
       '** Notes' \
-      '- '
-
-    ensure_file "$templates_dir/daily.norg" \
-      '* {{date}}' \
-      "" \
-      '** Focus' \
       '- ' \
       "" \
-      '** Notes' \
-      '- ' \
-      "" \
-      '** Tasks' \
-      '- ( ) ' \
-      "" \
-      '** Japanese' \
-      '- '
+      '** References' \
+      '- Parent :: {{parent}}'
 
     ensure_file "$templates_dir/meeting.norg" \
       '* {{title}}' \
@@ -484,9 +472,42 @@ in {
             end)
           end
 
+          local function note_title(path)
+            if vim.fn.filereadable(path) == 1 then
+              for _, line in ipairs(vim.fn.readfile(path, "", 40)) do
+                local title = line:match("^%*%s+(.+)$")
+
+                if title then
+                  return vim.trim(title)
+                end
+              end
+            end
+
+            return vim.fn.fnamemodify(path, ":t:r")
+          end
+
+          local function link_for_note(path)
+            if path == "" or not path:match("%.norg$") then
+              return ""
+            end
+
+            local absolute_notes_dir = vim.fn.fnamemodify(notes_dir, ":p")
+            local absolute_path = vim.fn.fnamemodify(path, ":p")
+
+            if not vim.startswith(absolute_path, absolute_notes_dir) then
+              return ""
+            end
+
+            local relative = absolute_path:sub(#absolute_notes_dir + 1):gsub("%.norg$", "")
+
+            return ("{:$notes/%s:}[%s]"):format(relative, note_title(absolute_path))
+          end
+
           _G.neorg_notes.new_note = function()
             ask_title("Note title: ", function(title)
               local file = join(notes_dir, slugify(title) .. ".norg")
+              local parent = link_for_note(vim.api.nvim_buf_get_name(0))
+
               open_from_template(file, join(notes_dir, "templates", "note.norg"), {
                 "* {{title}}",
                 "",
@@ -494,10 +515,14 @@ in {
                 "",
                 "** Notes",
                 "- ",
+                "",
+                "** References",
+                "- Parent :: {{parent}}",
               }, {
                 title = title,
                 date = os.date("%Y-%m-%d"),
                 datetime = os.date("%Y-%m-%d %H:%M"),
+                parent = parent,
               })
             end)
           end
