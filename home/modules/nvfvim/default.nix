@@ -1,11 +1,43 @@
 # home-manager module using NVF
-{ inputs, pkgs, ... }: {
+{
+  config,
+  inputs,
+  lib,
+  pkgs,
+  ...
+}: let
+  notesDir = "${config.home.homeDirectory}/notes";
+  keymaps = import ./keymaps.nix;
+in {
   # Import NVF’s Home‑Manager module
   imports = [ inputs.nvf.homeManagerModules.default ];
+
+  home.activation.ensureNotesWorkspace = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    notes_dir="${notesDir}"
+
+    run mkdir -p "$notes_dir"
+
+    if [ ! -e "$notes_dir/index.norg" ]; then
+      printf '%s\n' \
+        '* My Notes' \
+        "" \
+        '- {:$notes/youtube:}[YouTube notes]' \
+        '- {:$notes/work:}[Work notes]' \
+        '- {:$notes/japanese:}[Japanese notes]' \
+        > "$notes_dir/index.norg"
+    fi
+
+    for note in youtube work japanese; do
+      if [ ! -e "$notes_dir/$note.norg" ]; then
+        run touch "$notes_dir/$note.norg"
+      fi
+    done
+  '';
 
   programs.nvf = {
     enable = true;
     defaultEditor = true;
+    enableManpages = true;
     settings = {
       vim = {
         viAlias = true;
@@ -64,53 +96,17 @@
           foldenable = false;
         };
 
-        keymaps = [
-          {
-            mode = "n";
-            key = "<leader>w";
-            action = ":w<CR>";
-            silent = false;
-          }
-          {
-            mode = "n";
-            key = "<leader>q";
-            action = ":q<CR>";
-            silent = false;
-          }
-          {
-            mode = "n";
-            key = "<leader>ff";
-            action = "<cmd>Telescope find_files<CR>";
-          }
-          {
-            mode = "n";
-            key = "<leader>fg";
-            action = "<cmd>Telescope live_grep<CR>";
-          }
-          {
-            mode = "n";
-            key = "<leader>fb";
-            action = "<cmd>Telescope buffers<CR>";
-          }
-          {
-            mode = "n";
-            key = "<leader>fh";
-            action = "<cmd>Telescope help_tags<CR>";
-          }
-          {
-            mode = "n";
-            key = "<leader>lp";
-            action = "<cmd>lua require('gitsigns').preview_hunk()<CR>";
-          }
-        ];
+        inherit keymaps;
 
         # Languages (LSP servers). NVF exposes many language modules; enable those
         # corresponding to your setup. For Vue, add a custom LSP under vim.lsp.servers.
         languages = {
+          enableTreesitter = true;
           typescript.enable = true; # TypeScript/JavaScript
           css.enable = true;
           json.enable = true;
           lua.enable = true;
+          markdown.enable = true;
           nix.enable = true; # nixd language server
         };
 
@@ -130,6 +126,82 @@
             };
           };
           nvim-web-devicons.enable = true;
+        };
+
+        binds.whichKey = {
+          enable = true;
+          register = {
+            "<leader>e" = "+Explorer";
+            "<leader>l" = "+Git";
+            "<leader>n" = "+Notes";
+            "<leader>x" = "+Diagnostics";
+          };
+        };
+
+        autocomplete.blink-cmp = {
+          enable = true;
+          friendly-snippets.enable = true;
+          setupOpts = {
+            keymap.preset = "super-tab";
+            completion.documentation.auto_show_delay_ms = 150;
+          };
+        };
+
+        autopairs.nvim-autopairs.enable = true;
+        comments.comment-nvim.enable = true;
+        utility.surround.enable = true;
+        notes.todo-comments.enable = true;
+
+        filetree.nvimTree = {
+          enable = true;
+          setupOpts = {
+            view = {
+              width = 35;
+              side = "left";
+            };
+
+            renderer = {
+              group_empty = true;
+              indent_markers.enable = true;
+            };
+
+            filters = {
+              dotfiles = false;
+              git_ignored = true;
+            };
+
+            git.enable = true;
+
+            update_focused_file = {
+              enable = true;
+              update_root = true;
+            };
+          };
+        };
+
+        notes.neorg = {
+          enable = true;
+          setupOpts = {
+            load = {
+              "core.defaults" = {};
+              "core.concealer" = {};
+              "core.dirman" = {
+                config = {
+                  workspaces = {
+                    notes = notesDir;
+                  };
+                  default_workspace = "notes";
+                  index = "index.norg";
+                };
+              };
+              "core.summary" = {};
+              "core.qol.toc" = {};
+              "core.qol.todo_items" = {};
+              "core.export" = {};
+              "core.integrations.telescope" = {};
+              "core.presenter" = {};
+            };
+          };
         };
 
         statusline.lualine = {
@@ -197,6 +269,7 @@
               center = [
                 { icon = " "; desc = "Find file"; key = "f"; action = "Telescope find_files"; }
                 { icon = " "; desc = "Live grep"; key = "g"; action = "Telescope live_grep"; }
+                { icon = " "; desc = "Notes workspace"; key = "n"; action = "Neorg workspace notes"; }
                 { icon = " "; desc = "File tree"; key = "e"; action = "NvimTreeToggle"; }
                 { icon = " "; desc = "Quit"; key = "q"; action = "qa"; }
               ];
@@ -216,6 +289,15 @@
           vim.api.nvim_create_autocmd("TextYankPost", {
             callback = function()
               vim.highlight.on_yank({ higroup = "IncSearch", timeout = 200 })
+            end,
+          })
+
+          vim.api.nvim_create_autocmd("FileType", {
+            pattern = { "norg", "markdown" },
+            callback = function()
+              vim.opt_local.wrap = true
+              vim.opt_local.linebreak = true
+              vim.opt_local.spell = true
             end,
           })
         '';
