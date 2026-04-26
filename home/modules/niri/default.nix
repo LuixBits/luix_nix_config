@@ -4,7 +4,7 @@ let
   isLaptopProfile = hostName == "l";
   isPcProfile = hostName == "pc";
   workLaptopOutput = "eDP-1";
-  laptopInternalOutput = "Samsung Display Corp. 0x419F Unknown";
+  laptopInternalOutput = "eDP-1";
   sharedMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
   sharedRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
   # Match external displays by make/model/serial so DisplayLink connector order
