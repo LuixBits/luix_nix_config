@@ -67,7 +67,8 @@
     - Put the cursor where the link should go.
     - Press Space n l and pick the target note or heading.
     - Press Space n b to find notes that link back to the current file.
-    - Press Space n / to search all notes as plain text.
+    - Press Space n f to find/open note files.
+    - Press Space n g to search inside all notes.
 
     ** Move Notes
     - Open the note you want to move.
@@ -79,7 +80,7 @@
     - Press Space n s to create a slide note.
     - Write each slide as a level 1 heading, starting with one star.
     - Press Space n p to start the presentation from that .norg file.
-    - Space n ] goes forward, Space n [ goes backward, Space n Q closes it.
+    - Space n ä goes forward, Space n ö goes backward, Space n Q closes it.
 
     Presenter uses level 1 headings as slide boundaries. Headings with two stars are sections inside the current slide, not new slides.
 
@@ -87,7 +88,7 @@
     - Capture with Space n a or Space n j.
     - Link only when a relationship is obvious.
     - Move notes later once a folder becomes obvious.
-    - Search with Space n / when you cannot remember where something is.
+    - Search with Space n g when you cannot remember where something is.
   '';
 in {
   # Import NVF’s Home‑Manager module

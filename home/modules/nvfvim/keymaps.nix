@@ -177,6 +177,12 @@
   }
   {
     mode = "n";
+    key = "<leader>ng";
+    action = "<cmd>lua require('telescope.builtin').live_grep({ search_dirs = { vim.fn.expand('~/notes') } })<CR>";
+    desc = "Search notes";
+  }
+  {
+    mode = "n";
     key = "<leader>nl";
     action = "<cmd>Telescope neorg insert_link<CR>";
     desc = "Insert note link";
@@ -215,7 +221,7 @@
     mode = "n";
     key = "<leader>n/";
     action = "<cmd>lua require('telescope.builtin').live_grep({ search_dirs = { vim.fn.expand('~/notes') } })<CR>";
-    desc = "Search notes";
+    desc = "Search notes (legacy)";
   }
   {
     mode = "n";
@@ -261,13 +267,13 @@
   }
   {
     mode = "n";
-    key = "<leader>n]";
+    key = "<leader>nä";
     action = "<Plug>(neorg.presenter.next-page)";
     desc = "Next presentation slide";
   }
   {
     mode = "n";
-    key = "<leader>n[";
+    key = "<leader>nö";
     action = "<Plug>(neorg.presenter.previous-page)";
     desc = "Previous presentation slide";
   }
