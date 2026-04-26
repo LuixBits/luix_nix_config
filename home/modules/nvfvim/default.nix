@@ -8,6 +8,87 @@
 }: let
   notesDir = "${config.home.homeDirectory}/notes";
   keymaps = import ./keymaps.nix;
+  genericTemplate = pkgs.writeText "neorg-generic-template.norg" ''
+    * {{title}}
+
+    - Type :: Note
+    - Created :: {{datetime}}
+    - Parent :: {{parent}}
+
+    ** Notes
+    - 
+
+    ** Links
+    - 
+  '';
+  presentationTemplate = pkgs.writeText "neorg-presentation-template.norg" ''
+    * {{title}}
+
+    - Type :: Presentation
+    - Created :: {{datetime}}
+    - Parent :: {{parent}}
+
+    * Opening
+    - What is this about?
+    - Why does it matter?
+
+    * Main Idea
+    - 
+
+    * Demo / Examples
+    - 
+
+    * Conclusion
+    - What did I learn?
+    - Would I keep using this?
+  '';
+  gettingStartedGuide = pkgs.writeText "neorg-getting-started.norg" ''
+    * Neorg Workflow
+
+    This is the small path. Do not try to learn every command first.
+
+    ** Daily Start
+    - Press Space n n to enter the notes workspace.
+    - Press Space n i to open the main index.
+    - Press Space n h to reopen this guide.
+
+    ** Create Notes
+    - Space n a creates a normal note next to the note you are currently editing.
+    - Space n N lets you choose Work, YouTube, Private, or Japanese.
+    - Space n Y creates a YouTube note directly.
+    - Space n G creates a meeting note.
+    - Space n j opens today's journal.
+    - Space n D creates a folder with an index note.
+
+    The easiest rule: start from an index note, then use Space n a.
+
+    ** Link Notes
+    - Open the note where the link should appear.
+    - Put the cursor where the link should go.
+    - Press Space n l and pick the target note or heading.
+    - Press Space n b to find notes that link back to the current file.
+    - Press Space n / to search all notes as plain text.
+
+    ** Move Notes
+    - Open the note you want to move.
+    - Press Space n m.
+    - Type a new path inside ~/notes, for example youtube/my-video-idea.norg.
+    - Links that point to the old file path are updated automatically.
+
+    ** Presentations
+    - Press Space n s to create a slide note.
+    - Write each slide as a level 1 heading, starting with one star.
+    - Press Space n p to start the presentation from that .norg file.
+    - Space n ] goes forward, Space n [ goes backward, Space n Q closes it.
+
+    Presenter uses level 1 headings as slide boundaries. Headings with two stars are sections inside the current slide, not new slides.
+
+    ** Tiny Workflow For Now
+    - Capture with Space n a or Space n j.
+    - Link only when a relationship is obvious.
+    - Move notes later once a folder becomes obvious.
+    - Search with Space n / when you cannot remember where something is.
+  '';
 in {
   # Import NVF’s Home‑Manager module
   imports = [ inputs.nvf.homeManagerModules.default ];
@@ -21,8 +102,22 @@ in {
     private_dir="$notes_dir/private"
     japanese_dir="$notes_dir/japanese"
     meetings_dir="$notes_dir/meetings"
+    presentations_dir="$notes_dir/presentations"
 
-    run mkdir -p "$notes_dir" "$templates_dir" "$work_dir" "$youtube_dir" "$private_dir" "$japanese_dir" "$journal_dir" "$meetings_dir"
+    run mkdir -p "$notes_dir" "$templates_dir" "$work_dir" "$youtube_dir" "$private_dir" "$japanese_dir" "$journal_dir" "$meetings_dir" "$presentations_dir"
+
+    seed_file() {
+      target="$1"
+      source="$2"
+
+      if [ ! -e "$target" ]; then
+        run install -Dm644 "$source" "$target"
+      fi
+    }
+
+    seed_file "$notes_dir/getting-started.norg" "${gettingStartedGuide}"
+    seed_file "$templates_dir/generic.norg" "${genericTemplate}"
+    seed_file "$templates_dir/presentation.norg" "${presentationTemplate}"
   '';
 
   programs.nvf = {
@@ -425,6 +520,21 @@ in {
             }
           end
 
+          local function current_notes_folder()
+            local current = vim.api.nvim_buf_get_name(0)
+            local absolute_notes_dir = vim.fn.fnamemodify(notes_dir, ":p")
+
+            if current ~= "" and current:match("%.norg$") then
+              local absolute_current = vim.fn.fnamemodify(current, ":p")
+
+              if vim.startswith(absolute_current, absolute_notes_dir) then
+                return vim.fn.fnamemodify(absolute_current, ":h")
+              end
+            end
+
+            return notes_dir
+          end
+
           local function create_note(kind)
             ask_title(kind.label .. " title: ", function(title)
               local file = join(notes_dir, kind.folder, slugify(title) .. ".norg")
@@ -471,6 +581,13 @@ in {
             end)
           end
 
+          _G.neorg_notes.new_here = function()
+            ask_title("Note title: ", function(title)
+              local file = join(current_notes_folder(), slugify(title) .. ".norg")
+              open_from_template(file, join(notes_dir, "templates", "generic.norg"), note_vars(title))
+            end)
+          end
+
           _G.neorg_notes.new_work_note = function()
             create_note(note_types[1])
           end
@@ -499,6 +616,17 @@ in {
             end)
           end
 
+          _G.neorg_notes.new_presentation = function()
+            ask_title("Presentation title: ", function(title)
+              local file = join(notes_dir, "presentations", os.date("%Y-%m-%d-") .. slugify(title) .. ".norg")
+              open_from_template(file, join(notes_dir, "templates", "presentation.norg"), note_vars(title))
+            end)
+          end
+
+          _G.neorg_notes.open_help = function()
+            vim.cmd.edit(vim.fn.fnameescape(join(notes_dir, "getting-started.norg")))
+          end
+
           _G.neorg_notes.new_folder = function()
             vim.ui.input({ prompt = "Folder under ~/notes: " }, function(input)
               local folder = clean_relative_path(input)
@@ -522,6 +650,51 @@ in {
 
               vim.cmd.edit(vim.fn.fnameescape(index))
             end)
+          end
+
+          local function update_workspace_links(old_relative, new_relative)
+            local old_without_ext = old_relative:gsub("%.norg$", "")
+            local new_without_ext = new_relative:gsub("%.norg$", "")
+            local replacements = {
+              { "{:$notes/" .. old_without_ext .. ":", "{:$notes/" .. new_without_ext .. ":" },
+              { "{:/" .. old_without_ext .. ":", "{:/" .. new_without_ext .. ":" },
+              { "{:$/" .. old_without_ext .. ":", "{:$/" .. new_without_ext .. ":" },
+              { "{:/" .. old_relative .. ":", "{:/" .. new_relative .. ":" },
+              { "{:$/" .. old_relative .. ":", "{:$/" .. new_relative .. ":" },
+            }
+            local changed_files = 0
+            local changed_links = 0
+            local files = vim.fn.globpath(notes_dir, "**/*.norg", 0, 1)
+
+            for _, file in ipairs(files) do
+              if vim.fn.filereadable(file) == 1 then
+                local lines = vim.fn.readfile(file)
+                local file_changed = false
+
+                for index, line in ipairs(lines) do
+                  for _, replacement in ipairs(replacements) do
+                    local updated, count = line:gsub(vim.pesc(replacement[1]), function()
+                      return replacement[2]
+                    end)
+
+                    if count > 0 then
+                      line = updated
+                      file_changed = true
+                      changed_links = changed_links + count
+                    end
+                  end
+
+                  lines[index] = line
+                end
+
+                if file_changed then
+                  vim.fn.writefile(lines, file)
+                  changed_files = changed_files + 1
+                end
+              end
+            end
+
+            return changed_files, changed_links
           end
 
           _G.neorg_notes.move_current_note = function()
@@ -572,8 +745,13 @@ in {
                 return
               end
 
+              local changed_files, changed_links = update_workspace_links(current_relative, target_relative)
+
               vim.cmd.edit(vim.fn.fnameescape(target))
-              vim.notify("Moved note to " .. target_relative, vim.log.levels.INFO)
+              vim.notify(
+                ("Moved note to %s and updated %d links in %d files"):format(target_relative, changed_links, changed_files),
+                vim.log.levels.INFO
+              )
             end)
           end
 
@@ -624,11 +802,14 @@ in {
           end
 
           vim.api.nvim_create_user_command("NeorgNewNote", _G.neorg_notes.new_note, {})
+          vim.api.nvim_create_user_command("NeorgNewHere", _G.neorg_notes.new_here, {})
           vim.api.nvim_create_user_command("NeorgNewWorkNote", _G.neorg_notes.new_work_note, {})
           vim.api.nvim_create_user_command("NeorgNewYoutubeNote", _G.neorg_notes.new_youtube_note, {})
           vim.api.nvim_create_user_command("NeorgNewPrivateNote", _G.neorg_notes.new_private_note, {})
           vim.api.nvim_create_user_command("NeorgNewJapaneseNote", _G.neorg_notes.new_japanese_note, {})
           vim.api.nvim_create_user_command("NeorgNewMeeting", _G.neorg_notes.new_meeting, {})
+          vim.api.nvim_create_user_command("NeorgNewPresentation", _G.neorg_notes.new_presentation, {})
+          vim.api.nvim_create_user_command("NeorgOpenHelp", _G.neorg_notes.open_help, {})
           vim.api.nvim_create_user_command("NeorgNewFolder", _G.neorg_notes.new_folder, {})
           vim.api.nvim_create_user_command("NeorgMoveNote", _G.neorg_notes.move_current_note, {})
           vim.api.nvim_create_user_command("NeorgFlashcards", _G.neorg_notes.open_flashcards, {})

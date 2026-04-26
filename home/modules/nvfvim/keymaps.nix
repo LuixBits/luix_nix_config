@@ -75,6 +75,18 @@
   }
   {
     mode = "n";
+    key = "<leader>nh";
+    action = "<cmd>NeorgOpenHelp<CR>";
+    desc = "Open notes help";
+  }
+  {
+    mode = "n";
+    key = "<leader>na";
+    action = "<cmd>NeorgNewHere<CR>";
+    desc = "Create note here";
+  }
+  {
+    mode = "n";
     key = "<leader>nN";
     action = "<cmd>NeorgNewNote<CR>";
     desc = "Create categorized note";
@@ -108,6 +120,12 @@
     key = "<leader>nG";
     action = "<cmd>NeorgNewMeeting<CR>";
     desc = "Create meeting note";
+  }
+  {
+    mode = "n";
+    key = "<leader>ns";
+    action = "<cmd>NeorgNewPresentation<CR>";
+    desc = "Create slides note";
   }
   {
     mode = "n";
