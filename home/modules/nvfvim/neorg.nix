@@ -192,14 +192,9 @@ in {
         end
       end
 
-      _G.neorg_notes.notes_tree = function()
-        vim.cmd("NvimTreeToggle " .. vim.fn.fnameescape(notes_dir))
-      end
-
       vim.api.nvim_create_user_command("NeorgNewNote", _G.neorg_notes.new_note, {})
       vim.api.nvim_create_user_command("NeorgNewFolder", _G.neorg_notes.new_folder, {})
       vim.api.nvim_create_user_command("NeorgToggleRender", _G.neorg_notes.toggle_render, {})
-      vim.api.nvim_create_user_command("NeorgNotesTree", _G.neorg_notes.notes_tree, {})
     '';
 
     luaConfigRC.neorg-filetype = ''

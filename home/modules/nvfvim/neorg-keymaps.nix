@@ -32,21 +32,9 @@
   }
   {
     mode = "n";
-    key = "<leader>ne";
-    action = "<cmd>NeorgNotesTree<CR>";
-    desc = "Toggle notes explorer";
-  }
-  {
-    mode = "n";
     key = "<leader>nE";
     action = "<cmd>NvimTreeFindFile<CR>";
     desc = "Reveal note in explorer";
-  }
-  {
-    mode = "n";
-    key = "<leader>nw";
-    action = "<cmd>wincmd w<CR>";
-    desc = "Switch note/tree window";
   }
   {
     mode = "n";
@@ -56,7 +44,7 @@
   }
   {
     mode = "n";
-    key = "<leader>ng";
+    key = "<leader>ns";
     action = "<cmd>lua require('telescope.builtin').live_grep({ search_dirs = { vim.fn.expand('${notesDir}') } })<CR>";
     desc = "Search notes";
   }
