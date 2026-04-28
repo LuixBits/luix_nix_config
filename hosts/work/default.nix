@@ -4,6 +4,7 @@
     ./hardware-configuration.nix
     ../common/base.nix
     ../../audiofix.nix
+    ../features/peripheral-quirks.nix
     ../features/hardware-intel.nix
     ../features/work/appimage.nix
     ../features/work/caddy.nix
