@@ -9,7 +9,10 @@
   keymaps = import ./keymaps.nix;
 in {
   # Import NVF’s Home‑Manager module
-  imports = [ inputs.nvf.homeManagerModules.default ];
+  imports = [
+    inputs.nvf.homeManagerModules.default
+    ./neorg.nix
+  ];
 
   programs.nvf = {
     enable = true;
