@@ -53,7 +53,6 @@ in
 {
   # The TS5 Plus is a Thunderbolt 5 dock. On this ThinkPad T14 Gen 5 AMD, its
   # tunneled PCIe devices can appear in D3cold and fail to bind during hotplug.
-  boot.kernelPackages = pkgs.linuxPackages_6_19;
   boot.kernelModules = [
     "thunderbolt"
     "xhci_pci"

@@ -3,8 +3,8 @@
   {
     mode = "n";
     key = "<leader>nn";
-    action = "<cmd>Neorg workspace notes<CR>";
-    desc = "Open notes workspace";
+    action = "<Plug>(neorg.dirman.new-note)";
+    desc = "Create note";
   }
   {
     mode = "n";
@@ -14,38 +14,14 @@
   }
   {
     mode = "n";
-    key = "<leader>na";
-    action = "<cmd>NeorgNewNote<CR>";
-    desc = "Create note";
-  }
-  {
-    mode = "n";
-    key = "<leader>nD";
-    action = "<cmd>NeorgNewFolder<CR>";
-    desc = "Create notes folder";
-  }
-  {
-    mode = "n";
     key = "<leader>nr";
-    action = "<cmd>NeorgToggleRender<CR>";
-    desc = "Toggle rendered view";
-  }
-  {
-    mode = "n";
-    key = "<leader>nE";
-    action = "<cmd>NvimTreeFindFile<CR>";
-    desc = "Reveal note in explorer";
+    action = "<cmd>Neorg toggle-concealer<CR>";
+    desc = "Toggle render";
   }
   {
     mode = "n";
     key = "<leader>nf";
     action = "<cmd>lua require('telescope.builtin').find_files({ cwd = vim.fn.expand('${notesDir}') })<CR>";
     desc = "Find notes";
-  }
-  {
-    mode = "n";
-    key = "<leader>ns";
-    action = "<cmd>lua require('telescope.builtin').live_grep({ search_dirs = { vim.fn.expand('${notesDir}') } })<CR>";
-    desc = "Search notes";
   }
 ]
