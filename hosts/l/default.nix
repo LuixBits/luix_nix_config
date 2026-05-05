@@ -2,7 +2,7 @@
 {
   imports = [
     ../common/base.nix
-    ../features/peripheral-quirks.nix
+    ../../audiofix.nix
     ../features/caldigit-ts5-plus.nix
     ../features/hardware-amd.nix
     ../features/flatpak.nix

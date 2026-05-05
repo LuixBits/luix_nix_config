@@ -14,10 +14,4 @@
       luix-voice = lib.importJSON ./presets/luix-voice.json;
     };
   };
-
-  systemd.user.services.easyeffects = {
-    Install = {
-      WantedBy = lib.mkForce [ ];
-    };
-  };
 }

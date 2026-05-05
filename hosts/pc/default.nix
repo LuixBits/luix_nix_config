@@ -3,7 +3,7 @@
   imports = [
     ../common/base.nix
     ../features/hardware-amd.nix
-    ../features/peripheral-quirks.nix
+    ../../audiofix.nix
     ../features/pc-mass-storage.nix
     ../features/media-tools.nix
     ../features/flatpak.nix
