@@ -23,6 +23,24 @@
         }
       ];
     };
+
+    wireplumber.extraConfig."99-z-q9u-dock-stability" = {
+      "monitor.alsa.rules" = [
+        {
+          matches = [
+            {
+              "media.class" = "Audio/Sink";
+              "alsa.card_name" = "Samson Q9U";
+            }
+            { "node.name" = "~alsa_output.*Samson.*Q9U.*"; }
+          ];
+          actions.update-props = {
+            "node.disabled" = true;
+            "session.suspend-timeout-seconds" = 2;
+          };
+        }
+      ];
+    };
   };
 
   environment.systemPackages = with pkgs; [

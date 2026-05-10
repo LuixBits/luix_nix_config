@@ -64,6 +64,20 @@ in
   ];
 
   services.udev.extraRules = ''
+    # Keep the whole TS5 Plus USB tree and the latency-sensitive peripherals
+    # attached to it out of runtime suspend. The Q9U in particular can stall
+    # USB control transfers on this dock path, which then makes HID devices
+    # disappear until the dock is replugged.
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="2188", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="8087", ATTR{idProduct}=="5787", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="35ef", ATTR{idProduct}=="0012", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="046d", ATTR{idProduct}=="c08a", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="17a0", ATTR{idProduct}=="0243", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="1038", ATTR{idProduct}=="12e5", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="5412", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="0412", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="1100", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
+
     ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="2188", ATTR{idProduct}=="5804", TEST=="power/control", ATTR{power/control}="on"
     ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="2188", ATTR{idProduct}=="551a", TEST=="power/control", ATTR{power/control}="on"
     ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="2188", ATTR{idProduct}=="552a", TEST=="power/control", ATTR{power/control}="on"

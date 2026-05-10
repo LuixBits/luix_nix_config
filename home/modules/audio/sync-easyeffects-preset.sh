@@ -19,6 +19,7 @@ die() {
 preset_name="${1:-}"
 preset_kind="${2:-input}"
 source_file="${3:-}"
+source_was_auto=false
 
 if [[ -z "$preset_name" ]]; then
   usage
@@ -33,6 +34,7 @@ script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 target_file="${script_dir}/presets/${preset_name}.json"
 
 if [[ -z "$source_file" ]]; then
+  source_was_auto=true
   xdg_data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
   xdg_config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
   candidates=(
@@ -58,6 +60,10 @@ fi
 
 resolved_source="$(readlink -f -- "$source_file")"
 if [[ "$resolved_source" == /nix/store/* ]]; then
+  if [[ "$source_was_auto" == true ]]; then
+    die "auto-detected preset resolves to the Nix store. Save/export a writable EasyEffects preset first, then pass that file explicitly."
+  fi
+
   printf 'warning: source resolves to Nix store path: %s\n' "$resolved_source" >&2
   printf 'warning: this is usually an immutable Home Manager-generated preset.\n' >&2
 fi

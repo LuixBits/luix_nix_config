@@ -3,8 +3,8 @@
   {
     mode = "n";
     key = "<leader>nn";
-    action = "<Plug>(neorg.dirman.new-note)";
-    desc = "Create note";
+    action = "<cmd>lua NeorgNewNoteHere()<CR>";
+    desc = "Create note here";
   }
   {
     mode = "n";
@@ -23,5 +23,11 @@
     key = "<leader>nf";
     action = "<cmd>lua require('telescope.builtin').find_files({ cwd = vim.fn.expand('${notesDir}') })<CR>";
     desc = "Find notes";
+  }
+  {
+    mode = "n";
+    key = "<leader>nl";
+    action = "<Plug>(neorg.telescope.insert_file_link)";
+    desc = "Insert note link";
   }
 ]
