@@ -20,6 +20,7 @@
     ../modules/qutebrowser
     ../modules/kdenlive
     ../modules/nvfvim
+    ../modules/virt-manager
     ../modules/work
   ];
 

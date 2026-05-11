@@ -5,6 +5,7 @@
     ../common/base.nix
     ../../audiofix.nix
     ../features/hardware-intel.nix
+    ../features/virt-manager.nix
     ../features/work/appimage.nix
     ../features/work/caddy.nix
     ../features/work/cx.nix
