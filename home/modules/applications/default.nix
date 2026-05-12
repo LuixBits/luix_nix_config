@@ -37,7 +37,6 @@
 
     # Music tools
     aonsoku
-    beets
     chromaprint
     picard
     termsonic
