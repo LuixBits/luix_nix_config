@@ -45,7 +45,11 @@
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
+      "application/xhtml+xml" = [ "firefox.desktop" ];
       "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
+      "text/html" = [ "firefox.desktop" ];
+      "x-scheme-handler/http" = [ "firefox.desktop" ];
+      "x-scheme-handler/https" = [ "firefox.desktop" ];
     };
   };
 }

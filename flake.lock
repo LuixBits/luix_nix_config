@@ -224,11 +224,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1778575483,
-        "narHash": "sha256-o8ti9MTqaeAcOSx3RWgYvIL970siqefnuBF2Fggph1M=",
+        "lastModified": 1778661129,
+        "narHash": "sha256-E9upXDHHOWUe012S0xvWHrehY1EU17YE1+DRkJH+LJ0=",
         "owner": "LovingMelody",
         "repo": "nix-citizen",
-        "rev": "e51f1da13b61e6ea0985dddb32b745a740ff7cc2",
+        "rev": "301dd045f178ecaf202872f9732e2fff857728b9",
         "type": "github"
       },
       "original": {
