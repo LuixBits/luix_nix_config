@@ -39,6 +39,7 @@
     spotify
     vivaldi
     vim
+    filezilla
   ];
 
   xdg.desktopEntries.teams-web = {
