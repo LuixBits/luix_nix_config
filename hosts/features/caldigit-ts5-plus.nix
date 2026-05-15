@@ -9,7 +9,7 @@ let
     fix_pci_device() {
       dev="$1"
       driver="$2"
-      slot="$(basename "$dev")"
+      slot="$(${pkgs.coreutils}/bin/basename "$dev")"
 
       if [ -w "$dev/power/control" ]; then
         echo on > "$dev/power/control" || true
@@ -30,10 +30,10 @@ let
       [ -r "$dev/subsystem_vendor" ] || continue
       [ -r "$dev/subsystem_device" ] || continue
 
-      vendor="$(cat "$dev/vendor")"
-      device="$(cat "$dev/device")"
-      subsystem_vendor="$(cat "$dev/subsystem_vendor")"
-      subsystem_device="$(cat "$dev/subsystem_device")"
+      vendor="$(< "$dev/vendor")"
+      device="$(< "$dev/device")"
+      subsystem_vendor="$(< "$dev/subsystem_vendor")"
+      subsystem_device="$(< "$dev/subsystem_device")"
 
       case "$vendor:$device:$subsystem_vendor:$subsystem_device" in
         0x1b21:0x2142:0x1ab6:0x3144)
@@ -61,14 +61,14 @@ let
       [ -r "$dev/subsystem_vendor" ] || continue
       [ -r "$dev/subsystem_device" ] || continue
 
-      vendor="$(cat "$dev/vendor")"
-      device="$(cat "$dev/device")"
-      subsystem_vendor="$(cat "$dev/subsystem_vendor")"
-      subsystem_device="$(cat "$dev/subsystem_device")"
+      vendor="$(< "$dev/vendor")"
+      device="$(< "$dev/device")"
+      subsystem_vendor="$(< "$dev/subsystem_vendor")"
+      subsystem_device="$(< "$dev/subsystem_device")"
 
       case "$vendor:$device:$subsystem_vendor:$subsystem_device" in
         0x1b21:0x2142:0x1ab6:0x3144)
-          slot="$(basename "$dev")"
+          slot="$(${pkgs.coreutils}/bin/basename "$dev")"
 
           if [ -w "$dev/power/control" ]; then
             echo on > "$dev/power/control" || true
@@ -76,7 +76,7 @@ let
 
           if [ -e "$dev/driver" ] && [ -w "$dev/driver/unbind" ]; then
             echo "$slot" > "$dev/driver/unbind" || true
-            sleep 2
+            ${pkgs.coreutils}/bin/sleep 2
           fi
 
           if [ -w /sys/bus/pci/drivers/xhci_hcd/bind ]; then
@@ -89,6 +89,137 @@ let
     if [ -w /sys/bus/pci/rescan ]; then
       echo 1 > /sys/bus/pci/rescan || true
     fi
+
+    ${recoverTs5Plus} || true
+  '';
+
+  watchTs5PlusUsb = pkgs.writeShellScript "watch-caldigit-ts5-plus-usb" ''
+    set -u
+
+    cooldown_seconds=90
+    hub_window_seconds=45
+    hub_error_threshold=3
+    last_reset=0
+    hub_first_error=0
+    hub_error_count=0
+
+    now_seconds() {
+      ${pkgs.coreutils}/bin/date +%s
+    }
+
+    is_ts5_usb_device() {
+      dev="$1"
+
+      [ -e "$dev" ] || return 1
+      dev="$(${pkgs.coreutils}/bin/readlink -f "$dev" 2>/dev/null || true)"
+
+      while [ -n "$dev" ] && [ "$dev" != "/" ]; do
+        if [ -r "$dev/idVendor" ]; then
+          vendor="$(< "$dev/idVendor")"
+          product=""
+          if [ -r "$dev/idProduct" ]; then
+            product="$(< "$dev/idProduct")"
+          fi
+
+          case "$vendor:$product" in
+            2188:*|8087:5787)
+              return 0
+              ;;
+          esac
+        fi
+
+        parent="$(${pkgs.coreutils}/bin/dirname "$dev")"
+        [ "$parent" = "$dev" ] && break
+        dev="$parent"
+      done
+
+      return 1
+    }
+
+    is_ts5_xhci_line() {
+      line="$1"
+
+      for dev in /sys/bus/pci/devices/*; do
+        [ -r "$dev/vendor" ] || continue
+        [ -r "$dev/device" ] || continue
+        [ -r "$dev/subsystem_vendor" ] || continue
+        [ -r "$dev/subsystem_device" ] || continue
+
+        vendor="$(< "$dev/vendor")"
+        device="$(< "$dev/device")"
+        subsystem_vendor="$(< "$dev/subsystem_vendor")"
+        subsystem_device="$(< "$dev/subsystem_device")"
+
+        case "$vendor:$device:$subsystem_vendor:$subsystem_device" in
+          0x1b21:0x2142:0x1ab6:0x3144)
+            slot="$(${pkgs.coreutils}/bin/basename "$dev")"
+            case "$line" in
+              *"$slot"*)
+                return 0
+                ;;
+            esac
+            ;;
+        esac
+      done
+
+      return 1
+    }
+
+    reset_with_cooldown() {
+      reason="$1"
+      now="$(now_seconds)"
+
+      if [ $((now - last_reset)) -lt "$cooldown_seconds" ]; then
+        return 0
+      fi
+
+      last_reset="$now"
+      echo "CalDigit TS5 Plus USB watchdog: resetting dock USB controller after: $reason" >&2
+      ${pkgs.coreutils}/bin/sleep 3
+      ${resetTs5PlusUsb} || true
+    }
+
+    handle_hub_timeout() {
+      line="$1"
+      hub_device="''${line#hub }"
+      hub_device="''${hub_device%%:*}"
+
+      is_ts5_usb_device "/sys/bus/usb/devices/$hub_device" || return 0
+
+      now="$(now_seconds)"
+      if [ "$hub_first_error" -eq 0 ] || [ $((now - hub_first_error)) -gt "$hub_window_seconds" ]; then
+        hub_first_error="$now"
+        hub_error_count=1
+      else
+        hub_error_count=$((hub_error_count + 1))
+      fi
+
+      if [ "$hub_error_count" -ge "$hub_error_threshold" ]; then
+        hub_first_error=0
+        hub_error_count=0
+        reset_with_cooldown "$line"
+      fi
+    }
+
+    handle_xhci_fault() {
+      line="$1"
+
+      is_ts5_xhci_line "$line" || return 0
+      reset_with_cooldown "$line"
+    }
+
+    echo "CalDigit TS5 Plus USB watchdog: watching kernel log for dock USB failures" >&2
+
+    ${pkgs.systemd}/bin/journalctl -k -f -n 0 -o cat | while IFS= read -r line; do
+      case "$line" in
+        hub\ *"hub_ext_port_status failed (err = -110)"*)
+          handle_hub_timeout "$line"
+          ;;
+        *"xHCI host controller not responding, assume dead"*|*"HC died; cleaning up"*)
+          handle_xhci_fault "$line"
+          ;;
+      esac
+    done
   '';
 in
 {
@@ -138,6 +269,21 @@ in
     serviceConfig = {
       Type = "oneshot";
       ExecStart = resetTs5PlusUsb;
+    };
+  };
+
+  systemd.services.caldigit-ts5-plus-usb-watchdog = {
+    description = "Automatically reset CalDigit TS5 Plus USB controller after kernel faults";
+    after = [
+      "systemd-journald.service"
+      "bolt.service"
+    ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = watchTs5PlusUsb;
+      Restart = "always";
+      RestartSec = "5s";
     };
   };
 }
