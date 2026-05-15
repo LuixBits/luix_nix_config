@@ -224,11 +224,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1778696153,
-        "narHash": "sha256-XpD8zveSHp9nayKa5cU+D7kQyqZniN5vwrIUAoccOCg=",
+        "lastModified": 1778802382,
+        "narHash": "sha256-DWc7JYFoACDUxGYRnoIAgB/h9ti6EjLloZSJX1opw28=",
         "owner": "LovingMelody",
         "repo": "nix-citizen",
-        "rev": "76a06a2055add20fa2ece2601b31214eef858f4b",
+        "rev": "29096b3bb0f9febb01005e74a36cd65b80f41416",
         "type": "github"
       },
       "original": {
@@ -352,11 +352,11 @@
         "noctalia-qs": "noctalia-qs"
       },
       "locked": {
-        "lastModified": 1778694748,
-        "narHash": "sha256-rnz+rUI1a+oJ+XiSohOCJwUkydiadlFyl1J+kHubxuc=",
+        "lastModified": 1778830602,
+        "narHash": "sha256-5HKL37GkJNRHsU8GS38UshBY7UyvTOQim2L4quSYGfE=",
         "owner": "noctalia-dev",
         "repo": "noctalia-shell",
-        "rev": "56084c6a08d19cf456fcb8888948cd2a99c68ef1",
+        "rev": "13964255121d100a7306e76a28010f19e8b33a1a",
         "type": "github"
       },
       "original": {
@@ -400,11 +400,11 @@
         "systems": "systems_3"
       },
       "locked": {
-        "lastModified": 1778697893,
-        "narHash": "sha256-FRDDot0l7uTmZKzU1WLKbaY16idh9xBwcM3Ft8rzZYE=",
+        "lastModified": 1778819658,
+        "narHash": "sha256-463Qu9gNz/fUjo9bvdReGrMAo8M8CGfAFkY6v9Kaz9k=",
         "owner": "notashelf",
         "repo": "nvf",
-        "rev": "ab459445197cf957498111bec530f58e7049df4b",
+        "rev": "15fd3580c049a308e6720494f732dbc4243c5490",
         "type": "github"
       },
       "original": {

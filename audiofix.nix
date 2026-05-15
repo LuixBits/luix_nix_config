@@ -15,28 +15,9 @@
         {
           matches = [
             { "node.name" = "~alsa_input.*"; }
-            { "node.name" = "~alsa_output.*"; }
           ];
           actions.update-props = {
             "session.suspend-timeout-seconds" = 0;
-          };
-        }
-      ];
-    };
-
-    wireplumber.extraConfig."99-z-q9u-dock-stability" = {
-      "monitor.alsa.rules" = [
-        {
-          matches = [
-            {
-              "media.class" = "Audio/Sink";
-              "alsa.card_name" = "Samson Q9U";
-            }
-            { "node.name" = "~alsa_output.*Samson.*Q9U.*"; }
-          ];
-          actions.update-props = {
-            "node.disabled" = true;
-            "session.suspend-timeout-seconds" = 2;
           };
         }
       ];

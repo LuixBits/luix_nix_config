@@ -37,10 +37,51 @@ let
 
       case "$vendor:$device:$subsystem_vendor:$subsystem_device" in
         0x1b21:0x2142:0x1ab6:0x3144)
-          fix_pci_device "$dev" xhci_pci
+          fix_pci_device "$dev" xhci_hcd
           ;;
         0x1d6a:0x04c0:0x1ab6:0x0173)
           fix_pci_device "$dev" atlantic
+          ;;
+      esac
+    done
+
+    if [ -w /sys/bus/pci/rescan ]; then
+      echo 1 > /sys/bus/pci/rescan || true
+    fi
+  '';
+
+  resetTs5PlusUsb = pkgs.writeShellScript "reset-caldigit-ts5-plus-usb" ''
+    set -u
+
+    ${pkgs.kmod}/bin/modprobe xhci_pci || true
+
+    for dev in /sys/bus/pci/devices/*; do
+      [ -r "$dev/vendor" ] || continue
+      [ -r "$dev/device" ] || continue
+      [ -r "$dev/subsystem_vendor" ] || continue
+      [ -r "$dev/subsystem_device" ] || continue
+
+      vendor="$(cat "$dev/vendor")"
+      device="$(cat "$dev/device")"
+      subsystem_vendor="$(cat "$dev/subsystem_vendor")"
+      subsystem_device="$(cat "$dev/subsystem_device")"
+
+      case "$vendor:$device:$subsystem_vendor:$subsystem_device" in
+        0x1b21:0x2142:0x1ab6:0x3144)
+          slot="$(basename "$dev")"
+
+          if [ -w "$dev/power/control" ]; then
+            echo on > "$dev/power/control" || true
+          fi
+
+          if [ -e "$dev/driver" ] && [ -w "$dev/driver/unbind" ]; then
+            echo "$slot" > "$dev/driver/unbind" || true
+            sleep 2
+          fi
+
+          if [ -w /sys/bus/pci/drivers/xhci_hcd/bind ]; then
+            echo "$slot" > /sys/bus/pci/drivers/xhci_hcd/bind || true
+          fi
           ;;
       esac
     done
@@ -61,30 +102,21 @@ in
 
   boot.kernelParams = [
     "pcie_port_pm=off"
+    "usbcore.autosuspend=-1"
   ];
 
   services.udev.extraRules = ''
-    # Keep the whole TS5 Plus USB tree and the latency-sensitive peripherals
-    # attached to it out of runtime suspend. The Q9U in particular can stall
-    # USB control transfers on this dock path, which then makes HID devices
-    # disappear until the dock is replugged.
+    # Keep the whole TS5 Plus USB tree out of runtime suspend. The dock exposes
+    # multiple internal hubs; ATTRS walks parent devices, so this also covers
+    # keyboards, mice, audio devices, cameras, and other peripherals connected
+    # downstream of those hubs without matching every device by product ID.
     ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="2188", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="8087", ATTR{idProduct}=="5787", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="35ef", ATTR{idProduct}=="0012", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="046d", ATTR{idProduct}=="c08a", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="17a0", ATTR{idProduct}=="0243", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="1038", ATTR{idProduct}=="12e5", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="5412", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="0412", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="1100", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTRS{idVendor}=="2188", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
 
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="2188", ATTR{idProduct}=="5804", TEST=="power/control", ATTR{power/control}="on"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="2188", ATTR{idProduct}=="551a", TEST=="power/control", ATTR{power/control}="on"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="2188", ATTR{idProduct}=="552a", TEST=="power/control", ATTR{power/control}="on"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="2188", ATTR{idProduct}=="551f", TEST=="power/control", ATTR{power/control}="on"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="2188", ATTR{idProduct}=="7113", TEST=="power/control", ATTR{power/control}="on"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="2188", ATTR{idProduct}=="ace1", TEST=="power/control", ATTR{power/control}="on"
-    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="8087", ATTR{idProduct}=="5787", TEST=="power/control", ATTR{power/control}="on"
+    # One TS5 internal USB3 branch appears as an Intel hub before the CalDigit
+    # hub, so keep that branch awake as well.
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="8087", ATTR{idProduct}=="5787", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTRS{idVendor}=="8087", ATTRS{idProduct}=="5787", TEST=="power/control", ATTR{power/control}="on", TEST=="power/autosuspend", ATTR{power/autosuspend}="-1"
 
     ACTION=="add|change", SUBSYSTEM=="pci", ATTR{vendor}=="0x1b21", ATTR{device}=="0x2142", ATTR{subsystem_vendor}=="0x1ab6", ATTR{subsystem_device}=="0x3144", TEST=="power/control", ATTR{power/control}="on", TAG+="systemd", ENV{SYSTEMD_WANTS}+="caldigit-ts5-plus-recover.service"
     ACTION=="add|change", SUBSYSTEM=="pci", ATTR{vendor}=="0x1d6a", ATTR{device}=="0x04c0", ATTR{subsystem_vendor}=="0x1ab6", ATTR{subsystem_device}=="0x0173", TEST=="power/control", ATTR{power/control}="on", TAG+="systemd", ENV{SYSTEMD_WANTS}+="caldigit-ts5-plus-recover.service"
@@ -97,6 +129,15 @@ in
     serviceConfig = {
       Type = "oneshot";
       ExecStart = recoverTs5Plus;
+    };
+  };
+
+  systemd.services.caldigit-ts5-plus-usb-reset = {
+    description = "Reset CalDigit TS5 Plus USB controller";
+    after = [ "bolt.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = resetTs5PlusUsb;
     };
   };
 }
