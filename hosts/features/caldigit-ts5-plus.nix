@@ -74,6 +74,10 @@ let
             echo on > "$dev/power/control" || true
           fi
 
+          if [ -w "$dev/enable" ]; then
+            echo 1 > "$dev/enable" || true
+          fi
+
           if [ -e "$dev/driver" ] && [ -w "$dev/driver/unbind" ]; then
             echo "$slot" > "$dev/driver/unbind" || true
             ${pkgs.coreutils}/bin/sleep 2
@@ -208,7 +212,35 @@ let
       reset_with_cooldown "$line"
     }
 
+    recover_stale_xhci() {
+      for dev in /sys/bus/pci/devices/*; do
+        [ -r "$dev/vendor" ] || continue
+        [ -r "$dev/device" ] || continue
+        [ -r "$dev/subsystem_vendor" ] || continue
+        [ -r "$dev/subsystem_device" ] || continue
+
+        vendor="$(< "$dev/vendor")"
+        device="$(< "$dev/device")"
+        subsystem_vendor="$(< "$dev/subsystem_vendor")"
+        subsystem_device="$(< "$dev/subsystem_device")"
+
+        case "$vendor:$device:$subsystem_vendor:$subsystem_device" in
+          0x1b21:0x2142:0x1ab6:0x3144)
+            enabled=1
+            if [ -r "$dev/enable" ]; then
+              enabled="$(< "$dev/enable")"
+            fi
+
+            if [ "$enabled" != 1 ] || [ ! -e "$dev/driver" ]; then
+              reset_with_cooldown "TS5 xHCI controller is present but not enabled or bound"
+            fi
+            ;;
+        esac
+      done
+    }
+
     echo "CalDigit TS5 Plus USB watchdog: watching kernel log for dock USB failures" >&2
+    recover_stale_xhci
 
     ${pkgs.systemd}/bin/journalctl -k -f -n 0 -o cat | while IFS= read -r line; do
       case "$line" in
@@ -216,6 +248,9 @@ let
           handle_hub_timeout "$line"
           ;;
         *"xHCI host controller not responding, assume dead"*|*"HC died; cleaning up"*)
+          handle_xhci_fault "$line"
+          ;;
+        *"Unable to change power state from D3cold to D0, device inaccessible"*|*"BAR 0"*"not claimed; can't enable device"*|*"xHCI HW not ready after 5 sec"*|*"can't setup: -19"*|*"init "*" fail, -19"*)
           handle_xhci_fault "$line"
           ;;
       esac
@@ -233,6 +268,7 @@ in
 
   boot.kernelParams = [
     "pcie_port_pm=off"
+    "pcie_aspm=off"
     "usbcore.autosuspend=-1"
   ];
 
