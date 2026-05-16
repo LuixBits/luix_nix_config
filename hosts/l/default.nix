@@ -11,6 +11,9 @@
 
   networking.hostName = "l";
 
+  # Use the newer stable kernel's USB4/Thunderbolt stack for the TS5 Plus dock.
+  boot.kernelPackages = pkgs.linuxPackages_6_18;
+
   users.users.luix.extraGroups = [ "video" ];
 
   programs.light = {
