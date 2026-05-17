@@ -11,6 +11,15 @@
 
   networking.hostName = "l";
 
+  programs.localsend = {
+    enable = true;
+    openFirewall = true;
+  };
+
+  systemd.tmpfiles.rules = [
+    "d /home/luix/tablet-inbox 0755 luix users -"
+  ];
+
   # Use the newer stable kernel's USB4/Thunderbolt stack for the TS5 Plus dock.
   boot.kernelPackages = pkgs.linuxPackages_6_18;
 
