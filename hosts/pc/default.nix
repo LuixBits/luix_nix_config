@@ -25,6 +25,14 @@
     loadModels = [ "qwen3-coder:30b" ];
 
     environmentVariables = {
+      # Use only the 7900 XTX. Ollama also sees the Ryzen iGPU via ROCm,
+      # but splitting inference onto it crashes rocBLAS for this model.
+      ROCR_VISIBLE_DEVICES = "GPU-b029531ca159d189";
+
+      # 256K context is the model maximum, not the fast 24GB-VRAM target.
+      # 32K keeps the 30B coder model on the 7900 XTX with room for KV cache.
+      OLLAMA_CONTEXT_LENGTH = "32768";
+
       # Keep the model warm briefly for agent workflows without pinning VRAM forever.
       OLLAMA_KEEP_ALIVE = "15m";
     };
