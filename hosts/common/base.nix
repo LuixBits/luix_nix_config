@@ -1,4 +1,13 @@
-{ config, pkgs, ... }:
+{ config, inputs, pkgs, ... }:
+let
+  pkgsUnstable = import inputs.nixpkgs-unstable {
+    system = pkgs.stdenv.hostPlatform.system;
+    config = {
+      allowUnfree = true;
+      allowUnsupportedSystem = true;
+    };
+  };
+in
 {
   imports = [
     ./optimisations.nix
@@ -85,11 +94,20 @@
   ];
 
   # Program toggles
-  programs.bazecor.enable = true;
+  programs.bazecor = {
+    enable = true;
+    package = pkgsUnstable.bazecor;
+  };
   programs.dconf.enable = true;
   programs.fish.enable = true; # keep NixOS aware that fish is the login shell
   programs.xwayland.enable = true;
   programs.niri.enable = true; # Niri session in the display manager
+
+  # The Defy exposes a CDC ACM serial interface for Bazecor. Keep modem probing
+  # away from it so Bazecor can own the protocol handshake reliably.
+  services.udev.extraRules = ''
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="35ef", ENV{ID_MM_DEVICE_IGNORE}="1"
+  '';
 
   nixpkgs.config.allowUnfree = true;
 
