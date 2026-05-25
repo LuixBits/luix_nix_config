@@ -21,6 +21,11 @@
     # Star Citizen helper flake
     nix-citizen.url = "github:LovingMelody/nix-citizen";
 
+    # Reproducible Doom Emacs built through Home Manager.
+    nix-doom-emacs-unstraightened.url =
+      "github:marienz/nix-doom-emacs-unstraightened";
+    nix-doom-emacs-unstraightened.inputs.nixpkgs.follows = "nixpkgs-unstable";
+
   };
 
   outputs = { nixpkgs, home-manager, ... }@inputs:

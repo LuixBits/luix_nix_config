@@ -21,6 +21,7 @@
     ../modules/kdenlive
     ../modules/prismlauncher
     ../modules/nvfvim
+    ../modules/doom-emacs
     ../modules/flatpak
   ];
 
