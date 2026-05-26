@@ -1,4 +1,4 @@
-{ inputs, pkgs, hostName ? null, ... }:
+{ config, inputs, lib, pkgs, hostName ? null, ... }:
 let
   baseSettings = builtins.fromJSON (builtins.readFile ./settings.json);
   basePlugins = builtins.fromJSON (builtins.readFile ./plugins.json);
@@ -133,6 +133,27 @@ let
         (builtins.attrNames pluginEntries)
     )
   );
+  noctaliaIpc = pkgs.writeShellScriptBin "noctalia-ipc" ''
+    set -eu
+
+    noctalia_shell=${lib.escapeShellArg (lib.getExe config.programs.noctalia-shell.package)}
+    pid="$(
+      QS_CONFIG_PATH= "$noctalia_shell" list -a -j \
+        | ${pkgs.jq}/bin/jq -r '
+          [.[] | select(.config_path | test("/noctalia-shell/shell\\.qml$"))]
+          | sort_by(.launch_time)
+          | last
+          | .pid // empty
+        '
+    )"
+
+    if [ -z "$pid" ]; then
+      echo "no running Noctalia instance found" >&2
+      exit 1
+    fi
+
+    exec env QS_CONFIG_PATH= "$noctalia_shell" ipc --pid "$pid" "$@"
+  '';
 in
 {
   imports = [
@@ -146,6 +167,8 @@ in
     plugins = pluginsFile;
     pluginSettings = pluginSettings;
   };
+
+  home.packages = [ noctaliaIpc ];
 
   xdg.configFile."noctalia/colorschemes" = {
     source = ./colorschemes;

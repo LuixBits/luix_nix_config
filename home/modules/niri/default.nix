@@ -107,13 +107,13 @@ let
     "    Mod+Period { set-column-width \"+10%\"; }\n"
   ] noCommaConfig;
   noctaliaLauncherBinds = ''
-    Mod+Space hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
-    Mod+D hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
-    Mod+S hotkey-overlay-title="Noctalia: Control Center" { spawn "noctalia-shell" "ipc" "call" "controlCenter" "toggle"; }
-    Mod+Comma hotkey-overlay-title="Noctalia: Settings" { spawn "noctalia-shell" "ipc" "call" "settings" "toggle"; }
+    Mod+Space hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-ipc" "call" "launcher" "toggle"; }
+    Mod+D hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-ipc" "call" "launcher" "toggle"; }
+    Mod+S hotkey-overlay-title="Noctalia: Control Center" { spawn "noctalia-ipc" "call" "controlCenter" "toggle"; }
+    Mod+Comma hotkey-overlay-title="Noctalia: Settings" { spawn "noctalia-ipc" "call" "settings" "toggle"; }
   '';
   noctaliaLockBind = ''
-    Super+Alt+L hotkey-overlay-title="Noctalia: Lock" { spawn "noctalia-shell" "ipc" "call" "lockScreen" "lock"; }
+    Super+Alt+L hotkey-overlay-title="Noctalia: Lock" { spawn "noctalia-ipc" "call" "lockScreen" "lock"; }
   '';
   noFuzzelConfig = lib.replaceStrings [
     "    Mod+D hotkey-overlay-title=\"Run an Application: fuzzel\" { spawn \"fuzzel\"; }\n"
