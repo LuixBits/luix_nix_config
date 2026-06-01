@@ -14,7 +14,10 @@
   programs.rsi-launcher = {
     enable = true;
     patchXwayland = true;
-    umu.enable = true;
+    preCommands = ''
+      mkdir -p "$WINEPREFIX/drive_c/Program Files/Roberts Space Industries/StarCitizen/LIVE"
+      touch "$WINEPREFIX/drive_c/Program Files/Roberts Space Industries/StarCitizen/LIVE/Data.p4k.part"
+    '';
     gamescope = {
       enable = true;
       args = [
