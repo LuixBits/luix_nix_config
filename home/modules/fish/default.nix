@@ -22,6 +22,11 @@
       printf '%s%s%s\n' "$mist" '       ~~~  ~~~  ~~  ~~~  ~~~       ' "$normal"
       echo
     '';
+
+    shellAliases = {
+      ll = "ls -lah";
+      la = "ls -A";
+    };
   };
 
   # aliases

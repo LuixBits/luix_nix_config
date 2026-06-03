@@ -1,8 +1,11 @@
 { config, ... }:
 {
   # Keep common values as the source of truth for all hosts.
+  # This flake lives in /home/luix and /etc/nixos is a symlink to it. The
+  # root-owned auto-upgrade service cannot safely fetch that local Git repo, so
+  # keep upgrades explicit through buildall/flakeonly instead.
   system.autoUpgrade = {
-    enable = true;
+    enable = false;
     allowReboot = false;
     flake = "/etc/nixos#${config.networking.hostName}";
     dates = "daily";
