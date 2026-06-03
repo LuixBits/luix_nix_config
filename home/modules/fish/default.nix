@@ -169,16 +169,6 @@
         end
       '';
 
-      fish_right_prompt = ''
-        set -q CMD_DURATION; or return
-
-        if test "$CMD_DURATION" -gt 2000
-          set -l seconds (math --scale=1 "$CMD_DURATION / 1000")
-          set_color 6b7f6a
-          printf '%ss' "$seconds"
-          set_color normal
-        end
-      '';
     };
   };
 }
