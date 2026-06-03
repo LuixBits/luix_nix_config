@@ -28,7 +28,7 @@
       la = "ls -A";
     };
 
-    shellAbbrs = { 
+    shellAbbrs = {
       # config jumps
       cconf = "cd ~/luix_nix_config";
       cmods = "cd ~/luix_nix_config/home/modules";
@@ -37,7 +37,7 @@
       # video / motion canvas
       cmc = "cd ~/Documents/motion-canvas-next-video";
       cscenes = "cd ~/Documents/motion-canvas-next-video/src/scenes";
-      
+
       # git
       gs = "git status --short --branch";
       gd = "git diff";
@@ -52,10 +52,68 @@
       nfu = "nix flake update";
       nd = "nix develop";
     };
-};
 
-  # aliases
-  # abbreviations
-  # functions
+    functions = {
+      conf = ''
+        cd ~/luix_nix_config; or return
+        nvim .
+      '';
+
+      fishconf = ''
+        cd ~/luix_nix_config/home/modules/fish; or return
+        nvim default.nix
+      '';
+
+      kittyconf = ''
+        cd ~/luix_nix_config/home/modules/kitty; or return
+        nvim default.nix
+      '';
+
+      mod = ''
+        if test -z "$argv[1]"
+          cd ~/luix_nix_config/home/modules; or return
+          nvim .
+          return
+        end
+
+        set -l module ~/luix_nix_config/home/modules/$argv[1]
+
+        if test -f "$module/default.nix"
+          cd "$module"; or return
+          nvim default.nix
+        else
+          echo "module not found: $argv[1]"
+        end
+      '';
+
+      hostconf = ''
+        if test -z "$argv[1]"
+          cd ~/luix_nix_config/hosts; or return
+          nvim .
+          return
+        end
+
+        set -l host ~/luix_nix_config/hosts/$argv[1]
+
+        if test -f "$host/default.nix"
+          cd "$host"; or return
+          nvim default.nix
+        else
+          echo "host not found: $argv[1]"
+        end
+      '';
+
+      groot = ''
+        set -l root (git rev-parse --show-toplevel 2>/dev/null)
+
+        if test -n "$root"
+          cd "$root"
+        else
+          echo "not inside a git repo"
+        end
+      '';
+    };
+  };
+
   # prompt
 }
