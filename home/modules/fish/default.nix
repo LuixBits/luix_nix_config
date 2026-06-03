@@ -27,7 +27,32 @@
       ll = "ls -lah";
       la = "ls -A";
     };
-  };
+
+    shellAbbrs = { 
+      # config jumps
+      cconf = "cd ~/luix_nix_config";
+      cmods = "cd ~/luix_nix_config/home/modules";
+      chosts = "cd ~/luix_nix_config/hosts";
+
+      # video / motion canvas
+      cmc = "cd ~/Documents/motion-canvas-next-video";
+      cscenes = "cd ~/Documents/motion-canvas-next-video/src/scenes";
+      
+      # git
+      gs = "git status --short --branch";
+      gd = "git diff";
+      gds = "git diff --staged";
+      gl = "git log --oneline --decorate --graph -20";
+      gaa = "git add -A";
+      gc = "git commit";
+      gp = "git push";
+
+      # nix, but not replacing buildall
+      nfc = "nix flake check";
+      nfu = "nix flake update";
+      nd = "nix develop";
+    };
+};
 
   # aliases
   # abbreviations
