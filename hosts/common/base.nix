@@ -70,8 +70,11 @@ in
   services.udisks2.enable = true;
   services.hardware.bolt.enable = true;
 
-  # default Shell
-  environment.shells = with pkgs; [ fish ];
+  # Keep bash as the login/recovery shell; interactive bash hands off to fish.
+  environment.shells = with pkgs; [
+    bashInteractive
+    fish
+  ];
 
   users.users.luix = {
     isNormalUser = true;
@@ -81,7 +84,7 @@ in
       "wheel"
       "docker"
     ];
-    shell = pkgs.fish;
+    shell = pkgs.bashInteractive;
   };
 
   fonts.packages = with pkgs; [
@@ -99,7 +102,16 @@ in
     package = pkgsUnstable.bazecor;
   };
   programs.dconf.enable = true;
-  programs.fish.enable = true; # keep NixOS aware that fish is the login shell
+  programs.bash.interactiveShellInit = ''
+    # Launch fish for normal interactive shells, while keeping bash in /etc/passwd.
+    if [[ $UID -eq 1000 && $SHLVL == [12] ]]; then
+      read -r parent < /proc/$PPID/comm || parent=
+      if [[ $parent != fish ]]; then
+        SHELL=${pkgs.fish}/bin/fish exec ${pkgs.fish}/bin/fish
+      fi
+    fi
+  '';
+  programs.fish.enable = true; # expose fish system-wide without making it the login shell
   programs.xwayland.enable = true;
   programs.niri.enable = true; # Niri session in the display manager
 
