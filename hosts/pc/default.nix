@@ -41,6 +41,8 @@
   networking.firewall.interfaces.enp10s0.allowedTCPPorts = [ 11434 ];
 
   environment.systemPackages = with pkgs; [
+    dosfstools
+    gparted
     pciutils
     rocmPackages.rocminfo
   ];
