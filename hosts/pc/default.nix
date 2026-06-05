@@ -13,6 +13,9 @@
 
   networking.hostName = "pc";
 
+  # Use the newer USB4/Thunderbolt stack for the TS5 Plus dock.
+  boot.kernelPackages = pkgs.linuxPackages_6_18;
+
   services.ollama = {
     enable = true;
     package = pkgs.ollama-rocm;

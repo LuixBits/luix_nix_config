@@ -36,6 +36,7 @@ in
 
   virtualisation.docker = {
     enable = true;
+    package = pkgs.docker_29;
     daemon.settings = {
       dns = [ "1.1.1.1" "8.8.8.8" ];
       features = {
@@ -152,7 +153,6 @@ in
 
   environment.systemPackages = with pkgs; [
     exfatprogs
-    logseq
     usbutils
     wireguard-tools
     xwayland-satellite
