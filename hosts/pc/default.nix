@@ -15,15 +15,11 @@
 
   # Use the newer USB4/Thunderbolt stack for the TS5 Plus dock.
   boot.kernelPackages = pkgs.linuxPackages_6_18;
+  boot.initrd.availableKernelModules = [ "thunderbolt" ];
   boot.kernelParams = [
-    # Give Thunderbolt hotplug bridges enough PCI address space for dock devices.
-    "pci=realloc,hpbussize=32,hpmemsize=64M,hpmmioprefsize=256M"
+    # Same firmware reboot workaround used on the work host.
+    "reboot=efi"
   ];
-
-  services.udev.extraRules = ''
-    # The Maple Ridge USB controller times out when runtime-suspended on this board.
-    SUBSYSTEM=="pci", ATTR{vendor}=="0x8086", ATTR{device}=="0x1138", ATTR{power/control}="on"
-  '';
 
   services.ollama = {
     enable = true;
