@@ -19,6 +19,8 @@
   boot.kernelParams = [
     # Same firmware reboot workaround used on the work host.
     "reboot=efi"
+    # The BIOS leaves the Thunderbolt hotplug bridges without enough PCI space.
+    "pci=realloc,hpbussize=32,hpmemsize=64M,hpmmioprefsize=256M"
   ];
 
   services.ollama = {
