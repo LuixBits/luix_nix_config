@@ -25,7 +25,7 @@
 
     (php83.buildEnv {
       extraConfig = ''
-        memory_limit = 2G
+        memory_limit = 4G
         upload_max_filesize = 500M
         post_max_size = 500M
       '';
