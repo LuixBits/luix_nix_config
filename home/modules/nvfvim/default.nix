@@ -82,6 +82,10 @@ in {
 
         inherit keymaps;
 
+        startPlugins = [
+          pkgs.vimPlugins.kanagawa-nvim
+        ];
+
         # Languages (LSP servers). NVF exposes many language modules; enable those
         # corresponding to your setup. For Vue, add a custom LSP under vim.lsp.servers.
         languages = {
@@ -164,7 +168,7 @@ in {
 
         statusline.lualine = {
           enable = true;
-          theme = "tokyonight";
+          theme = "auto";
           sectionSeparator = { left = ""; right = ""; };
           componentSeparator = { left = ""; right = ""; };
         };
@@ -235,11 +239,29 @@ in {
           };
         };
 
-        theme = {
-          enable = true;
-          name = "tokyonight";
-          style = "moon";
-        };
+        theme.enable = false;
+
+        luaConfigRC.kanagawa = inputs.nvf.lib.nvim.dag.entryBefore ["pluginConfigs" "lazyConfigs"] ''
+          require("kanagawa").setup({
+            compile = false,
+            undercurl = true,
+            commentStyle = { italic = true },
+            functionStyle = {},
+            keywordStyle = { italic = false },
+            statementStyle = { bold = true },
+            typeStyle = {},
+            transparent = false,
+            dimInactive = false,
+            terminalColors = true,
+            theme = "wave",
+            background = {
+              dark = "wave",
+              light = "lotus",
+            },
+          })
+
+          vim.cmd.colorscheme("kanagawa-wave")
+        '';
 
         luaConfigRC.example = ''
           vim.api.nvim_create_autocmd("TextYankPost", {

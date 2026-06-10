@@ -15,7 +15,7 @@
       {
         mode = "n";
         key = "<leader>nps";
-        action = "<cmd>Neorg presenter start<CR>";
+        action = "<cmd>NeorgPresentationStart<CR>";
         desc = "Start presentation";
       }
       {
@@ -65,6 +65,104 @@
           twilight = { enabled = false },
         },
       })
+
+      local function has_level_one_heading()
+        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+
+        for _, line in ipairs(lines) do
+          if line:match("^%*%s+%S") then
+            return true
+          end
+        end
+
+        return false
+      end
+
+      local function is_blank_or_metadata_only()
+        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+
+        for _, line in ipairs(lines) do
+          local trimmed = vim.trim(line)
+
+          if trimmed ~= ""
+            and trimmed ~= "@document.meta"
+            and trimmed ~= "@end"
+            and not trimmed:match("^[%w_-]+:%s*.*$")
+          then
+            return false
+          end
+        end
+
+        return true
+      end
+
+      local function presentation_title()
+        local title = vim.fn.expand("%:t:r")
+
+        if title == "" then
+          return "Presentation"
+        end
+
+        title = title:gsub("[_-]+", " ")
+        return title:gsub("^%l", string.upper)
+      end
+
+      local function insert_minimal_presentation()
+        local title = presentation_title()
+        local skeleton = {
+          "* " .. title,
+          "  Placeholder opening text.",
+          "",
+          "* Main Point",
+          "  Placeholder explanation.",
+          "",
+          "* Demo",
+          "  Placeholder demo notes.",
+          "",
+          "* Closing",
+          "  Placeholder takeaway.",
+        }
+        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+        local is_empty = true
+
+        for _, line in ipairs(lines) do
+          if vim.trim(line) ~= "" then
+            is_empty = false
+            break
+          end
+        end
+
+        if is_empty then
+          vim.api.nvim_buf_set_lines(0, 0, -1, false, skeleton)
+        else
+          if vim.trim(lines[#lines] or "") ~= "" then
+            table.insert(skeleton, 1, "")
+          end
+
+          vim.api.nvim_buf_set_lines(0, -1, -1, false, skeleton)
+        end
+      end
+
+      vim.api.nvim_create_user_command("NeorgPresentationStart", function()
+        if vim.bo.filetype ~= "norg" and vim.fn.expand("%:e") ~= "norg" then
+          vim.notify("Neorg presenter only works in .norg files.", vim.log.levels.WARN)
+          return
+        end
+
+        if not has_level_one_heading() then
+          if is_blank_or_metadata_only() then
+            insert_minimal_presentation()
+            vim.notify("Added a minimal presentation skeleton.", vim.log.levels.INFO)
+          else
+            vim.notify("No slides found. Add level-1 headings like '* Slide Title' before starting presenter.", vim.log.levels.WARN)
+            return
+          end
+        end
+
+        vim.schedule(function()
+          vim.cmd("Neorg presenter start")
+        end)
+      end, {})
 
       vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
         pattern = "norg/Norg Presenter.norg",

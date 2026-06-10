@@ -1,15 +1,53 @@
-{ ... }:
+{ lib, ... }:
+let
+  kanagawa = import ../theme/kanagawa.nix;
+  c = kanagawa.palette;
+  hex = color: lib.removePrefix "#" color;
+in
 {
   programs.fish = {
     enable = true;
 
+    interactiveShellInit = ''
+      set -l foreground ${hex c.fujiWhite} normal
+      set -l selection ${hex c.waveBlue2} brcyan
+      set -l comment ${hex c.fujiGray} brblack
+      set -l red ${hex c.autumnRed} red
+      set -l orange ${hex c.roninYellow} brred
+      set -l yellow ${hex c.boatYellow2} yellow
+      set -l green ${hex c.autumnGreen} green
+      set -l purple ${hex c.oniViolet} magenta
+      set -l cyan ${hex c.waveAqua2} cyan
+      set -l pink ${hex c.sakuraPink} brmagenta
+
+      set -g fish_color_normal $foreground
+      set -g fish_color_command $cyan
+      set -g fish_color_keyword $pink
+      set -g fish_color_quote $yellow
+      set -g fish_color_redirection $foreground
+      set -g fish_color_end $orange
+      set -g fish_color_error $red
+      set -g fish_color_param $purple
+      set -g fish_color_comment $comment
+      set -g fish_color_selection --background=$selection
+      set -g fish_color_search_match --background=$selection
+      set -g fish_color_operator $green
+      set -g fish_color_escape $pink
+      set -g fish_color_autosuggestion $comment
+
+      set -g fish_pager_color_progress $comment
+      set -g fish_pager_color_prefix $cyan
+      set -g fish_pager_color_completion $foreground
+      set -g fish_pager_color_description $comment
+    '';
+
     functions.fish_greeting = ''
-      set -l pine (set_color 5f8d62)
-      set -l leaf (set_color 8ccf7e)
-      set -l moss (set_color 6f8f5f)
-      set -l bark (set_color a58f6f)
-      set -l mist (set_color 6b7f6a)
-      set -l hello (set_color d6e7b5)
+      set -l pine (set_color ${hex c.autumnGreen})
+      set -l leaf (set_color ${hex c.springGreen})
+      set -l moss (set_color ${hex c.waveAqua2})
+      set -l bark (set_color ${hex c.boatYellow2})
+      set -l mist (set_color ${hex c.fujiGray})
+      set -l hello (set_color ${hex c.fujiWhite})
       set -l normal (set_color normal)
 
       echo
@@ -116,11 +154,11 @@
       fish_prompt = ''
         set -l last_status $status
 
-        set -l pine (set_color 5f8d62)
-        set -l leaf (set_color 8ccf7e)
-        set -l moss (set_color 6f8f5f)
-        set -l bark (set_color a58f6f)
-        set -l red (set_color d36b6b)
+        set -l pine (set_color ${hex c.autumnGreen})
+        set -l leaf (set_color ${hex c.springGreen})
+        set -l moss (set_color ${hex c.springBlue})
+        set -l bark (set_color ${hex c.surimiOrange})
+        set -l red (set_color ${hex c.samuraiRed})
         set -l normal (set_color normal)
 
         printf '%s%s%s' "$moss" (prompt_pwd) "$normal"
