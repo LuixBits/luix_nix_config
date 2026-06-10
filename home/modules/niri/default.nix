@@ -94,7 +94,7 @@ let
   noWaybarConfig = lib.replaceStrings [
     "spawn-at-startup \"waybar\"\n"
   ] [
-    "spawn-at-startup \"noctalia-shell\"\n"
+    "spawn-at-startup \"noctalia\"\n"
   ] baseConfig;
   noCommaConfig = lib.replaceStrings [
     "    Mod+Comma  { consume-window-into-column; }\n"
@@ -107,13 +107,13 @@ let
     "    Mod+Period { set-column-width \"+10%\"; }\n"
   ] noCommaConfig;
   noctaliaLauncherBinds = ''
-    Mod+Space hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-ipc" "call" "launcher" "toggle"; }
-    Mod+D hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-ipc" "call" "launcher" "toggle"; }
-    Mod+S hotkey-overlay-title="Noctalia: Control Center" { spawn "noctalia-ipc" "call" "controlCenter" "toggle"; }
-    Mod+Comma hotkey-overlay-title="Noctalia: Settings" { spawn "noctalia-ipc" "call" "settings" "toggle"; }
+    Mod+Space hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-ipc" "panel-toggle" "launcher"; }
+    Mod+D hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-ipc" "panel-toggle" "launcher"; }
+    Mod+S hotkey-overlay-title="Noctalia: Control Center" { spawn "noctalia-ipc" "panel-toggle" "control-center"; }
+    Mod+Comma hotkey-overlay-title="Noctalia: Settings" { spawn "noctalia-ipc" "settings-toggle"; }
   '';
   noctaliaLockBind = ''
-    Super+Alt+L hotkey-overlay-title="Noctalia: Lock" { spawn "noctalia-ipc" "call" "lockScreen" "lock"; }
+    Super+Alt+L hotkey-overlay-title="Noctalia: Lock" { spawn "noctalia-ipc" "session" "lock"; }
   '';
   noFuzzelConfig = lib.replaceStrings [
     "    Mod+D hotkey-overlay-title=\"Run an Application: fuzzel\" { spawn \"fuzzel\"; }\n"

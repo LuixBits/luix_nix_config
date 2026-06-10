@@ -1,158 +1,51 @@
 { config, inputs, lib, pkgs, hostName ? null, ... }:
 let
-  baseSettings = builtins.fromJSON (builtins.readFile ./settings.json);
-  basePlugins = builtins.fromJSON (builtins.readFile ./plugins.json);
-  lSettings = baseSettings // {
-    bar = baseSettings.bar // {
-      monitors = [ "eDP-1" "DP-5" "DP-6" ];
+  sharedSettings = {
+    shell = {
+      avatar_path = "/home/luix/.face";
+      settings_show_advanced = true;
     };
-    dock = baseSettings.dock // {
-      monitors = [ "eDP-1" ];
-    };
-    desktopWidgets = baseSettings.desktopWidgets // {
-      monitorWidgets = [
-        {
-          name = "eDP-1";
-          widgets = [ ];
-        }
-      ];
-    };
-    general = baseSettings.general // {
-      avatarImage = "/home/luix/.face";
-    };
-    wallpaper = baseSettings.wallpaper // {
-      directory = "/home/luix/Pictures/Wallpapers";
-      setWallpaperOnAllMonitors = true;
-      enableMultiMonitorDirectories = false;
-    };
-  };
-  pcSettings = baseSettings // {
-    bar = baseSettings.bar // {
-      monitors = [ "HDMI-A-2" "HDMI-A-3" ];
-    };
-    dock = baseSettings.dock // {
-      monitors = [ "HDMI-A-2" ];
-    };
-    desktopWidgets = baseSettings.desktopWidgets // {
-      monitorWidgets = [ ];
-    };
-    general = baseSettings.general // {
-      avatarImage = "/home/luix/.face";
-    };
-    wallpaper = baseSettings.wallpaper // {
+
+    wallpaper = {
+      enabled = true;
       directory = "/home/luix/Pictures/Wallpapers";
     };
+
+    desktop_widgets.enabled = false;
+    lockscreen_widgets.enabled = false;
   };
-  workDisabledPlugins = [
-    "catwalk"
-    "fancy-audiovisualizer"
-    "github-feed"
-    "ip-monitor"
-    "keybind-cheatsheet"
-    "mini-docker"
-    "model-usage"
-    "todo"
-  ];
-  workPluginStates = builtins.mapAttrs (
-    name: value:
-    if builtins.elem name workDisabledPlugins then
-      value // { enabled = false; }
-    else
-      value
-  ) basePlugins.states;
-  workPlugins = basePlugins // {
-    states = workPluginStates;
-  };
-  workSettings = baseSettings // {
-    # Keep work shell lightweight when driving multiple external outputs.
-    bar = baseSettings.bar // {
-      monitors = [ "DP-2" "DP-1" "eDP-1" ];
-      widgets = baseSettings.bar.widgets // {
-        left = builtins.filter (
-          widget:
-          !(builtins.elem (widget.id or "") [ "AudioVisualizer" "plugin:ip-monitor" "plugin:model-usage" ])
-        ) baseSettings.bar.widgets.left;
-        center = [ ];
-      };
+
+  perHostSettings = {
+    l = {
+      dock.monitors = [ "eDP-1" ];
     };
-    dock = baseSettings.dock // {
-      monitors = [ "DP-2" "DP-1" "eDP-1" ];
+
+    pc = {
+      dock.monitors = [ "HDMI-A-2" ];
     };
-    desktopWidgets = baseSettings.desktopWidgets // {
-      monitorWidgets = [ ];
-    };
-    general = baseSettings.general // {
-      animationDisabled = true;
-      enableShadows = false;
-      showScreenCorners = false;
-      showChangelogOnStartup = false;
-    };
-    ui = baseSettings.ui // {
-      boxBorderEnabled = false;
-      panelBackgroundOpacity = 1.0;
-      tooltipsEnabled = false;
-    };
-    idle = baseSettings.idle // {
-      # This host only supports s2idle, which can drain badly overnight.
-      # Disable Noctalia's automatic idle suspend; manual suspend remains available.
-      suspendTimeout = 0;
-    };
-    wallpaper = baseSettings.wallpaper // {
-      overviewBlur = 0;
-      overviewTint = 0;
+
+    work = {
+      shell.animation.enabled = false;
+      shell.shadow.alpha = 0.0;
+      dock.monitors = [ "DP-2" "DP-1" "eDP-1" ];
+      backdrop.enabled = false;
     };
   };
-  settingsFile =
-    if hostName == "l" then
-      pkgs.writeText "noctalia-settings-l.json" (builtins.toJSON lSettings)
-    else if hostName == "pc" then
-      pkgs.writeText "noctalia-settings-pc.json" (builtins.toJSON pcSettings)
-    else if hostName == "work" then
-      pkgs.writeText "noctalia-settings-work.json" (builtins.toJSON workSettings)
+
+  hostSettings =
+    if hostName != null && builtins.hasAttr hostName perHostSettings then
+      perHostSettings.${hostName}
     else
-      ./settings.json;
-  pluginsFile =
-    if hostName == "work" then
-      pkgs.writeText "noctalia-plugins-work.json" (builtins.toJSON workPlugins)
-    else
-      ./plugins.json;
-  pluginEntries = builtins.readDir ./plugins;
-  pluginSettings = builtins.listToAttrs (
-    builtins.filter (entry: entry != null) (
-      map
-        (
-          pluginName:
-          if pluginEntries.${pluginName} == "directory" && builtins.pathExists (./plugins + "/${pluginName}/settings.json") then
-            {
-              name = pluginName;
-              value = ./plugins + "/${pluginName}/settings.json";
-            }
-          else
-            null
-        )
-        (builtins.attrNames pluginEntries)
-    )
-  );
+      { };
+
+  noctaliaSettings = lib.recursiveUpdate sharedSettings hostSettings;
+
   noctaliaIpc = pkgs.writeShellScriptBin "noctalia-ipc" ''
     set -eu
 
-    noctalia_shell=${lib.escapeShellArg (lib.getExe config.programs.noctalia-shell.package)}
-    pid="$(
-      QS_CONFIG_PATH= "$noctalia_shell" list -a -j \
-        | ${pkgs.jq}/bin/jq -r '
-          [.[] | select(.config_path | test("/noctalia-shell/shell\\.qml$"))]
-          | sort_by(.launch_time)
-          | last
-          | .pid // empty
-        '
-    )"
+    noctalia=${lib.escapeShellArg (lib.getExe config.programs.noctalia.package)}
 
-    if [ -z "$pid" ]; then
-      echo "no running Noctalia instance found" >&2
-      exit 1
-    fi
-
-    exec env QS_CONFIG_PATH= "$noctalia_shell" ipc --pid "$pid" "$@"
+    exec "$noctalia" msg "$@"
   '';
 in
 {
@@ -160,18 +53,10 @@ in
     inputs.noctalia.homeModules.default
   ];
 
-  programs.noctalia-shell = {
+  programs.noctalia = {
     enable = true;
-    settings = settingsFile;
-    colors = ./colors.json;
-    plugins = pluginsFile;
-    pluginSettings = pluginSettings;
+    settings = noctaliaSettings;
   };
 
   home.packages = [ noctaliaIpc ];
-
-  xdg.configFile."noctalia/colorschemes" = {
-    source = ./colorschemes;
-    recursive = true;
-  };
 }

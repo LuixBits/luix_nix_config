@@ -1,0 +1,27 @@
+@document.meta
+title: {TITLE_INPUT}
+authors: {AUTHOR}
+categories: research
+created: {TODAY}
+updated: {TODAY}
+@end
+
+* {TITLE_INPUT}
+  Date: {TODAY}
+  Topic: {TOPIC_INPUT}
+  Project: {PROJECT_INPUT}
+
+** Question
+  {CURSOR}
+
+** Sources
+  -
+
+** Findings
+  -
+
+** Decisions
+  -
+
+** Next Steps
+  - ( )

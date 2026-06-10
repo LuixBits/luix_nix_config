@@ -1,7 +1,0 @@
-{
-  "iconColor": "primary",
-  "refreshInterval": 300,
-  "successIcon": "network",
-  "errorIcon": "alert-circle",
-  "loadingIcon": "loader"
-}

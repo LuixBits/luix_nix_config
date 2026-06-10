@@ -1,0 +1,22 @@
+@document.meta
+title: {TITLE_INPUT}
+authors: {AUTHOR}
+categories: meeting
+created: {TODAY}
+updated: {TODAY}
+@end
+
+* {TITLE_INPUT}
+  Date: {TODAY}
+  Project: {PROJECT_INPUT}
+  Attendees:
+  - {CURSOR}
+
+** Agenda
+  -
+
+** Notes
+  -
+
+** Actions
+  - ( )

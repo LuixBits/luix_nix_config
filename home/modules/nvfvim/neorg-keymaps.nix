@@ -3,7 +3,7 @@
   {
     mode = "n";
     key = "<leader>nn";
-    action = "<cmd>lua NeorgNewNoteHere()<CR>";
+    action = "<Plug>(neorg-template-engine.new-note)";
     desc = "Create note here";
   }
   {
@@ -29,5 +29,11 @@
     key = "<leader>nl";
     action = "<Plug>(neorg.telescope.insert_file_link)";
     desc = "Insert note link";
+  }
+  {
+    mode = "n";
+    key = "<leader>nt";
+    action = "<Plug>(neorg-template-engine.insert-template)";
+    desc = "Insert note template";
   }
 ]

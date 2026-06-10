@@ -1,0 +1,31 @@
+@document.meta
+title: {TITLE_INPUT}
+authors: {AUTHOR}
+categories: work
+created: {TODAY}
+updated: {TODAY}
+@end
+
+* {TITLE_INPUT}
+  Date: {TODAY}
+  Project: {PROJECT_INPUT}
+  Story: {STORY_INPUT}
+  Topic: {TOPIC_INPUT}
+
+** Summary
+  {CURSOR}
+
+** Context
+  -
+
+** Implementation Notes
+  -
+
+** Decisions
+  -
+
+** Links
+  -
+
+** Follow-up
+  - ( )
