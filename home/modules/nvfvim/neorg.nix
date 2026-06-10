@@ -5,6 +5,7 @@
   notesDir = "${config.home.homeDirectory}/notes";
 in {
   imports = [
+    ./neorg-presentations.nix
     ./neorg-templates.nix
   ];
 

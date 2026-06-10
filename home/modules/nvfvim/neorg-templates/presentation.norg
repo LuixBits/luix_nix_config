@@ -1,0 +1,36 @@
+@document.meta
+title: {TITLE_INPUT}
+authors: {AUTHOR}
+categories: presentation
+created: {TODAY}
+updated: {TODAY}
+@end
+
+* {TITLE_INPUT}
+  Date: {TODAY}
+  Topic: {TOPIC_INPUT}
+  Audience:
+
+** Opening
+  {CURSOR}
+
+** Promise
+  -
+
+* Context
+  -
+
+* Main Idea
+  -
+
+** Evidence
+  -
+
+** Demo
+  -
+
+* Takeaways
+  -
+
+* Q&A
+  Thank you.
