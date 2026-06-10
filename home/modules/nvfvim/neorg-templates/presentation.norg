@@ -7,30 +7,14 @@ updated: {TODAY}
 @end
 
 * {TITLE_INPUT}
-  Date: {TODAY}
-  Topic: {TOPIC_INPUT}
-  Audience:
+  Placeholder opening text.
 
-** Opening
+* Main Point
+  Placeholder explanation.
+
+* Demo
+  Placeholder demo notes.
+
+* Closing
+  Placeholder takeaway.
   {CURSOR}
-
-** Promise
-  -
-
-* Context
-  -
-
-* Main Idea
-  -
-
-** Evidence
-  -
-
-** Demo
-  -
-
-* Takeaways
-  -
-
-* Q&A
-  Thank you.
