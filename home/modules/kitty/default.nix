@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 let
   kanagawa = import ../theme/kanagawa.nix;
   c = kanagawa.palette;
@@ -8,9 +8,11 @@ in
     enable = true;
     font = {
       name = "Hurmit Nerd Font Mono";
-      size = 30;
+      size = 24;
     };
     settings = {
+      shell = "${pkgs.fish}/bin/fish";
+
       bold_font = "auto";
       italic_font = "auto";
       bold_italic_font = "auto";
