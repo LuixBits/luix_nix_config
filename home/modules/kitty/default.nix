@@ -1,8 +1,4 @@
 { pkgs, ... }:
-let
-  kanagawa = import ../theme/kanagawa.nix;
-  c = kanagawa.palette;
-in
 {
   programs.kitty = {
     enable = true;
@@ -25,7 +21,6 @@ in
       cursor_trail_start_threshold = "2";
       mouse_hide_wait = "2.0";
 
-      url_color = c.springBlue;
       url_style = "curly";
       detect_urls = "yes";
       show_hyperlink_targets = "yes";
@@ -62,70 +57,7 @@ in
       notify_on_cmd_finish = "unfocused 10.0 bell";
     };
     extraConfig = ''
-      ## name: Kanagawa
-      ## upstream: https://github.com/rebelot/kanagawa.nvim/
-
-      foreground                      ${c.fujiWhite}
-      background                      ${c.sumiInk3}
-      selection_foreground            ${c.oldWhite}
-      selection_background            ${c.waveBlue2}
-
-      inactive_text_alpha             0.5
-
-      cursor                          ${c.oldWhite}
-      cursor_text_color               background
-
-      url_color                       ${c.springBlue}
-
-      active_border_color             ${c.springBlue}
-      inactive_border_color           ${c.sumiInk4}
-      bell_border_color               ${c.surimiOrange}
-      visual_bell_color               none
-
-      wayland_titlebar_color          system
-      macos_titlebar_color            system
-
-      active_tab_foreground           ${c.oldWhite}
-      active_tab_background           ${c.sumiInk3}
-      inactive_tab_foreground         ${c.fujiGray}
-      inactive_tab_background         ${c.sumiInk3}
-      tab_bar_background              ${c.sumiInk0}
-      tab_bar_margin_color            none
-      tab_separator                   " | "
-
-      mark1_foreground                ${c.sumiInk3}
-      mark1_background                ${c.springBlue}
-      mark2_foreground                ${c.sumiInk3}
-      mark2_background                ${c.springGreen}
-      mark3_foreground                ${c.sumiInk3}
-      mark3_background                ${c.surimiOrange}
-
-      color0                          ${c.sumiInk0}
-      color8                          ${c.fujiGray}
-
-      color1                          ${c.autumnRed}
-      color9                          ${c.samuraiRed}
-
-      color2                          ${c.autumnGreen}
-      color10                         ${c.springGreen}
-
-      color3                          ${c.boatYellow2}
-      color11                         ${c.carpYellow}
-
-      color4                          ${c.crystalBlue}
-      color12                         ${c.springBlue}
-
-      color5                          ${c.oniViolet}
-      color13                         ${c.springViolet1}
-
-      color6                          ${c.waveAqua1}
-      color14                         ${c.waveAqua2}
-
-      color7                          ${c.oldWhite}
-      color15                         ${c.fujiWhite}
-
-      color16                         ${c.surimiOrange}
-      color17                         ${c.peachRed}
+      include themes/noctalia.conf
     '';
   };
 }

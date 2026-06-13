@@ -83,7 +83,7 @@ in {
         inherit keymaps;
 
         startPlugins = [
-          pkgs.vimPlugins.kanagawa-nvim
+          pkgs.vimPlugins.base16-nvim
         ];
 
         # Languages (LSP servers). NVF exposes many language modules; enable those
@@ -241,26 +241,16 @@ in {
 
         theme.enable = false;
 
-        luaConfigRC.kanagawa = inputs.nvf.lib.nvim.dag.entryBefore ["pluginConfigs" "lazyConfigs"] ''
-          require("kanagawa").setup({
-            compile = false,
-            undercurl = true,
-            commentStyle = { italic = true },
-            functionStyle = {},
-            keywordStyle = { italic = false },
-            statementStyle = { bold = true },
-            typeStyle = {},
-            transparent = false,
-            dimInactive = false,
-            terminalColors = true,
-            theme = "wave",
-            background = {
-              dark = "wave",
-              light = "lotus",
-            },
-          })
-
-          vim.cmd.colorscheme("kanagawa-wave")
+        luaConfigRC.noctalia = inputs.nvf.lib.nvim.dag.entryAfter ["pluginConfigs" "lazyConfigs"] ''
+          local ok, matugen = pcall(require, "matugen")
+          if ok and type(matugen.setup) == "function" then
+            local setup_ok = pcall(matugen.setup)
+            if not setup_ok then
+              vim.cmd.colorscheme("default")
+            end
+          else
+            vim.cmd.colorscheme("default")
+          end
         '';
 
         luaConfigRC.example = ''
