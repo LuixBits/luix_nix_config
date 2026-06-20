@@ -5,6 +5,7 @@ local state = {
   author = "",
   notes_dir = "",
   templates_dir = "",
+  workspace = "notes",
 }
 
 local function normalize_path(path)
@@ -161,22 +162,20 @@ local function expand_template(content, fields)
   local cursor_marker = "__NEORG_TEMPLATE_CURSOR__"
   local today = os.date("%Y-%m-%d")
   local function replacement(value)
-    return tostring(value or ""):gsub("%%", "%%%%")
+    local escaped = tostring(value or ""):gsub("%%", "%%%%")
+    return escaped
   end
   local values = {
     AUTHOR = state.author ~= "" and state.author or (vim.env.USER or ""),
     FILENAME = vim.fn.expand("%:t"),
     NOW = os.date("%Y-%m-%d %H:%M"),
-    PROJECT = fields.project,
-    PROJECT_INPUT = fields.project,
-    STORY = fields.story,
-    STORY_INPUT = fields.story,
-    TITLE = fields.title,
-    TITLE_INPUT = fields.title,
-    TOPIC = fields.topic,
-    TOPIC_INPUT = fields.topic,
     TODAY = today,
   }
+
+  for key, value in pairs(fields) do
+    values[key] = value
+    values[key .. "_INPUT"] = value
+  end
 
   content = content:gsub("{CURSOR}", cursor_marker, 1)
   content = content:gsub("{CURSOR}", "")
@@ -192,43 +191,40 @@ end
 
 local function collect_template_fields(content, defaults, callback)
   local fields = {
-    project = "",
-    story = "",
-    title = defaults.title,
-    topic = defaults.title,
+    TITLE = defaults.title,
+    TOPIC = defaults.title,
   }
 
-  local prompts = {
-    {
-      token = "{TITLE_INPUT}",
-      field = "title",
-      prompt = "Template title: ",
-      default = defaults.title,
-    },
-    {
-      token = "{PROJECT_INPUT}",
-      field = "project",
-      prompt = "Project name: ",
-      default = "",
-    },
-    {
-      token = "{STORY_INPUT}",
-      field = "story",
-      prompt = "Story number: ",
-      default = "",
-    },
-    {
-      token = "{TOPIC_INPUT}",
-      field = "topic",
-      prompt = "Topic: ",
-      default = defaults.title,
-    },
+  local prompt_defaults = {
+    PROJECT = "",
+    STORY = "",
+    TITLE = defaults.title,
+    TOPIC = defaults.title,
   }
+
+  local prompt_labels = {
+    PROJECT = "Project name",
+    STORY = "Story number",
+    TITLE = "Template title",
+    TOPIC = "Topic",
+  }
+
+  local function humanize_field_name(field)
+    local label = field:lower():gsub("_+", " ")
+    return (label:gsub("^%l", string.upper))
+  end
 
   local needed = {}
-  for _, spec in ipairs(prompts) do
-    if content:find(spec.token, 1, true) then
-      table.insert(needed, spec)
+  local seen = {}
+  for token in content:gmatch("{([%u%d_]+_INPUT)}") do
+    local field = token:gsub("_INPUT$", "")
+    if not seen[field] then
+      seen[field] = true
+      table.insert(needed, {
+        field = field,
+        prompt = (prompt_labels[field] or humanize_field_name(field)) .. ": ",
+        default = prompt_defaults[field] or "",
+      })
     end
   end
 
@@ -287,11 +283,11 @@ local function apply_template(template, opts)
   local default_title = opts.title or current_note_title()
 
   collect_template_fields(content, { title = default_title }, function(fields)
-    if fields.title == "" then
-      fields.title = default_title
+    if fields.TITLE == "" then
+      fields.TITLE = default_title
     end
-    if fields.topic == "" then
-      fields.topic = fields.title
+    if fields.TOPIC == "" then
+      fields.TOPIC = fields.TITLE
     end
 
     local expanded, cursor_line, cursor_column = expand_template(content, fields)
@@ -321,7 +317,13 @@ function M.new_note_here()
     end
 
     choose_template(true, function(template)
-      local dirman = require("neorg").modules.get_module("core.dirman")
+      local ok, neorg = pcall(require, "neorg")
+      if not ok then
+        vim.notify("Neorg is not loaded", vim.log.levels.ERROR)
+        return
+      end
+
+      local dirman = neorg.modules.get_module("core.dirman")
       if not dirman then
         vim.notify("Neorg dirman is not loaded", vim.log.levels.ERROR)
         return
@@ -329,7 +331,7 @@ function M.new_note_here()
 
       local path = relative_note_path(dir, input)
       move_to_note_window()
-      dirman.create_file(path, "notes")
+      dirman.create_file(path, state.workspace)
 
       if template and template.path then
         vim.schedule(function()
@@ -361,6 +363,7 @@ function M.setup(opts)
   state.author = opts.author or ""
   state.notes_dir = normalize_path(opts.notes_dir or "~/notes")
   state.templates_dir = normalize_path(opts.templates_dir or (state.notes_dir .. "/templates"))
+  state.workspace = opts.workspace or "notes"
 
   vim.fn.mkdir(state.notes_dir, "p")
   vim.fn.mkdir(state.templates_dir, "p")

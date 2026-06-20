@@ -36,4 +36,10 @@
     action = "<Plug>(neorg-template-engine.insert-template)";
     desc = "Insert note template";
   }
+  {
+    mode = "n";
+    key = "<leader>nT";
+    action = "<Plug>(neorg-template-engine.edit-templates)";
+    desc = "Edit note templates";
+  }
 ]

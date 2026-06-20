@@ -13,16 +13,31 @@
     src = ./neorg-template-engine-plugin;
   };
 
-  starterTemplateFiles =
-    lib.filterAttrs
-    (name: type: type == "regular" && lib.hasSuffix ".norg" name)
-    (builtins.readDir starterTemplatesDir);
+  listTemplateFiles =
+    dir:
+    lib.flatten (
+      lib.mapAttrsToList (
+        name: type:
+        let
+          path = dir + "/${name}";
+        in
+        if type == "directory" then
+          map (nested: "${name}/${nested}") (listTemplateFiles path)
+        else if type == "regular" && lib.hasSuffix ".norg" name then
+          [ name ]
+        else
+          [ ]
+      ) (builtins.readDir dir)
+    );
+
+  starterTemplateFiles = listTemplateFiles starterTemplatesDir;
 
   seedTemplates = lib.concatStringsSep "\n" (
-    lib.mapAttrsToList (
-      name: _: ''
-        if [ ! -e "${templatesDir}/${name}" ]; then
-          run install -m 0644 "${starterTemplatesDir + "/${name}"}" "${templatesDir}/${name}"
+    map (
+      relativePath: ''
+        if [ ! -e "${templatesDir}/${relativePath}" ]; then
+          run mkdir -p "$(dirname "${templatesDir}/${relativePath}")"
+          run install -m 0644 "${starterTemplatesDir + "/${relativePath}"}" "${templatesDir}/${relativePath}"
         fi
       ''
     )
@@ -43,6 +58,7 @@ in {
       require("neorg_template_engine").setup({
         notes_dir = vim.fn.expand(${builtins.toJSON notesDir}),
         templates_dir = vim.fn.expand(${builtins.toJSON templatesDir}),
+        workspace = "notes",
         author = ${builtins.toJSON config.home.username},
       })
     '';
