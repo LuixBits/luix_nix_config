@@ -27,6 +27,9 @@
   services.flatpak.enable = true;
   services.xserver.videoDrivers = lib.mkForce [ "nvidia" "modesetting" ];
 
+  # Use the newer stable kernel's USB4/Thunderbolt stack for the TS5 Plus dock.
+  boot.kernelPackages = pkgs.linuxPackages_6_18;
+
   # Ensure old DisplayLink modules never load on this host.
   boot.blacklistedKernelModules = [ "evdi" ];
 
