@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 let
   androidComposition = pkgs.androidenv.composeAndroidPackages {
     platformVersions = [ "35" ];
@@ -13,7 +13,31 @@ let
   sigaAvdName = "siga-pixel-api-35";
   sigaSystemImage = "system-images;android-35;google_apis_playstore;x86_64";
   sigaHostDnsServer = "127.0.0.1";
+  sigaGpuMode = "host";
+  sigaCpuCores = "4";
+  sigaRamSize = "4096";
+  sigaVmHeapSize = "512";
+  sigaLcdWidth = "720";
+  sigaLcdHeight = "1600";
+  sigaLcdDensity = "320";
+  sigaNvidiaOffload = "1";
   caddyRootCert = "/etc/android-siga/caddy-local-root.crt";
+  hostGpuLibraryPath = lib.makeLibraryPath [
+    pkgs.libGL
+    pkgs.libglvnd
+    pkgs.libxkbcommon
+    pkgs.stdenv.cc.cc.lib
+    pkgs.vulkan-loader
+    pkgs.wayland
+    pkgs.xorg.libX11
+    pkgs.xorg.libXcursor
+    pkgs.xorg.libXext
+    pkgs.xorg.libXi
+    pkgs.xorg.libXrandr
+    pkgs.xorg.libXrender
+    pkgs.xorg.libxcb
+    pkgs.zlib
+  ];
 
   createAvd = pkgs.writeShellApplication {
     name = "android-siga-create-avd";
@@ -79,17 +103,48 @@ EOF
     name = "android-siga-emulator";
     runtimeInputs = with pkgs; [
       coreutils
+      gnugrep
     ];
     text = ''
       export ANDROID_HOME="${androidSdkRoot}"
       export ANDROID_SDK_ROOT="${androidSdkRoot}"
       export ANDROID_AVD_HOME="${config.home.homeDirectory}/.android/avd"
+      export LD_LIBRARY_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib:${hostGpuLibraryPath}:''${LD_LIBRARY_PATH:-}"
 
       avd_name="''${ANDROID_SIGA_AVD:-${sigaAvdName}}"
+      gpu_mode="''${ANDROID_SIGA_GPU_MODE:-${sigaGpuMode}}"
+      cpu_cores="''${ANDROID_SIGA_CPU_CORES:-${sigaCpuCores}}"
+      ram_size="''${ANDROID_SIGA_RAM_SIZE:-${sigaRamSize}}"
+      vm_heap_size="''${ANDROID_SIGA_VM_HEAP_SIZE:-${sigaVmHeapSize}}"
+      lcd_width="''${ANDROID_SIGA_LCD_WIDTH:-${sigaLcdWidth}}"
+      lcd_height="''${ANDROID_SIGA_LCD_HEIGHT:-${sigaLcdHeight}}"
+      lcd_density="''${ANDROID_SIGA_LCD_DENSITY:-${sigaLcdDensity}}"
+      nvidia_offload="''${ANDROID_SIGA_NVIDIA_OFFLOAD:-${sigaNvidiaOffload}}"
+
+      if [ "$nvidia_offload" = "1" ]; then
+        export __NV_PRIME_RENDER_OFFLOAD=1
+        export __GLX_VENDOR_LIBRARY_NAME=nvidia
+        export __VK_LAYER_NV_optimus=NVIDIA_only
+      fi
 
       if [ ! -d "$ANDROID_AVD_HOME/$avd_name.avd" ]; then
         ${createAvd}/bin/android-siga-create-avd
       fi
+
+      config_file="$ANDROID_AVD_HOME/$avd_name.avd/config.ini"
+      tmp_config="$config_file.tmp.$$"
+      grep -Ev '^(hw\.gpu\.enabled|hw\.gpu\.mode|hw\.ramSize|vm\.heapSize|hw\.cpu\.ncore|hw\.lcd\.width|hw\.lcd\.height|hw\.lcd\.density)[[:space:]]*=' "$config_file" > "$tmp_config"
+      cat >> "$tmp_config" <<EOF
+hw.gpu.enabled=yes
+hw.gpu.mode=$gpu_mode
+hw.ramSize=$ram_size
+vm.heapSize=$vm_heap_size
+hw.cpu.ncore=$cpu_cores
+hw.lcd.width=$lcd_width
+hw.lcd.height=$lcd_height
+hw.lcd.density=$lcd_density
+EOF
+      mv "$tmp_config" "$config_file"
 
       exec "${androidSdkRoot}/emulator/emulator" \
         -avd "$avd_name" \
@@ -98,7 +153,7 @@ EOF
         -netspeed full \
         -no-metrics \
         -no-audio \
-        -gpu swiftshader_indirect \
+        -gpu "$gpu_mode" \
         "$@"
     '';
   };
@@ -165,6 +220,34 @@ EOF
       fi
     '';
   };
+
+  sigaEmulator = pkgs.writeShellApplication {
+    name = "siga-emulator";
+    text = ''
+      exec ${startEmulator}/bin/android-siga-emulator "$@"
+    '';
+  };
+
+  sigaRoi = pkgs.writeShellApplication {
+    name = "siga-roi";
+    text = ''
+      exec ${openCheckout}/bin/android-siga-open https://roi.local/ "$@"
+    '';
+  };
+
+  sigaWebshop = pkgs.writeShellApplication {
+    name = "siga-webshop";
+    text = ''
+      exec ${openCheckout}/bin/android-siga-open https://siga-webshop.local/ "$@"
+    '';
+  };
+
+  sigaInstallCert = pkgs.writeShellApplication {
+    name = "siga-install-cert";
+    text = ''
+      exec ${installCaddyCert}/bin/android-siga-install-caddy-cert "$@"
+    '';
+  };
 in
 {
   nixpkgs.config = {
@@ -181,6 +264,10 @@ in
     startEmulator
     openCheckout
     installCaddyCert
+    sigaEmulator
+    sigaRoi
+    sigaWebshop
+    sigaInstallCert
   ];
 
   home.sessionVariables = {
