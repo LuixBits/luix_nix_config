@@ -103,7 +103,7 @@ let
       notify_on_press = false;
       lower_left_preset = "lock";
       lower_right_preset = "teams_accept_audio";
-      finder_preset = "teams_toggle_mute";
+      finder_preset = "audio_mute_toggle";
       timeplace_preset = "none";
       unknown_preset = "none";
     };
