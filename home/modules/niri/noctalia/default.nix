@@ -257,11 +257,11 @@ let
 
         widget.casio_deck_dashboard = {
           type = "luixbits/casio-deck:dashboard";
-          output = "DP-1";
-          cx = 540.0;
-          cy = 360.0;
+          output = "eDP-1";
+          cx = 1192.0;
+          cy = 437.5;
           box_width = 540.0;
-          box_height = 0.0;
+          box_height = 480.0;
           rotation = 0.0;
         };
       };

@@ -23,7 +23,7 @@
     ../modules/doom-emacs
     ../modules/virt-manager
     ../modules/work
-    ../modules/android-checkout-emulator
+    ../modules/android-siga-emulator
   ];
 
   home.activation.cleanupBrokenNvimConfig = lib.hm.dag.entryBefore [ "linkGeneration" ] ''

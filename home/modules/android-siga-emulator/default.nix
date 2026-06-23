@@ -10,13 +10,13 @@ let
 
   androidSdk = androidComposition.androidsdk;
   androidSdkRoot = "${androidSdk}/libexec/android-sdk";
-  checkoutAvdName = "checkout-pixel-api-35";
-  checkoutSystemImage = "system-images;android-35;google_apis_playstore;x86_64";
-  checkoutDnsServer = "10.0.2.2";
-  caddyRootCert = "/etc/android-checkout/caddy-local-root.crt";
+  sigaAvdName = "siga-pixel-api-35";
+  sigaSystemImage = "system-images;android-35;google_apis_playstore;x86_64";
+  sigaHostDnsServer = "127.0.0.1";
+  caddyRootCert = "/etc/android-siga/caddy-local-root.crt";
 
   createAvd = pkgs.writeShellApplication {
-    name = "android-checkout-create-avd";
+    name = "android-siga-create-avd";
     runtimeInputs = with pkgs; [
       coreutils
     ];
@@ -25,7 +25,7 @@ let
       export ANDROID_SDK_ROOT="${androidSdkRoot}"
       export ANDROID_AVD_HOME="${config.home.homeDirectory}/.android/avd"
 
-      avd_name="''${ANDROID_CHECKOUT_AVD:-${checkoutAvdName}}"
+      avd_name="''${ANDROID_SIGA_AVD:-${sigaAvdName}}"
       avdmanager=""
       for candidate in \
         "${androidSdkRoot}"/cmdline-tools/*/bin/avdmanager \
@@ -54,7 +54,7 @@ let
         printf 'no\n' | "$avdmanager" create avd \
           --force \
           --name "$avd_name" \
-          --package "${checkoutSystemImage}" \
+          --package "${sigaSystemImage}" \
           --device "$device"
       }
 
@@ -76,7 +76,7 @@ EOF
   };
 
   startEmulator = pkgs.writeShellApplication {
-    name = "android-checkout-emulator";
+    name = "android-siga-emulator";
     runtimeInputs = with pkgs; [
       coreutils
     ];
@@ -85,25 +85,26 @@ EOF
       export ANDROID_SDK_ROOT="${androidSdkRoot}"
       export ANDROID_AVD_HOME="${config.home.homeDirectory}/.android/avd"
 
-      avd_name="''${ANDROID_CHECKOUT_AVD:-${checkoutAvdName}}"
+      avd_name="''${ANDROID_SIGA_AVD:-${sigaAvdName}}"
 
       if [ ! -d "$ANDROID_AVD_HOME/$avd_name.avd" ]; then
-        ${createAvd}/bin/android-checkout-create-avd
+        ${createAvd}/bin/android-siga-create-avd
       fi
 
       exec "${androidSdkRoot}/emulator/emulator" \
         -avd "$avd_name" \
-        -dns-server "${checkoutDnsServer}" \
+        -dns-server "${sigaHostDnsServer}" \
         -netdelay none \
         -netspeed full \
         -no-metrics \
         -no-audio \
+        -gpu swiftshader_indirect \
         "$@"
     '';
   };
 
   openCheckout = pkgs.writeShellApplication {
-    name = "android-checkout-open";
+    name = "android-siga-open";
     text = ''
       export ANDROID_HOME="${androidSdkRoot}"
       export ANDROID_SDK_ROOT="${androidSdkRoot}"
@@ -119,7 +120,7 @@ EOF
   };
 
   installCaddyCert = pkgs.writeShellApplication {
-    name = "android-checkout-install-caddy-cert";
+    name = "android-siga-install-caddy-cert";
     runtimeInputs = with pkgs; [
       coreutils
     ];
@@ -132,11 +133,18 @@ EOF
       target="/sdcard/Download/caddy-local-root.crt"
 
       if [ ! -r "$cert" ]; then
+        legacy_cert="/etc/android-checkout/caddy-local-root.crt"
+        if [ "$cert" = "${caddyRootCert}" ] && [ -r "$legacy_cert" ]; then
+          cert="$legacy_cert"
+        fi
+      fi
+
+      if [ ! -r "$cert" ]; then
         cat >&2 <<EOF
 Cannot read Caddy root certificate: $cert
 
 Start Caddy once, then run:
-  sudo systemctl start android-checkout-caddy-ca.service
+  sudo systemctl start android-siga-caddy-ca.service
 EOF
         exit 1
       fi
@@ -179,13 +187,13 @@ in
     ANDROID_HOME = androidSdkRoot;
     ANDROID_SDK_ROOT = androidSdkRoot;
     ANDROID_AVD_HOME = "${config.home.homeDirectory}/.android/avd";
-    ANDROID_CHECKOUT_AVD = checkoutAvdName;
+    ANDROID_SIGA_AVD = sigaAvdName;
   };
 
   programs.fish.shellAliases = {
-    checkout-emulator = "android-checkout-emulator";
-    checkout-roi = "android-checkout-open https://roi.local/";
-    checkout-webshop = "android-checkout-open https://siga-webshop.local/";
-    checkout-install-cert = "android-checkout-install-caddy-cert";
+    siga-emulator = "android-siga-emulator";
+    siga-roi = "android-siga-open https://roi.local/";
+    siga-webshop = "android-siga-open https://siga-webshop.local/";
+    siga-install-cert = "android-siga-install-caddy-cert";
   };
 }

@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   # Android Emulator needs host KVM access. The work host already gets this via
-  # virt-manager, but keep it here as part of the checkout emulator feature.
+  # virt-manager, but keep it here as part of the SIGA Android emulator feature.
   users.users.luiz.extraGroups = [ "kvm" ];
 
   services.dnsmasq = {
@@ -23,11 +23,11 @@
   };
 
   systemd.tmpfiles.rules = [
-    "d /etc/android-checkout 0755 root root - -"
+    "d /etc/android-siga 0755 root root - -"
   ];
 
-  systemd.services.android-checkout-caddy-ca = {
-    description = "Export Caddy local root CA for Android checkout emulator";
+  systemd.services.android-siga-caddy-ca = {
+    description = "Export Caddy local root CA for SIGA Android emulator";
     wantedBy = [ "multi-user.target" ];
     after = [ "caddy.service" ];
     serviceConfig = {
@@ -37,7 +37,7 @@
     path = [ pkgs.coreutils ];
     script = ''
       cert="/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt"
-      target="/etc/android-checkout/caddy-local-root.crt"
+      target="/etc/android-siga/caddy-local-root.crt"
 
       if [ -r "$cert" ]; then
         install -Dm0644 "$cert" "$target"
