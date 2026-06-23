@@ -7,6 +7,7 @@
     ../features/hardware-intel.nix
     ../features/virt-manager.nix
     ../features/work/appimage.nix
+    ../features/work/android-emulator.nix
     ../features/work/caddy.nix
     ../features/work/cx.nix
     ../features/work/db.nix

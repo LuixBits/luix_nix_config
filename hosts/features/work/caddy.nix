@@ -24,9 +24,14 @@
 
     };
   };
+
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+  ];
+
   # Map the .local names to localhost
   networking.extraHosts = ''
     127.0.0.1 siga-webshop.local siga-blog.local roi.local webauth.local
   '';
 }
-

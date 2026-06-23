@@ -1,6 +1,7 @@
 { config, inputs, lib, pkgs, hostName ? null, ... }:
 let
   wallpaperDir = "/home/luix/Pictures/Wallpapers";
+  localPluginSourceDir = "${config.home.homeDirectory}/projects/noctalia-plugins";
   defaultWallpaper = "${wallpaperDir}/autumn-trees-forest-aerial-view-birds-eye-view-green-trees-3840x2160-3153.jpg";
   lockscreenWallpaper = "${wallpaperDir}/gameboy-retro-3840x2160-13655.jpg";
 
@@ -14,7 +15,7 @@ let
       padding = 12;
       radius = 0;
       scale = 1.15;
-      start = [ "launcher" "wallpaper" "cpu" "temp" "network" "ram" ];
+      start = [ "launcher" "casio_deck" "wallpaper" "cpu" "temp" "network" "ram" ];
       thickness = 43;
       widget_spacing = 9;
 
@@ -66,7 +67,7 @@ let
     osd.position = "top_right";
 
     plugins = {
-      enabled = [ "noctalia/bongocat" ];
+      enabled = [ "noctalia/bongocat" "luixbits/casio-deck" ];
       source = [
         {
           auto_update = true;
@@ -80,7 +81,31 @@ let
           location = "https://github.com/noctalia-dev/community-plugins";
           name = "community";
         }
+        {
+          auto_update = false;
+          kind = "path";
+          location = localPluginSourceDir;
+          name = "local-dev";
+        }
       ];
+    };
+
+    plugin_settings."luixbits/casio-deck" = {
+      watch_model = "casio_abl100we_3565";
+      scan_command = "${localPluginSourceDir}/scripts/run-abl100-helper.sh --model abl100we --scan-only --debug";
+      helper_command = "${localPluginSourceDir}/scripts/run-abl100-helper.sh --model abl100we --listener --app-info-profile smart-sync --scan-timeout 60 --connect-timeout 25 --app-init-timeout 25 --reconnect-delay 2";
+      pair_command = "${localPluginSourceDir}/scripts/run-abl100-helper.sh --model abl100we --setup-pairing --app-info-profile smart-sync --sync-time-on-connect --once --debug --scan-timeout 90 --connect-timeout 25 --app-init-timeout 25";
+      monitor_command = "${localPluginSourceDir}/scripts/run-abl100-helper.sh --model abl100we --session-mode fixed --app-info-profile smart-sync --once --debug --scan-timeout 60 --connect-timeout 25 --app-init-timeout 25 --keepalive-interval 10";
+      repair_command = "${localPluginSourceDir}/scripts/run-abl100-helper.sh --model abl100we --setup-pairing --repair-pairing --app-info-profile smart-sync --sync-time-on-connect --once --debug --scan-timeout 120 --connect-timeout 25 --app-init-timeout 25";
+      saved_watch_address = "FC:51:1B:85:68:53";
+      saved_watch_name = "CASIO ABL-100WE";
+      autostart_helper = true;
+      notify_on_press = false;
+      lower_left_preset = "lock";
+      lower_right_preset = "teams_accept_audio";
+      finder_preset = "teams_toggle_mute";
+      timeplace_preset = "none";
+      unknown_preset = "none";
     };
 
     shell = {
@@ -118,6 +143,14 @@ let
     };
 
     widget = {
+      casio_deck = {
+        type = "luixbits/casio-deck:status";
+        label = "Casio";
+        show_label = true;
+        show_press_count = true;
+        hide_disconnected = false;
+      };
+
       cat.type = "noctalia/bongocat:cat";
       network.show_label = false;
     };
@@ -217,6 +250,21 @@ let
       shell.shadow.alpha = 0.0;
       dock.monitors = [ "DP-2" "DP-1" "eDP-1" ];
       backdrop.enabled = false;
+      desktop_widgets = {
+        enabled = true;
+        schema_version = 2;
+        widget_order = [ "casio_deck_dashboard" ];
+
+        widget.casio_deck_dashboard = {
+          type = "luixbits/casio-deck:dashboard";
+          output = "DP-1";
+          cx = 540.0;
+          cy = 360.0;
+          box_width = 540.0;
+          box_height = 0.0;
+          rotation = 0.0;
+        };
+      };
     };
   };
 
