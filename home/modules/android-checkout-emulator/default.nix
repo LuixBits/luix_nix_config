@@ -26,7 +26,21 @@ let
       export ANDROID_AVD_HOME="${config.home.homeDirectory}/.android/avd"
 
       avd_name="''${ANDROID_CHECKOUT_AVD:-${checkoutAvdName}}"
-      avdmanager="${androidSdkRoot}/cmdline-tools/latest/bin/avdmanager"
+      avdmanager=""
+      for candidate in \
+        "${androidSdkRoot}"/cmdline-tools/*/bin/avdmanager \
+        "${androidSdkRoot}"/tools/bin/avdmanager
+      do
+        if [ -x "$candidate" ]; then
+          avdmanager="$candidate"
+          break
+        fi
+      done
+
+      if [ -z "$avdmanager" ]; then
+        echo "Could not find avdmanager in ${androidSdkRoot}" >&2
+        exit 1
+      fi
 
       if [ -d "$ANDROID_AVD_HOME/$avd_name.avd" ]; then
         echo "AVD already exists: $avd_name"
