@@ -92,12 +92,9 @@ let
 
     plugin_settings."luixbits/casio-deck" = {
       watch_model = "casio_abl100we_3565";
-      scan_command = "${localPluginSourceDir}/scripts/run-abl100-helper.sh --model abl100we --scan-only --debug";
-      helper_command = "${localPluginSourceDir}/scripts/run-abl100-helper.sh --model abl100we --listener --app-info-profile smart-sync --scan-timeout 60 --connect-timeout 25 --app-init-timeout 25 --reconnect-delay 2";
-      stop_command = "${localPluginSourceDir}/scripts/stop-abl100-helper.sh";
-      pair_command = "${localPluginSourceDir}/scripts/run-abl100-helper.sh --model abl100we --setup-pairing --app-info-profile smart-sync --sync-time-on-connect --once --debug --scan-timeout 90 --connect-timeout 25 --app-init-timeout 25";
-      monitor_command = "${localPluginSourceDir}/scripts/run-abl100-helper.sh --model abl100we --session-mode fixed --app-info-profile smart-sync --once --debug --scan-timeout 60 --connect-timeout 25 --app-init-timeout 25 --keepalive-interval 10";
-      repair_command = "${localPluginSourceDir}/scripts/run-abl100-helper.sh --model abl100we --setup-pairing --repair-pairing --app-info-profile smart-sync --sync-time-on-connect --once --debug --scan-timeout 120 --connect-timeout 25 --app-init-timeout 25";
+      helper_command = "${localPluginSourceDir}/scripts/helper/run-abl100-helper.sh --model abl100we --listener --app-info-profile smart-sync --scan-timeout 60 --connect-timeout 25 --app-init-timeout 25 --reconnect-delay 2";
+      stop_command = "${localPluginSourceDir}/scripts/helper/stop-abl100-helper.sh";
+      pair_command = "${localPluginSourceDir}/scripts/helper/run-abl100-helper.sh --model abl100we --setup-pairing --app-info-profile smart-sync --sync-time-on-connect --once --debug --scan-timeout 90 --connect-timeout 25 --app-init-timeout 25";
       saved_watch_address = "FC:51:1B:85:68:53";
       saved_watch_name = "CASIO ABL-100WE";
       autostart_helper = true;
@@ -105,8 +102,6 @@ let
       lower_left_preset = "lock";
       lower_right_preset = "teams_accept_audio";
       finder_preset = "audio_mute_toggle";
-      timeplace_preset = "none";
-      unknown_preset = "none";
     };
 
     shell = {
