@@ -1,5 +1,12 @@
-{ inputs, ... }:
+{ config, inputs, ... }:
 {
+  assertions = [
+    {
+      assertion = config.networking.hostName == "pc";
+      message = "hosts/features/gaming.nix installs Star Citizen and must only be imported by the pc host.";
+    }
+  ];
+
   imports = [
     inputs.nix-citizen.nixosModules.default
   ];

@@ -3,11 +3,11 @@
 
   inputs = {
     # primary channels
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     # home-manager
-    home-manager.url = "github:nix-community/home-manager/release-25.11";
+    home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     # NVF (Neovim framework)
@@ -20,11 +20,6 @@
 
     # Star Citizen helper flake
     nix-citizen.url = "github:LovingMelody/nix-citizen";
-
-    # Reproducible Doom Emacs built through Home Manager.
-    nix-doom-emacs-unstraightened.url =
-      "github:marienz/nix-doom-emacs-unstraightened";
-    nix-doom-emacs-unstraightened.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
   };
 

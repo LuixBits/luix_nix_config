@@ -20,7 +20,6 @@
     ../modules/qutebrowser
     ../modules/kdenlive
     ../modules/nvfvim
-    ../modules/doom-emacs
     ../modules/virt-manager
     ../modules/work
     ../modules/android-siga-emulator

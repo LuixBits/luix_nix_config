@@ -29,13 +29,13 @@ let
     pkgs.stdenv.cc.cc.lib
     pkgs.vulkan-loader
     pkgs.wayland
-    pkgs.xorg.libX11
-    pkgs.xorg.libXcursor
-    pkgs.xorg.libXext
-    pkgs.xorg.libXi
-    pkgs.xorg.libXrandr
-    pkgs.xorg.libXrender
-    pkgs.xorg.libxcb
+    pkgs.libx11
+    pkgs.libxcursor
+    pkgs.libxext
+    pkgs.libxi
+    pkgs.libxrandr
+    pkgs.libxrender
+    pkgs.libxcb
     pkgs.zlib
   ];
 

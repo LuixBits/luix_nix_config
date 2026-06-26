@@ -25,14 +25,6 @@
 
   users.users.luix.extraGroups = [ "video" ];
 
-  programs.light = {
-    enable = true;
-    brightnessKeys = {
-      enable = true;
-      minBrightness = 5;
-    };
-  };
-
   environment.systemPackages = with pkgs; [
     brightnessctl
   ];
