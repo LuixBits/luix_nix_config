@@ -2,7 +2,6 @@
 { pkgs, ... }:
 {
   home.packages = [
-    pkgs.protonvpn-gui
+    pkgs.proton-vpn
   ];
 }
-
