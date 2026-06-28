@@ -1,7 +1,12 @@
 { pkgs, ... }:
 {
+  home.packages = [
+    pkgs.imagemagick
+  ];
+
   programs.nvf.settings.vim = {
     startPlugins = [
+      pkgs.vimPlugins.image-nvim
       pkgs.vimPlugins.zen-mode-nvim
     ];
 
@@ -39,6 +44,36 @@
     ];
 
     luaConfigRC.neorg-presentations = ''
+      local presentation_state = {
+        source_file = "",
+      }
+
+      require("image").setup({
+        backend = "kitty",
+        processor = "magick_cli",
+        integrations = {
+          markdown = { enabled = false },
+          neorg = {
+            enabled = true,
+            filetypes = { "norg" },
+            clear_in_insert_mode = false,
+            download_remote_images = true,
+            only_render_image_at_cursor = false,
+            resolve_image_path = function(document_path, image_path, fallback)
+              if document_path:match("Norg Presenter%.norg$") and presentation_state.source_file ~= "" then
+                return fallback(presentation_state.source_file, image_path)
+              end
+
+              return fallback(document_path, image_path)
+            end,
+          },
+        },
+        max_height_window_percentage = 65,
+        window_overlap_clear_enabled = false,
+        editor_only_render_when_focused = false,
+        hijack_file_patterns = { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.avif" },
+      })
+
       require("zen-mode").setup({
         window = {
           backdrop = 0.95,
@@ -158,6 +193,8 @@
             return
           end
         end
+
+        presentation_state.source_file = vim.api.nvim_buf_get_name(0)
 
         vim.schedule(function()
           vim.cmd("Neorg presenter start")

@@ -2,6 +2,63 @@
 
 Small folder-based template engine for Neorg notes.
 
+## Installation
+
+Install the plugin like any other Neovim Lua plugin. It only needs to be on
+Neovim's runtimepath before calling `require("neorg_template_engine")`.
+
+With `lazy.nvim` from a local checkout:
+
+```lua
+{
+  dir = "~/path/to/neorg-template-engine.nvim",
+  dependencies = { "nvim-neorg/neorg" },
+  config = function()
+    require("neorg_template_engine").setup({
+      notes_dir = "~/notes",
+      templates_dir = "~/notes/templates",
+      workspace = "notes",
+      author = vim.env.USER,
+    })
+  end,
+}
+```
+
+With Neovim's built-in package loading, place the plugin directory here:
+
+```text
+~/.local/share/nvim/site/pack/plugins/start/neorg-template-engine.nvim/
+```
+
+Then configure it from your normal `init.lua`:
+
+```lua
+require("neorg_template_engine").setup({
+  notes_dir = "~/notes",
+  templates_dir = "~/notes/templates",
+  workspace = "notes",
+  author = vim.env.USER,
+})
+```
+
+The `workspace` value must match your Neorg `core.dirman` workspace name:
+
+```lua
+require("neorg").setup({
+  load = {
+    ["core.defaults"] = {},
+    ["core.dirman"] = {
+      config = {
+        workspaces = {
+          notes = "~/notes",
+        },
+        default_workspace = "notes",
+      },
+    },
+  },
+})
+```
+
 ## Setup
 
 ```lua
@@ -30,6 +87,22 @@ Commands are also available:
 :NeorgTemplateNew
 :NeorgTemplateInsert
 :NeorgTemplateEdit
+```
+
+## Module Layout
+
+The main plugin file is:
+
+```text
+lua/neorg_template_engine/init.lua
+```
+
+That is normal Neovim plugin structure. It does not replace your personal
+`init.lua`; it is only the entry point for the `neorg_template_engine` Lua
+module. Neovim loads it when you call:
+
+```lua
+require("neorg_template_engine")
 ```
 
 ## Templates
