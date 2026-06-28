@@ -85,6 +85,44 @@ in {
         },
       })
 
+      vim.treesitter.query.set("norg", "images", [[
+        (infirm_tag
+          name: (tag_name) @tag
+          (#eq? @tag "image")
+          (tag_parameters (tag_param) @image.src)) @image
+
+        (_
+          (infirm_tag
+            name: (tag_name) @tag
+            (#eq? @tag "image")) @image
+          .
+          (paragraph (paragraph_segment) @image.src))
+      ]])
+
+      local function attach_neorg_images(buf)
+        local ok, image_doc = pcall(require, "snacks.image.doc")
+        if ok then
+          image_doc.attach(buf)
+        end
+      end
+
+      vim.api.nvim_create_autocmd({ "FileType", "BufEnter" }, {
+        pattern = "norg",
+        callback = function(args)
+          vim.schedule(function()
+            if vim.api.nvim_buf_is_valid(args.buf) then
+              attach_neorg_images(args.buf)
+            end
+          end)
+        end,
+      })
+
+      if vim.bo.filetype == "norg" then
+        vim.schedule(function()
+          attach_neorg_images(vim.api.nvim_get_current_buf())
+        end)
+      end
+
       require("img-clip").setup({
         default = {
           dir_path = "assets",
