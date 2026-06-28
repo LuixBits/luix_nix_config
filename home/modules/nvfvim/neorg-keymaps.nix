@@ -32,6 +32,12 @@
   }
   {
     mode = "n";
+    key = "<leader>nI";
+    action = "<cmd>PasteImage<CR>";
+    desc = "Paste image";
+  }
+  {
+    mode = "n";
     key = "<leader>nt";
     action = "<Plug>(neorg-template-engine.insert-template)";
     desc = "Insert note template";
