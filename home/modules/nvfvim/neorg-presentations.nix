@@ -41,9 +41,9 @@
     luaConfigRC.neorg-presentations = ''
       require("zen-mode").setup({
         window = {
-          backdrop = 0.95,
-          width = 0.9,
-          height = 0.95,
+          backdrop = 1,
+          width = 1,
+          height = 1,
           options = {
             cursorline = false,
             foldcolumn = "0",
@@ -167,6 +167,17 @@
       vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
         pattern = "norg/Norg Presenter.norg",
         callback = function(args)
+          vim.opt_local.breakindent = true
+          vim.opt_local.cursorline = false
+          vim.opt_local.foldcolumn = "0"
+          vim.opt_local.linebreak = true
+          vim.opt_local.list = false
+          vim.opt_local.number = false
+          vim.opt_local.relativenumber = false
+          vim.opt_local.signcolumn = "no"
+          vim.opt_local.spell = false
+          vim.opt_local.wrap = true
+
           local function map(key, action, desc)
             vim.keymap.set("n", key, action, {
               buffer = args.buf,
