@@ -10,6 +10,7 @@
     ../modules/applications
     ../modules/cli
     ../modules/programming
+    ../modules/herdr
     ../modules/kitty
     ../modules/buildandpush
     ../modules/fish

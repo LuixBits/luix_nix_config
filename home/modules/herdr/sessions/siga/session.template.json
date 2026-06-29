@@ -1,0 +1,242 @@
+{
+  "version": 3,
+  "workspaces": [
+    {
+      "id": "w1",
+      "custom_name": null,
+      "identity_cwd": "@HOME@/siga/roiguard2",
+      "public_pane_numbers": {
+        "2": 2,
+        "10": 9,
+        "9": 8
+      },
+      "next_public_pane_number": 10,
+      "public_tab_numbers": [
+        2,
+        4,
+        5
+      ],
+      "next_public_tab_number": 6,
+      "tabs": [
+        {
+          "custom_name": "Roiguard",
+          "layout": {
+            "Pane": 2
+          },
+          "panes": {
+            "2": {
+              "cwd": "@HOME@/siga/roiguard2"
+            }
+          },
+          "zoomed": false,
+          "focused": 2,
+          "root_pane": 2
+        },
+        {
+          "custom_name": "Codex Roiguard",
+          "layout": {
+            "Pane": 9
+          },
+          "panes": {
+            "9": {
+              "cwd": "@HOME@/siga/roiguard2"
+            }
+          },
+          "zoomed": false,
+          "focused": 9,
+          "root_pane": 9
+        },
+        {
+          "custom_name": "Roiguard CLI",
+          "layout": {
+            "Pane": 10
+          },
+          "panes": {
+            "10": {
+              "cwd": "@HOME@/siga/roiguard2"
+            }
+          },
+          "zoomed": false,
+          "focused": 10,
+          "root_pane": 10
+        }
+      ],
+      "active_tab": 0
+    },
+    {
+      "id": "w3",
+      "custom_name": null,
+      "identity_cwd": "@HOME@/siga/webshop",
+      "public_pane_numbers": {
+        "13": 3,
+        "15": 5,
+        "14": 4
+      },
+      "next_public_pane_number": 6,
+      "public_tab_numbers": [
+        3,
+        4,
+        5
+      ],
+      "next_public_tab_number": 6,
+      "tabs": [
+        {
+          "custom_name": "Webshop",
+          "layout": {
+            "Pane": 13
+          },
+          "panes": {
+            "13": {
+              "cwd": "@HOME@/siga/webshop"
+            }
+          },
+          "zoomed": false,
+          "focused": 13,
+          "root_pane": 13
+        },
+        {
+          "custom_name": "Webshop Codex",
+          "layout": {
+            "Pane": 14
+          },
+          "panes": {
+            "14": {
+              "cwd": "@HOME@/siga/webshop"
+            }
+          },
+          "zoomed": false,
+          "focused": 14,
+          "root_pane": 14
+        },
+        {
+          "custom_name": "Webshop CLI",
+          "layout": {
+            "Pane": 15
+          },
+          "panes": {
+            "15": {
+              "cwd": "@HOME@/siga/webshop"
+            }
+          },
+          "zoomed": false,
+          "focused": 15,
+          "root_pane": 15
+        }
+      ],
+      "active_tab": 2
+    },
+    {
+      "id": "w4",
+      "custom_name": null,
+      "identity_cwd": "@HOME@/luix_nix_config",
+      "public_pane_numbers": {
+        "20": 5,
+        "19": 4,
+        "16": 1
+      },
+      "next_public_pane_number": 6,
+      "public_tab_numbers": [
+        1,
+        4,
+        5
+      ],
+      "next_public_tab_number": 6,
+      "tabs": [
+        {
+          "custom_name": "Config",
+          "layout": {
+            "Pane": 16
+          },
+          "panes": {
+            "16": {
+              "cwd": "@HOME@/luix_nix_config"
+            }
+          },
+          "zoomed": false,
+          "focused": 16,
+          "root_pane": 16
+        },
+        {
+          "custom_name": "Config Codex",
+          "layout": {
+            "Pane": 19
+          },
+          "panes": {
+            "19": {
+              "cwd": "@HOME@/luix_nix_config"
+            }
+          },
+          "zoomed": false,
+          "focused": 19,
+          "root_pane": 19
+        },
+        {
+          "custom_name": "Config CLI",
+          "layout": {
+            "Pane": 20
+          },
+          "panes": {
+            "20": {
+              "cwd": "@HOME@/luix_nix_config"
+            }
+          },
+          "zoomed": false,
+          "focused": 20,
+          "root_pane": 20
+        }
+      ],
+      "active_tab": 1
+    },
+    {
+      "id": "w5",
+      "custom_name": null,
+      "identity_cwd": "@HOME@/notes",
+      "public_pane_numbers": {
+        "21": 1,
+        "23": 2
+      },
+      "next_public_pane_number": 3,
+      "public_tab_numbers": [
+        1,
+        2
+      ],
+      "next_public_tab_number": 3,
+      "tabs": [
+        {
+          "custom_name": "Notes",
+          "layout": {
+            "Pane": 21
+          },
+          "panes": {
+            "21": {
+              "cwd": "@HOME@/notes"
+            }
+          },
+          "zoomed": false,
+          "focused": 21,
+          "root_pane": 21
+        },
+        {
+          "custom_name": "Notes CLI",
+          "layout": {
+            "Pane": 23
+          },
+          "panes": {
+            "23": {
+              "cwd": "@HOME@/notes"
+            }
+          },
+          "zoomed": false,
+          "focused": 23,
+          "root_pane": 23
+        }
+      ],
+      "active_tab": 0
+    }
+  ],
+  "active": 2,
+  "selected": 2,
+  "sidebar_width": 26,
+  "sidebar_section_split": 0.5,
+  "collapsed_space_keys": []
+}

@@ -1,6 +1,5 @@
-{ config, inputs, lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 let
-  herdrPackage = inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default;
   writeCodexDefaults = pkgs.writeShellScript "write-codex-defaults" ''
     set -eu
 
@@ -35,7 +34,6 @@ in
   };
 
   home.packages = with pkgs; [
-    herdrPackage
     bubblewrap
     codex
     dbeaver-bin
@@ -79,11 +77,5 @@ in
     fi
 
     run ${writeCodexDefaults} "$config_file"
-  '';
-
-  home.activation.herdrCodexIntegrationNote = lib.hm.dag.entryAfter [ "ensureCodexConfig" ] ''
-    echo "Herdr/Codex post-install:"
-    echo "  herdr integration install codex"
-    echo "  herdr integration status"
   '';
 }

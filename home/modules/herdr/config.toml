@@ -1,0 +1,21 @@
+onboarding = false
+
+[terminal]
+default_shell = "/run/current-system/sw/bin/bash"
+shell_mode = "non_login"
+new_cwd = "follow"
+
+[session]
+resume_agents_on_restore = true
+
+[[keys.command]]
+key = "prefix+up"
+type = "plugin_action"
+command = "cloudmanic.herdr-plus.projects"
+description = "herdr-plus: projects"
+
+[[keys.command]]
+key = "prefix+down"
+type = "plugin_action"
+command = "cloudmanic.herdr-plus.quick-actions"
+description = "herdr-plus: quick actions"
