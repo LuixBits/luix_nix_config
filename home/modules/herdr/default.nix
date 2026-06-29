@@ -2,6 +2,24 @@
 let
   herdrPackage = inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default;
   herdrConfig = ./config.toml;
+  herdrPlusVersion = "0.1.10";
+  herdrPlusSrc = pkgs.fetchFromGitHub {
+    owner = "cloudmanic";
+    repo = "herdr-plus";
+    rev = "013fe1667a638487004164955a01707584ab7b9e";
+    hash = "sha256-doOEYixyTb5t2cX0kfK/8swXqTYcpF14jdegOPgAMJs=";
+  };
+  herdrPlus = pkgs.buildGoModule {
+    pname = "herdr-plus";
+    version = herdrPlusVersion;
+    src = herdrPlusSrc;
+    vendorHash = "sha256-im2gPhLarMf1w/8rhxbOe9EhUdvseffukT9tqU4EEXI=";
+  };
+  herdrPlusPlugin = pkgs.runCommand "herdr-plus-plugin-${herdrPlusVersion}" { } ''
+    mkdir -p "$out"
+    cp -R ${herdrPlusSrc}/. "$out/"
+    install -D -m 0755 ${herdrPlus}/bin/herdr-plus "$out/bin/herdr-plus"
+  '';
   sigaSessionTemplate = ./sessions/siga/session.template.json;
   sigaSessionSeed = pkgs.runCommand "herdr-siga-session.seed.json" { } ''
     substitute ${sigaSessionTemplate} "$out" \
@@ -80,6 +98,7 @@ let
     done
 
     herdr_session workspace list >/dev/null
+    herdr_session plugin link "${herdrPlusPlugin}" >/dev/null
 
     wait_for_pane() {
       pane_id="$1"
@@ -114,7 +133,16 @@ let
     herdr_session tab focus w4:t4 >/dev/null
 
     printf '%s\n' "Herdr session 'siga' is ready. Attach with: herdr --session siga"
-    printf '%s\n' "If herdr-plus is not installed in this named session yet, run: herdr --session siga plugin install cloudmanic/herdr-plus --yes"
+    printf '%s\n' "herdr-plus is linked from Nix: ${herdrPlusPlugin}"
+  '';
+  herdrSetup = pkgs.writeShellScriptBin "herdr-setup" ''
+    set -eu
+
+    herdr_bin="${herdrPackage}/bin/herdr"
+    herdr_siga_session="${herdrSigaSession}/bin/herdr-siga-session"
+
+    "$herdr_siga_session" --reset
+    exec "$herdr_bin" --session siga
   '';
 in
 {
@@ -138,6 +166,7 @@ in
   home.packages = [
     herdrPackage
     herdrSigaSession
+    herdrSetup
   ];
 
   home.activation.ensureHerdrConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -158,12 +187,4 @@ in
     fi
   '';
 
-  home.activation.herdrPostInstallNote = lib.hm.dag.entryAfter [ "ensureHerdrConfig" ] ''
-    echo "Herdr post-install:"
-    echo "  herdr integration install codex"
-    echo "  herdr integration status"
-    echo "  herdr-siga-session --reset"
-    echo "  herdr --session siga plugin install cloudmanic/herdr-plus --yes"
-    echo "  herdr --session siga"
-  '';
 }
