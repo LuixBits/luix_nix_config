@@ -1,4 +1,29 @@
-{ inputs, lib, pkgs, ... }:
+{ config, inputs, lib, pkgs, ... }:
+let
+  herdrPackage = inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  writeCodexDefaults = pkgs.writeShellScript "write-codex-defaults" ''
+    set -eu
+
+    config_file="$1"
+    tmp_file="$config_file.tmp.$$"
+    trap 'rm -f "$tmp_file"' EXIT
+
+    ${pkgs.gawk}/bin/awk '
+      BEGIN {
+        print "approval_policy = \"on-request\""
+        print "sandbox_mode = \"workspace-write\""
+      }
+      /^[[:space:]]*\[/ { in_table = 1 }
+      !in_table && /^[[:space:]]*(approval_policy|sandbox_mode)[[:space:]]*=/ { next }
+      NR == 1 && $0 != "" { print "" }
+      { print }
+    ' "$config_file" > "$tmp_file"
+
+    ${pkgs.coreutils}/bin/mv "$tmp_file" "$config_file"
+    ${pkgs.coreutils}/bin/chmod 0600 "$config_file"
+    trap - EXIT
+  '';
+in
 {
   programs.vscode = {
     enable = true;
@@ -10,7 +35,7 @@
   };
 
   home.packages = with pkgs; [
-    inputs.herdr.packages.${pkgs.system}.default
+    herdrPackage
     bubblewrap
     codex
     dbeaver-bin
@@ -35,12 +60,28 @@
     nmap
   ];
 
-  home.file.".codex/config.toml".text = ''
-    approval_policy = "on-request"
-    sandbox_mode = "workspace-write"
+  home.activation.ensureCodexConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    codex_dir="${config.home.homeDirectory}/.codex"
+    config_file="$codex_dir/config.toml"
+
+    run mkdir -p "$codex_dir"
+
+    if [ -L "$config_file" ]; then
+      link_target="$(readlink "$config_file")"
+      mutable_copy="$config_file.hm-mutable"
+      run cp -f "$link_target" "$mutable_copy"
+      run rm -f "$config_file"
+      run mv -f "$mutable_copy" "$config_file"
+    fi
+
+    if [ ! -e "$config_file" ]; then
+      run install -m 0600 /dev/null "$config_file"
+    fi
+
+    run ${writeCodexDefaults} "$config_file"
   '';
 
-  home.activation.herdrCodexIntegrationNote = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.herdrCodexIntegrationNote = lib.hm.dag.entryAfter [ "ensureCodexConfig" ] ''
     echo "Herdr/Codex post-install:"
     echo "  herdr integration install codex"
     echo "  herdr integration status"
