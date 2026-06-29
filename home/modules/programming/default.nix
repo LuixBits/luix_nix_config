@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ inputs, lib, pkgs, ... }:
 {
   programs.vscode = {
     enable = true;
@@ -10,6 +10,9 @@
   };
 
   home.packages = with pkgs; [
+    inputs.herdr.packages.${pkgs.system}.default
+    bubblewrap
+    codex
     dbeaver-bin
     gcc
     gnumake
@@ -19,11 +22,27 @@
     luarocks-nix
     nodejs
     pnpm
-    php
+    (php83.buildEnv {
+      extraConfig = ''
+        memory_limit = 4G
+        upload_max_filesize = 500M
+        post_max_size = 500M
+      '';
+    })
     python3
     whois
     dig
     nmap
-    opencode
   ];
+
+  home.file.".codex/config.toml".text = ''
+    approval_policy = "on-request"
+    sandbox_mode = "workspace-write"
+  '';
+
+  home.activation.herdrCodexIntegrationNote = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    echo "Herdr/Codex post-install:"
+    echo "  herdr integration install codex"
+    echo "  herdr integration status"
+  '';
 }

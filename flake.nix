@@ -21,6 +21,9 @@
     # Star Citizen helper flake
     nix-citizen.url = "github:LovingMelody/nix-citizen";
 
+    # Herdr terminal workflow
+    herdr.url = "github:ogulcancelik/herdr/v0.7.1";
+
   };
 
   outputs = { nixpkgs, home-manager, ... }@inputs:
