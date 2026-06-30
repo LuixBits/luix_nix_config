@@ -467,11 +467,12 @@ in
         end
 
         local ok_presenter, presenter = pcall(neorg.modules.get_module, "core.presenter")
-        if not ok_presenter or not presenter or not presenter.public then
+        local public = ok_presenter and presenter and (presenter.public or presenter) or nil
+        if not public then
           return
         end
 
-        local fn = presenter.public[action]
+        local fn = public[action]
         if type(fn) ~= "function" then
           return
         end
