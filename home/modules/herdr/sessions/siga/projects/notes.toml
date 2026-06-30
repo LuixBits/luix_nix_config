@@ -1,0 +1,11 @@
+name = "Notes"
+description = "Personal notes"
+group = "Personal"
+working_dir = "~/notes"
+
+[[tabs]]
+name = "Notes"
+command = "nvim ."
+
+[[tabs]]
+name = "Notes CLI"

@@ -1,0 +1,15 @@
+name = "Nix Config"
+description = "Personal NixOS and Home Manager configuration"
+group = "System"
+working_dir = "~/luix_nix_config"
+
+[[tabs]]
+name = "Config"
+command = "nvim ."
+
+[[tabs]]
+name = "Config Codex"
+command = "codex"
+
+[[tabs]]
+name = "Config CLI"

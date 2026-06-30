@@ -7,14 +7,25 @@ updated: {TODAY}
 @end
 
 * {TITLE_INPUT}
-  Placeholder opening text.
+  - One sentence that frames the audience and goal.
+  - Why this matters now.
 
-* Main Point
-  Placeholder explanation.
+* Problem
+  - Current state.
+  - Main friction.
+
+* Model
+  - Core idea.
+  - Key moving parts.
 
 * Demo
-  Placeholder demo notes.
+  - Setup.
+  - Walkthrough.
 
-* Closing
-  Placeholder takeaway.
+* Takeaway
+  - What changed.
+  - Next step.
+
+* Appendix
+  - Optional backup material.
   {CURSOR}

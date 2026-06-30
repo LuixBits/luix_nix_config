@@ -1,0 +1,15 @@
+name = "Roiguard"
+description = "SIGA Roiguard"
+group = "SIGA"
+working_dir = "~/siga/roiguard2"
+
+[[tabs]]
+name = "Roiguard"
+command = "nvim ."
+
+[[tabs]]
+name = "Codex Roiguard"
+command = "codex"
+
+[[tabs]]
+name = "Roiguard CLI"

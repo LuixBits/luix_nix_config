@@ -1,0 +1,15 @@
+name = "Webshop"
+description = "SIGA Webshop"
+group = "SIGA"
+working_dir = "~/siga/webshop"
+
+[[tabs]]
+name = "Webshop"
+command = "nvim ."
+
+[[tabs]]
+name = "Webshop Codex"
+command = "codex"
+
+[[tabs]]
+name = "Webshop CLI"
