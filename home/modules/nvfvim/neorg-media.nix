@@ -4,6 +4,8 @@
   ...
 }: let
   notesDir = "${config.home.homeDirectory}/notes";
+  imageMaxWidth = 72;
+  imageMaxHeight = 16;
 in {
   home.packages = [
     pkgs.ghostscript
@@ -19,6 +21,20 @@ in {
 
     luaConfigRC.neorg-media = ''
       local notes_dir = vim.fn.expand(${builtins.toJSON notesDir})
+
+      vim.treesitter.query.set("norg", "images", [[
+        (infirm_tag
+          name: (tag_name) @tag
+          (#eq? @tag "image")
+          (tag_parameters (tag_param) @image.src)) @image
+
+        (_
+          (infirm_tag
+            name: (tag_name) @tag
+            (#eq? @tag "image")) @image
+          .
+          (paragraph (paragraph_segment) @image.src))
+      ]])
 
       local function norg_image_template(context)
         local current_file = vim.api.nvim_buf_get_name(0)
@@ -77,51 +93,13 @@ in {
             enabled = true,
             inline = true,
             float = true,
-            max_width = 90,
-            max_height = 24,
+            max_width = ${toString imageMaxWidth},
+            max_height = ${toString imageMaxHeight},
             conceal = false,
           },
           img_dirs = { "assets", "img", "images", "media", "attachments" },
         },
       })
-
-      vim.treesitter.query.set("norg", "images", [[
-        (infirm_tag
-          name: (tag_name) @tag
-          (#eq? @tag "image")
-          (tag_parameters (tag_param) @image.src)) @image
-
-        (_
-          (infirm_tag
-            name: (tag_name) @tag
-            (#eq? @tag "image")) @image
-          .
-          (paragraph (paragraph_segment) @image.src))
-      ]])
-
-      local function attach_neorg_images(buf)
-        local ok, image_doc = pcall(require, "snacks.image.doc")
-        if ok then
-          image_doc.attach(buf)
-        end
-      end
-
-      vim.api.nvim_create_autocmd({ "FileType", "BufEnter" }, {
-        pattern = "norg",
-        callback = function(args)
-          vim.schedule(function()
-            if vim.api.nvim_buf_is_valid(args.buf) then
-              attach_neorg_images(args.buf)
-            end
-          end)
-        end,
-      })
-
-      if vim.bo.filetype == "norg" then
-        vim.schedule(function()
-          attach_neorg_images(vim.api.nvim_get_current_buf())
-        end)
-      end
 
       require("img-clip").setup({
         default = {
