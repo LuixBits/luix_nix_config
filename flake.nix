@@ -24,6 +24,9 @@
     # Herdr terminal workflow
     herdr.url = "github:ogulcancelik/herdr/v0.7.1";
 
+    # Neorg flashcards plugin and NVF module
+    luixbits-neorg-flashcards.url = "github:devluixos/luixbits-neorg-flashcards.nvim";
+
   };
 
   outputs = { nixpkgs, home-manager, ... }@inputs:

@@ -13,6 +13,11 @@
   programs.tmux.enable = true;
 
   home.packages = with pkgs; [
+    ffmpeg
+    gh
+    gifski
+    slurp
+    wf-recorder
     yazi
   ];
 }

@@ -6,11 +6,11 @@
 }: let
   notesDir = "${config.home.homeDirectory}/notes";
   templatesDir = "${notesDir}/templates";
-  starterTemplatesDir = ./neorg-templates;
+  starterTemplatesDir = ./starter;
   neorgTemplateEngine = pkgs.vimUtils.buildVimPlugin {
     pname = "neorg-template-engine.nvim";
     version = "0.1.0";
-    src = ./neorg-template-engine-plugin;
+    src = ./plugin;
   };
 
   listTemplateFiles =

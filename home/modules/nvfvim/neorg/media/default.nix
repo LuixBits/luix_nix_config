@@ -36,66 +36,63 @@ in {
           (paragraph (paragraph_segment) @image.src))
       ]])
 
-      local function norg_image_template(context)
-        local current_file = vim.api.nvim_buf_get_name(0)
-        if current_file == "" then
-          return ".image " .. context.file_path
-        end
-
-        local current_dir = vim.fn.fnamemodify(current_file, ":p:h")
-        local absolute_path = vim.fs.normalize(current_dir .. "/" .. context.file_path)
-
-        if absolute_path == notes_dir or vim.startswith(absolute_path, notes_dir .. "/") then
-          return ".image $notes/" .. absolute_path:sub(#notes_dir + 2)
-        end
-
-        return ".image " .. context.file_path
+      local function strip_quotes(value)
+        return value:gsub("^['\"]", ""):gsub("['\"]$", "")
       end
 
-      local function resolve_neorg_image_path(_, src)
+      local function notes_relative_path(path)
+        local absolute = vim.fs.normalize(path)
+        if absolute == notes_dir then
+          return "$notes"
+        end
+        if vim.startswith(absolute, notes_dir .. "/") then
+          return "$notes/" .. absolute:sub(#notes_dir + 2)
+        end
+      end
+
+      local function image_template(context)
+        local path = context.file_path
+        local current_file = vim.api.nvim_buf_get_name(0)
+
+        if current_file ~= "" and not path:match("^/") and not vim.startswith(path, "$") then
+          local current_dir = vim.fn.fnamemodify(current_file, ":p:h")
+          path = vim.fs.normalize(current_dir .. "/" .. path)
+        end
+
+        return ".image " .. (notes_relative_path(path) or context.file_path)
+      end
+
+      local function resolve_image(_, src)
         if type(src) ~= "string" then
           return nil
         end
 
+        src = strip_quotes(vim.trim(src))
+
         if vim.startswith(src, "~/") then
           return vim.fn.expand(src)
         end
-
         if src == "$notes" then
           return notes_dir
         end
-
         if vim.startswith(src, "$notes/") then
           return vim.fs.normalize(notes_dir .. "/" .. src:sub(8))
         end
-
-        if vim.startswith(src, "$") then
-          local ok, neorg = pcall(require, "neorg.core")
-          if ok then
-            local ok_utils, dirman_utils = pcall(neorg.modules.get_module, "core.dirman.utils")
-            if ok_utils and dirman_utils then
-              local expanded = dirman_utils.expand_path(src, true)
-              if expanded then
-                return expanded
-              end
-            end
-          end
-        end
-
-        return nil
       end
 
       require("snacks").setup({
         image = {
           enabled = true,
-          resolve = resolve_neorg_image_path,
+          resolve = resolve_image,
           doc = {
             enabled = true,
             inline = true,
             float = true,
             max_width = ${toString imageMaxWidth},
             max_height = ${toString imageMaxHeight},
-            conceal = false,
+            conceal = function(lang, _)
+              return lang == "norg"
+            end,
           },
           img_dirs = { "assets", "img", "images", "media", "attachments" },
         },
@@ -105,7 +102,6 @@ in {
         default = {
           dir_path = "assets",
           extension = "png",
-          use_absolute_path = false,
           relative_to_current_file = true,
           relative_template_path = true,
           prompt_for_file_name = false,
@@ -113,14 +109,9 @@ in {
           copy_images = true,
           download_images = true,
           url_encode_path = false,
-          template = norg_image_template,
+          template = image_template,
           insert_mode_after_paste = false,
           insert_template_after_cursor = true,
-        },
-        filetypes = {
-          norg = {
-            template = norg_image_template,
-          },
         },
       })
     '';

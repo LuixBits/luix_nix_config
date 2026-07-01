@@ -5,15 +5,16 @@
   notesDir = "${config.home.homeDirectory}/notes";
 in {
   imports = [
-    ./neorg-media.nix
-    ./neorg-presentations.nix
-    ./neorg-templates.nix
+    ./media
+    ./presentations
+    ./templates
+    ./flashcards
   ];
 
   programs.nvf.settings.vim = {
     globals.maplocalleader = ",";
 
-    keymaps = import ./neorg-keymaps.nix { inherit notesDir; };
+    keymaps = import ./keymaps.nix { inherit notesDir; };
 
     binds.whichKey.register."<leader>n" = "+Notes";
 

@@ -11,7 +11,7 @@ in {
   # Import NVF’s Home‑Manager module
   imports = [
     inputs.nvf.homeManagerModules.default
-    ./neorg.nix
+    ./neorg
   ];
 
   programs.nvf = {
