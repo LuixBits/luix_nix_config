@@ -13,6 +13,7 @@
     ../modules/herdr
     ../modules/kitty
     ../modules/buildandpush
+    ../modules/notes-sync
     ../modules/fish
     ../modules/docker
     ../modules/vpn
