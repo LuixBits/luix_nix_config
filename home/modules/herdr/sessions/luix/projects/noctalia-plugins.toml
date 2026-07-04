@@ -1,0 +1,15 @@
+name = "Noctalia Plugins"
+description = "LuixBits Noctalia plugins"
+group = "Projects"
+working_dir = "~/projects/luixbits-noctalia-plugins"
+
+[[tabs]]
+name = "Noctalia Plugins"
+command = "nvim ."
+
+[[tabs]]
+name = "Noctalia Codex"
+command = "codex"
+
+[[tabs]]
+name = "Noctalia CLI"

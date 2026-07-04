@@ -21,43 +21,58 @@ let
     cp -R ${herdrPlusSrc}/. "$out/"
     install -D -m 0755 ${herdrPlus}/bin/herdr-plus "$out/bin/herdr-plus"
   '';
-  sigaSessionTemplate = ./sessions/siga/session.template.json;
-  sigaSessionSeed = pkgs.runCommand "herdr-siga-session.seed.json" { } ''
-    substitute ${sigaSessionTemplate} "$out" \
-      --replace-fail "@HOME@" "${config.home.homeDirectory}"
-  '';
-  sigaProjectDir = ./sessions/siga/projects;
-  herdrPlusProjectFiles =
-    lib.filterAttrs
-      (name: type: type == "regular" && lib.hasSuffix ".toml" name)
-      (builtins.readDir sigaProjectDir);
-  herdrPlusProjectNames = builtins.attrNames herdrPlusProjectFiles;
-  herdrPlusProjectPath = name: sigaProjectDir + "/${name}";
-  herdrPlusProjectConfigFiles =
-    lib.listToAttrs
-      (map
-        (name:
-          lib.nameValuePair
-            "herdr/plugins/config/${herdrPlusPluginId}/projects/${name}"
-            { source = herdrPlusProjectPath name; })
-        herdrPlusProjectNames);
-  herdrSiga = pkgs.writeShellScriptBin "herdr-siga" ''
+  sessionSeed = sessionName: sessionTemplate:
+    pkgs.runCommand "${sessionName}-session.seed.json" { } ''
+      substitute ${sessionTemplate} "$out" \
+        --replace-fail "@HOME@" "${config.home.homeDirectory}"
+    '';
+  mkPaneCheck = { workspace, pane }: ''has_pane("${workspace}"; ${toString pane})'';
+  mkTabCheck = { workspace, tab }: ''has_tab("${workspace}"; ${toString tab})'';
+  mkHerdrSession =
+    { commandName
+    , sessionName
+    , description
+    , sessionTemplate
+    , requiredPanes
+    , requiredTabs
+    , bootstrapCommands
+    , focusTabs
+    , ...
+    }:
+    let
+      seed = sessionSeed sessionName sessionTemplate;
+      compatibilityChecks =
+        lib.concatStringsSep "\n        and "
+          ((map mkPaneCheck requiredPanes) ++ (map mkTabCheck requiredTabs));
+      bootstrapShell =
+        lib.concatStringsSep "\n      "
+          (map
+            ({ pane, command }:
+              "run_in_shell_pane ${lib.escapeShellArg pane} ${lib.escapeShellArg command}")
+            bootstrapCommands);
+      focusShell =
+        lib.concatStringsSep "\n      "
+          (map
+            (tab: "herdr_session tab focus ${lib.escapeShellArg tab} >/dev/null")
+            focusTabs);
+    in
+    pkgs.writeShellScriptBin commandName ''
     set -eu
 
     export PATH="${lib.makeBinPath [ pkgs.coreutils pkgs.jq ]}:$PATH"
 
     herdr_bin="${herdrPackage}/bin/herdr"
-    session_name="herdr-siga"
+    session_name="${sessionName}"
     config_dir="''${XDG_CONFIG_HOME:-$HOME/.config}/herdr"
     session_dir="$config_dir/sessions/$session_name"
-    seed_file="${sigaSessionSeed}"
-    log_file="/tmp/herdr-siga-server.log"
+    seed_file="${seed}"
+    log_file="/tmp/${sessionName}-server.log"
     reset=0
     action="start"
 
     usage() {
-      printf '%s\n' "usage: herdr-siga [--reset|--stop|--status]"
-      printf '%s\n' "Starts or attaches to the configured Herdr SIGA session."
+      printf '%s\n' "usage: ${commandName} [--reset|--stop|--status]"
+      printf '%s\n' "${description}"
       printf '%s\n' "  --reset   stop and delete the saved session before starting"
       printf '%s\n' "  --stop    stop the session"
       printf '%s\n' "  --status  show the workspace list"
@@ -117,7 +132,7 @@ let
       elif ! saved_session_is_compatible; then
         backup_file="$session_dir/session.json.bak.$(date +%Y%m%d%H%M%S)"
         cp -p "$session_dir/session.json" "$backup_file"
-        printf 'Saved Herdr session layout is missing required SIGA panes; re-seeding from Nix template.\n' >&2
+        printf 'Saved Herdr session layout is missing required panes; re-seeding from Nix template.\n' >&2
         printf 'Previous session saved at: %s\n' "$backup_file" >&2
         install -m 0644 "$seed_file" "$session_dir/session.json"
       fi
@@ -132,17 +147,7 @@ let
           [ .workspaces[]? | select(.id == $workspace) | (.public_tab_numbers // [])[] ]
           | index($tab) != null;
 
-        has_pane("w1"; 2)
-        and has_pane("w1"; 8)
-        and has_pane("w3"; 3)
-        and has_pane("w3"; 4)
-        and has_pane("w4"; 1)
-        and has_pane("w4"; 4)
-        and has_pane("w5"; 1)
-        and has_tab("w1"; 2)
-        and has_tab("w3"; 5)
-        and has_tab("w4"; 4)
-        and has_tab("w5"; 1)
+        ${compatibilityChecks}
       ' "$session_dir/session.json" >/dev/null 2>&1
     }
 
@@ -197,18 +202,8 @@ let
     }
 
     bootstrap_commands() {
-      run_in_shell_pane w1:p2 "nvim ."
-      run_in_shell_pane w1:p8 "codex"
-      run_in_shell_pane w3:p3 "nvim ."
-      run_in_shell_pane w3:p4 "codex"
-      run_in_shell_pane w4:p1 "nvim ."
-      run_in_shell_pane w4:p4 "codex"
-      run_in_shell_pane w5:p1 "nvim ."
-
-      herdr_session tab focus w1:t2 >/dev/null
-      herdr_session tab focus w3:t5 >/dev/null
-      herdr_session tab focus w5:t1 >/dev/null
-      herdr_session tab focus w4:t4 >/dev/null
+      ${bootstrapShell}
+      ${focusShell}
     }
 
     if [ "$action" = "stop" ]; then
@@ -256,6 +251,95 @@ let
     printf '%s\n' "herdr-plus is linked from Nix: ${herdrPlusPlugin}"
     exec "$herdr_bin" --session "$session_name"
   '';
+  herdrSessions = [
+    {
+      commandName = "herdr-siga";
+      sessionName = "herdr-siga";
+      description = "Starts or attaches to the configured Herdr SIGA session.";
+      sessionTemplate = ./sessions/siga/session.template.json;
+      projectDirs = [ ./sessions/siga/projects ];
+      requiredPanes = [
+        { workspace = "w1"; pane = 2; }
+        { workspace = "w1"; pane = 8; }
+        { workspace = "w3"; pane = 3; }
+        { workspace = "w3"; pane = 4; }
+        { workspace = "w4"; pane = 1; }
+        { workspace = "w4"; pane = 4; }
+        { workspace = "w5"; pane = 1; }
+      ];
+      requiredTabs = [
+        { workspace = "w1"; tab = 2; }
+        { workspace = "w3"; tab = 5; }
+        { workspace = "w4"; tab = 4; }
+        { workspace = "w5"; tab = 1; }
+      ];
+      bootstrapCommands = [
+        { pane = "w1:p2"; command = "nvim ."; }
+        { pane = "w1:p8"; command = "codex"; }
+        { pane = "w3:p3"; command = "nvim ."; }
+        { pane = "w3:p4"; command = "codex"; }
+        { pane = "w4:p1"; command = "nvim ."; }
+        { pane = "w4:p4"; command = "codex"; }
+        { pane = "w5:p1"; command = "nvim ."; }
+      ];
+      focusTabs = [ "w1:t2" "w3:t5" "w5:t1" "w4:t4" ];
+    }
+    {
+      commandName = "herdr-luix";
+      sessionName = "herdr-luix";
+      description = "Starts or attaches to the configured Herdr Luix session.";
+      sessionTemplate = ./sessions/luix/session.template.json;
+      projectDirs = [ ./sessions/luix/projects ];
+      requiredPanes = [
+        { workspace = "w1"; pane = 1; }
+        { workspace = "w1"; pane = 2; }
+        { workspace = "w2"; pane = 1; }
+        { workspace = "w2"; pane = 2; }
+        { workspace = "w3"; pane = 1; }
+        { workspace = "w3"; pane = 2; }
+        { workspace = "w4"; pane = 1; }
+      ];
+      requiredTabs = [
+        { workspace = "w1"; tab = 1; }
+        { workspace = "w2"; tab = 1; }
+        { workspace = "w3"; tab = 1; }
+        { workspace = "w4"; tab = 1; }
+      ];
+      bootstrapCommands = [
+        { pane = "w1:p1"; command = "nvim ."; }
+        { pane = "w1:p2"; command = "codex"; }
+        { pane = "w2:p1"; command = "nvim ."; }
+        { pane = "w2:p2"; command = "codex"; }
+        { pane = "w3:p1"; command = "nvim ."; }
+        { pane = "w3:p2"; command = "codex"; }
+        { pane = "w4:p1"; command = "nvim ."; }
+      ];
+      focusTabs = [ "w1:t1" "w2:t1" "w3:t1" "w4:t1" ];
+    }
+  ];
+  herdrSessionPackages = map mkHerdrSession herdrSessions;
+  projectFilesForDir = projectDir:
+    let
+      projectFiles =
+        lib.filterAttrs
+          (name: type: type == "regular" && lib.hasSuffix ".toml" name)
+          (builtins.readDir projectDir);
+    in
+    map
+      (name: {
+        inherit name;
+        path = projectDir + "/${name}";
+      })
+      (builtins.attrNames projectFiles);
+  herdrPlusProjects = lib.concatMap (session: lib.concatMap projectFilesForDir session.projectDirs) herdrSessions;
+  herdrPlusProjectConfigFiles =
+    lib.listToAttrs
+      (map
+        ({ name, path }:
+          lib.nameValuePair
+            "herdr/plugins/config/${herdrPlusPluginId}/projects/${name}"
+            { source = path; })
+        herdrPlusProjects);
 in
 {
   assertions = [
@@ -263,22 +347,24 @@ in
       assertion = builtins.isAttrs (builtins.fromTOML (builtins.readFile herdrConfig));
       message = "home/modules/herdr/config.toml must be valid TOML.";
     }
-    {
+  ] ++ map
+    (session: {
       assertion =
         builtins.isAttrs
           (builtins.fromJSON
             (builtins.replaceStrings
               [ "@HOME@" ]
               [ config.home.homeDirectory ]
-              (builtins.readFile sigaSessionTemplate)));
-      message = "home/modules/herdr/sessions/siga/session.template.json must be valid JSON after @HOME@ substitution.";
-    }
-  ] ++ map
-    (name: {
-      assertion = builtins.isAttrs (builtins.fromTOML (builtins.readFile (herdrPlusProjectPath name)));
-      message = "home/modules/herdr/sessions/siga/projects/${name} must be valid TOML.";
+              (builtins.readFile session.sessionTemplate)));
+      message = "${session.sessionName} session template must be valid JSON after @HOME@ substitution.";
     })
-    herdrPlusProjectNames;
+    herdrSessions
+  ++ map
+    ({ name, path }: {
+      assertion = builtins.isAttrs (builtins.fromTOML (builtins.readFile path));
+      message = "Herdr project ${name} must be valid TOML.";
+    })
+    herdrPlusProjects;
 
   xdg.configFile = {
     "herdr/config.toml".source = herdrConfig;
@@ -287,6 +373,7 @@ in
   home.activation.cleanupLegacyHerdrConfig = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
     herdr_config="${config.xdg.configHome}/herdr/config.toml"
     herdr_siga_session_dir="${config.xdg.configHome}/herdr/sessions/herdr-siga"
+    herdr_luix_session_dir="${config.xdg.configHome}/herdr/sessions/herdr-luix"
     legacy_siga_session_dir="${config.xdg.configHome}/herdr/sessions/siga"
 
     if [ -L "$herdr_config" ]; then
@@ -294,12 +381,10 @@ in
     fi
 
     run rm -f "$herdr_siga_session_dir/session.seed.json"
+    run rm -f "$herdr_luix_session_dir/session.seed.json"
     run rm -f "$legacy_siga_session_dir/session.seed.json"
   '';
 
-  home.packages = [
-    herdrPackage
-    herdrSiga
-  ];
+  home.packages = [ herdrPackage ] ++ herdrSessionPackages;
 
 }

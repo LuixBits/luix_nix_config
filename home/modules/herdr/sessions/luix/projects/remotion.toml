@@ -1,0 +1,15 @@
+name = "Remotion"
+description = "LuixBits Remotion project"
+group = "Projects"
+working_dir = "~/projects/LuixBitsRemotion"
+
+[[tabs]]
+name = "Remotion"
+command = "nvim ."
+
+[[tabs]]
+name = "Remotion Codex"
+command = "codex"
+
+[[tabs]]
+name = "Remotion CLI"
