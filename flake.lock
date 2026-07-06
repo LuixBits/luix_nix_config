@@ -157,6 +157,24 @@
         "type": "github"
       }
     },
+    "luixbits-sentry": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_3"
+      },
+      "locked": {
+        "lastModified": 1783351212,
+        "narHash": "sha256-BvhM66nl9QrsHi4By5Ha1XRKzK0Z+ZEv3Qy6Liee6wg=",
+        "owner": "devluixos",
+        "repo": "luixbits-sentry.nvim",
+        "rev": "a9ab6ed6d41a4deb7256664d80c6cbad4c705cab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "devluixos",
+        "repo": "luixbits-sentry.nvim",
+        "type": "github"
+      }
+    },
     "mnw": {
       "locked": {
         "lastModified": 1780772958,
@@ -176,7 +194,7 @@
       "inputs": {
         "flake-compat": "flake-compat",
         "nix-gaming": "nix-gaming",
-        "nixpkgs": "nixpkgs_3",
+        "nixpkgs": "nixpkgs_4",
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
@@ -285,6 +303,22 @@
     },
     "nixpkgs_3": {
       "locked": {
+        "lastModified": 1783224372,
+        "narHash": "sha256-8i/87eeoqiGE4yOTjwSA3Eh/ziJRQEmd/unYU+K27sk=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "d407951447dcd00442e97087bf374aad70c04cea",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_4": {
+      "locked": {
         "lastModified": 1782959384,
         "narHash": "sha256-xnJJk+ct+D2+wdRxj1wk36w5zV9RVESwRqcklPdt3fM=",
         "owner": "NixOS",
@@ -299,7 +333,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_4": {
+    "nixpkgs_5": {
       "locked": {
         "lastModified": 1783148766,
         "narHash": "sha256-uslt2pqShTIXDdAHRHv2QkYLsVdY8Oqwz0EA48/RSM8=",
@@ -322,11 +356,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783311000,
-        "narHash": "sha256-LtX2Q7kV2JvOI1HyQ4hgNffnu6RPh0yAkGPOw6S0GgI=",
+        "lastModified": 1783350057,
+        "narHash": "sha256-xs3HdWWyjt9h7zL6G3fnYLid1kj0/gmJGQCg2z8LPMc=",
         "owner": "noctalia-dev",
         "repo": "noctalia-shell",
-        "rev": "b6fd0df7a4d992a19acb7261be8b5b260f03e5d4",
+        "rev": "940261a272dfdcd5e6534754c82fc50c4fec2f5e",
         "type": "github"
       },
       "original": {
@@ -362,8 +396,9 @@
         "herdr": "herdr",
         "home-manager": "home-manager",
         "luixbits-neorg-flashcards": "luixbits-neorg-flashcards",
+        "luixbits-sentry": "luixbits-sentry",
         "nix-citizen": "nix-citizen",
-        "nixpkgs": "nixpkgs_4",
+        "nixpkgs": "nixpkgs_5",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "noctalia": "noctalia",
         "nvf": "nvf"

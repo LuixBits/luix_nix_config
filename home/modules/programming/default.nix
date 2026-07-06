@@ -53,6 +53,7 @@ in
       '';
     })
     python3
+    sentry-cli
     whois
     dig
     nmap

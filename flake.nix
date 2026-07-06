@@ -27,6 +27,9 @@
     # Neorg flashcards plugin and NVF module
     luixbits-neorg-flashcards.url = "github:devluixos/luixbits-neorg-flashcards.nvim";
 
+    # Sentry plugin and NVF module
+    luixbits-sentry.url = "github:devluixos/luixbits-sentry.nvim";
+
   };
 
   outputs = { nixpkgs, home-manager, ... }@inputs:

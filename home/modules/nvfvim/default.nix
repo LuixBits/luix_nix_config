@@ -12,6 +12,7 @@ in {
   imports = [
     inputs.nvf.homeManagerModules.default
     ./neorg
+    ./sentry
   ];
 
   programs.nvf = {
