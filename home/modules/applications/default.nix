@@ -1,5 +1,20 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
+let
+  firefoxDesktop = "firefox.desktop";
+  firefoxWebHandlers = lib.genAttrs [
+    "application/rss+xml"
+    "application/xhtml+xml"
+    "application/xml"
+    "application/vnd.mozilla.xul+xml"
+    "text/html"
+    "text/xml"
+    "x-scheme-handler/http"
+    "x-scheme-handler/https"
+  ] (_: [ firefoxDesktop ]);
+in
 {
+  home.sessionVariables.BROWSER = "firefox";
+
   home.packages = with pkgs; [
     # Core utilities
     clinfo
@@ -44,12 +59,9 @@
 
   xdg.mimeApps = {
     enable = true;
+    associations.added = firefoxWebHandlers;
     defaultApplications = {
-      "application/xhtml+xml" = [ "firefox.desktop" ];
       "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
-      "text/html" = [ "firefox.desktop" ];
-      "x-scheme-handler/http" = [ "firefox.desktop" ];
-      "x-scheme-handler/https" = [ "firefox.desktop" ];
-    };
+    } // firefoxWebHandlers;
   };
 }
