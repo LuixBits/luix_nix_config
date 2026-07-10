@@ -9,7 +9,7 @@ command = "nvim ."
 
 [[tabs]]
 name = "Codex Roiguard"
-command = "codex"
+command = "codex-new"
 
 [[tabs]]
 name = "Roiguard CLI"

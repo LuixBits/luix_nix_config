@@ -9,7 +9,7 @@ command = "nvim ."
 
 [[tabs]]
 name = "Config Codex"
-command = "codex"
+command = "codex-new"
 
 [[tabs]]
 name = "Config CLI"

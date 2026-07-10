@@ -275,11 +275,11 @@ let
       ];
       bootstrapCommands = [
         { pane = "w1:p2"; command = "nvim ."; }
-        { pane = "w1:p8"; command = "codex"; }
+        { pane = "w1:p8"; command = "codex-new"; }
         { pane = "w3:p3"; command = "nvim ."; }
-        { pane = "w3:p4"; command = "codex"; }
+        { pane = "w3:p4"; command = "codex-new"; }
         { pane = "w4:p1"; command = "nvim ."; }
-        { pane = "w4:p4"; command = "codex"; }
+        { pane = "w4:p4"; command = "codex-new"; }
         { pane = "w5:p1"; command = "nvim ."; }
       ];
       focusTabs = [ "w1:t2" "w3:t5" "w5:t1" "w4:t4" ];
