@@ -1,7 +1,7 @@
 name = "Roiguard"
 description = "SIGA Roiguard"
 group = "SIGA"
-working_dir = "~/siga/roiguard2"
+working_dir = "~/siga/roiguard"
 
 [[tabs]]
 name = "Roiguard"

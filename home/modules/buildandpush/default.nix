@@ -291,7 +291,7 @@ let
       if [[ -n "$(git_repo "$dir" status --porcelain=v1 --untracked-files=all)" ]]; then
         info "Stashing local changes in $dir before pulling $upstream..."
         git_repo "$dir" stash push --include-untracked --message "buildall-pre-pull $(date -Iseconds)" >/dev/null
-        stash_ref="$(git_repo "$dir" rev-parse -q --verify refs/stash)"
+        stash_ref="stash@{0}"
       fi
 
       info "Pulling latest changes for '$branch' from '$upstream'..."
@@ -327,7 +327,7 @@ let
 
       if [[ -n "$stash_ref" ]]; then
         info "Restoring stashed local changes after pull..."
-        if ! pop_out="$(git_repo "$dir" stash pop --index 2>&1)"; then
+        if ! pop_out="$(git_repo "$dir" stash pop --index "$stash_ref" 2>&1)"; then
           printf '%s\n' "$pop_out" >&2
           warn "Local changes conflict with the pulled state; cancelling pull."
           git_repo "$dir" reset --merge "$restore_ref" >/dev/null

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   programs.git = {
     enable = true;
@@ -15,6 +15,15 @@
       credential.helper = "cache";
     };
   };
+
+  home.sessionPath = [
+    "/home/luiz/siga/roiguard/bin"
+    "/home/luiz/siga/webshop/src/html/bin"
+    "/home/luiz/siga/bincommands/bin"
+  ];
+
+  xdg.configFile."fish/completions/siga.fish".source =
+    config.lib.file.mkOutOfStoreSymlink "/home/luiz/siga/bincommands/completions/siga.fish";
 
   home.packages = with pkgs; [
     (writeShellScriptBin "teams-web" ''

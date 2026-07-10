@@ -1,7 +1,7 @@
 onboarding = false
 
 [terminal]
-default_shell = "/run/current-system/sw/bin/bash"
+default_shell = "/run/current-system/sw/bin/fish"
 shell_mode = "non_login"
 new_cwd = "follow"
 

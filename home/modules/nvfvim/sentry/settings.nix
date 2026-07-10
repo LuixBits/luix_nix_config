@@ -1,4 +1,9 @@
 {
+  # Empty query asks the Sentry CLI for all recent issues instead of only unresolved ones.
+  default_query = "";
+  issue_limit = 100;
+  issue_period = "365d";
+
   picker = "telescope";
 
   annotations = {

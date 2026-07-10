@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
+{ config, inputs, lib, pkgs, ... }:
 let
+  pkgsUnstable = import inputs.nixpkgs-unstable {
+    system = pkgs.stdenv.hostPlatform.system;
+    config = {
+      allowUnfree = true;
+      allowUnsupportedSystem = true;
+    };
+  };
   writeCodexDefaults = pkgs.writeShellScript "write-codex-defaults" ''
     set -eu
 
@@ -11,9 +18,12 @@ let
       BEGIN {
         print "approval_policy = \"on-request\""
         print "sandbox_mode = \"workspace-write\""
+        print "model = \"gpt-5.6\""
+        print "model_reasoning_effort = \"xhigh\""
+        print "personality = \"pragmatic\""
       }
       /^[[:space:]]*\[/ { in_table = 1 }
-      !in_table && /^[[:space:]]*(approval_policy|sandbox_mode)[[:space:]]*=/ { next }
+      !in_table && /^[[:space:]]*(approval_policy|sandbox_mode|model|model_reasoning_effort|personality)[[:space:]]*=/ { next }
       NR == 1 && $0 != "" { print "" }
       { print }
     ' "$config_file" > "$tmp_file"
@@ -24,6 +34,17 @@ let
   '';
 in
 {
+  imports = [
+    ../sentry-cli
+  ];
+
+  programs.sentryCli.enable = true;
+
+  programs.codex = {
+    enable = true;
+    package = pkgsUnstable.codex;
+  };
+
   programs.vscode = {
     enable = true;
     package = pkgs.vscode;
@@ -35,7 +56,6 @@ in
 
   home.packages = with pkgs; [
     bubblewrap
-    codex
     dbeaver-bin
     gcc
     gnumake
@@ -53,7 +73,6 @@ in
       '';
     })
     python3
-    sentry-cli
     whois
     dig
     nmap

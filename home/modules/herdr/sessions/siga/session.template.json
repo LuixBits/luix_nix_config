@@ -4,7 +4,7 @@
     {
       "id": "w1",
       "custom_name": null,
-      "identity_cwd": "@HOME@/siga/roiguard2",
+      "identity_cwd": "@HOME@/siga/roiguard",
       "public_pane_numbers": {
         "2": 2,
         "10": 9,
@@ -25,7 +25,7 @@
           },
           "panes": {
             "2": {
-              "cwd": "@HOME@/siga/roiguard2"
+              "cwd": "@HOME@/siga/roiguard"
             }
           },
           "zoomed": false,
@@ -39,7 +39,7 @@
           },
           "panes": {
             "9": {
-              "cwd": "@HOME@/siga/roiguard2"
+              "cwd": "@HOME@/siga/roiguard"
             }
           },
           "zoomed": false,
@@ -53,7 +53,7 @@
           },
           "panes": {
             "10": {
-              "cwd": "@HOME@/siga/roiguard2"
+              "cwd": "@HOME@/siga/roiguard"
             }
           },
           "zoomed": false,
