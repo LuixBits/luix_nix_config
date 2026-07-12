@@ -22,7 +22,7 @@ let
       BEGIN {
         print "approval_policy = \"on-request\""
         print "sandbox_mode = \"workspace-write\""
-        print "model = \"gpt-5.6\""
+        print "model = \"gpt-5.6-sol\""
         print "model_reasoning_effort = \"xhigh\""
         print "personality = \"pragmatic\""
       }
