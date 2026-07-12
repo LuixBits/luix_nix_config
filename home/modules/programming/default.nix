@@ -7,6 +7,10 @@ let
       allowUnsupportedSystem = true;
     };
   };
+  codexPackage = pkgsUnstable.codex;
+  codexNew = pkgs.writeShellScriptBin "codex-new" ''
+    exec ${codexPackage}/bin/codex "$@"
+  '';
   writeCodexDefaults = pkgs.writeShellScript "write-codex-defaults" ''
     set -eu
 
@@ -42,7 +46,7 @@ in
 
   programs.codex = {
     enable = true;
-    package = pkgsUnstable.codex;
+    package = codexPackage;
   };
 
   programs.vscode = {
@@ -56,6 +60,7 @@ in
 
   home.packages = with pkgs; [
     bubblewrap
+    codexNew
     dbeaver-bin
     gcc
     gnumake

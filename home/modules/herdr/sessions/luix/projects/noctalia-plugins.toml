@@ -9,7 +9,7 @@ command = "nvim ."
 
 [[tabs]]
 name = "Noctalia Codex"
-command = "codex"
+command = "codex-new"
 
 [[tabs]]
 name = "Noctalia CLI"
