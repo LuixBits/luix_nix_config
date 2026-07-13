@@ -5,8 +5,8 @@
     settings = {
       core.filemode = false;
       user = {
-        name = lib.mkDefault "Luix";
-        email = lib.mkDefault "luix@users.noreply.github.com";
+        name = lib.mkDefault "LuixBits";
+        email = lib.mkDefault "10044859+LuixBits@users.noreply.github.com";
       };
     };
   };
