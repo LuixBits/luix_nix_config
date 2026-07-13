@@ -3,7 +3,7 @@
   programs.nvf.settings.vim = {
     # Temporary development wiring: load the mutable local checkout directly.
     luaConfigRC.roomplan = ''
-      local roomplan_path = vim.fn.expand("~/projects/neovim-plugins/roomplan.nvim")
+      local roomplan_path = vim.fn.expand("~/projects/nvim-plugins/luixbits-roomplanner.nvim")
       vim.opt.runtimepath:prepend(roomplan_path)
       require("roomplan").setup({})
     '';

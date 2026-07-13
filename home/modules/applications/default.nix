@@ -51,7 +51,6 @@ in
     yt-dlp
 
     # Music tools
-    aonsoku
     chromaprint
     picard
     termsonic
