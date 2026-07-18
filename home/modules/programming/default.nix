@@ -39,9 +39,11 @@ let
 in
 {
   imports = [
+    ../kimi-code
     ../sentry-cli
   ];
 
+  programs.kimiCode.enable = true;
   programs.sentryCli.enable = true;
 
   programs.codex = {
