@@ -8,13 +8,15 @@
     ../features/virt-manager.nix
     ../features/work/appimage.nix
     ../features/work/android-emulator.nix
-    ../features/work/caddy.nix
     ../features/work/cx.nix
     ../features/work/db.nix
     # ../features/work/pia-manual.nix
   ];
 
   networking.hostName = "work";
+  networking.extraHosts = ''
+    127.0.0.1 siga-webshop.local siga-blog.local roi.local webauth.local
+  '';
 
   # services.piaManual = {
   #   # Keep credentials out of git by storing them in /run/secrets/pia.env.
@@ -41,10 +43,6 @@
     HandlePowerKeyLongPress = "poweroff";
     PowerKeyIgnoreInhibited = true;
   };
-
-  # Certificates are intentionally not committed to this repo.
-  # Add them in a local, untracked module if needed.
-  security.pki.certificateFiles = [ ];
 
   users.users.luiz = {
     isNormalUser = true;
