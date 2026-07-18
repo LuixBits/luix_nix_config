@@ -367,6 +367,26 @@
         "type": "github"
       }
     },
+    "roomplan": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1784366853,
+        "narHash": "sha256-qpLbnyj2dbFEITYvkVr03eP2x8H9fEnNYAkx/DnyKsE=",
+        "owner": "LuixBits",
+        "repo": "luixbits-roomplanner.nvim",
+        "rev": "33398da0437bbc3f171a533cc048f2597e277554",
+        "type": "github"
+      },
+      "original": {
+        "owner": "LuixBits",
+        "repo": "luixbits-roomplanner.nvim",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "herdr": "herdr",
@@ -377,7 +397,8 @@
         "nixpkgs": "nixpkgs_5",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "noctalia": "noctalia",
-        "nvf": "nvf"
+        "nvf": "nvf",
+        "roomplan": "roomplan"
       }
     },
     "treefmt-nix": {

@@ -30,6 +30,10 @@
     # Sentry plugin and NVF module
     luixbits-sentry.url = "github:devluixos/luixbits-sentry.nvim";
 
+    # RoomPlan plugin
+    roomplan.url = "github:LuixBits/luixbits-roomplanner.nvim";
+    roomplan.inputs.nixpkgs.follows = "nixpkgs";
+
   };
 
   outputs = { nixpkgs, home-manager, ... }@inputs:
