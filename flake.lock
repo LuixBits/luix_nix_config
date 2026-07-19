@@ -374,11 +374,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784458246,
-        "narHash": "sha256-49RXtFEzHa7PskkW6kjdRW2zmTKMq8xtSFqx5vIFoVQ=",
+        "lastModified": 1784459861,
+        "narHash": "sha256-+lvZlqrVsl50jOsRXvhUtphclvz5ftu0xoWU9oK9oKg=",
         "owner": "LuixBits",
         "repo": "luixbits-roomplanner.nvim",
-        "rev": "dfb74c8676cf0d40a2a35711cc74b907f3736649",
+        "rev": "e2503687b6831aee016e08936f65bdbffcf70e86",
         "type": "github"
       },
       "original": {
