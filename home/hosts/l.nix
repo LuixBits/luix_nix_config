@@ -16,6 +16,7 @@
     ../modules/notes-sync
     ../modules/fish
     ../modules/docker
+    ../modules/godot
     ../modules/vpn
     ../modules/audio
     ../modules/niri
@@ -25,6 +26,8 @@
     ../modules/nvfvim
     ../modules/flatpak
   ];
+
+  luix.godot.enable = true;
 
   home.activation.cleanupBrokenNvimConfig = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
     nvim_dir="${config.xdg.configHome}/nvim"

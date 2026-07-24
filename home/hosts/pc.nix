@@ -16,6 +16,7 @@
     ../modules/notes-sync
     ../modules/fish
     ../modules/docker
+    ../modules/godot
     ../modules/vpn
     ../modules/audio
     ../modules/niri
@@ -25,6 +26,8 @@
     ../modules/nvfvim
     ../modules/flatpak
   ];
+
+  luix.godot.enable = true;
 
   home.packages = with pkgs; [
     protonup-qt
