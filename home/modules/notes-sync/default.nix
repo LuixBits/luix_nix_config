@@ -1,14 +1,12 @@
 { config, lib, pkgs, ... }:
 let
   notesDir = "${config.home.homeDirectory}/notes";
-  notesRemote = "git@github.com:devluixos/notes.git";
-  notesRepo = "devluixos/notes";
+  notesRemote = "git@github.com:LuixBits/luix-bits-game.git";
   notesBranch = "main";
 
   scriptPath = lib.makeBinPath [
     pkgs.bash
     pkgs.coreutils
-    pkgs.gh
     pkgs.git
     pkgs.gnugrep
     pkgs.openssh
@@ -22,8 +20,11 @@ let
     .DS_Store
     .direnv/
     .stversions/
+    .agents/
+    .codex/
     .sync-conflict-*
     *.sync-conflict-*
+    nvim.log
   '';
 
   common = ''
@@ -37,9 +38,16 @@ let
 
     NOTES_DIR="''${NOTES_DIR:-${notesDir}}"
     NOTES_REMOTE="''${NOTES_REMOTE:-${notesRemote}}"
-    NOTES_REPO="''${NOTES_REPO:-${notesRepo}}"
     NOTES_BRANCH="''${NOTES_BRANCH:-${notesBranch}}"
     LOCK_FILE="''${NOTES_LOCK_FILE:-''${XDG_RUNTIME_DIR:-/tmp}/notes-sync-''${USER:-user}.lock}"
+    NOTE_PATHS=(
+      ".gitignore"
+      ":(top,glob)**/*.norg"
+    )
+    NON_NOTE_EXCLUDES=(
+      ":(exclude,top).gitignore"
+      ":(exclude,top,glob)**/*.norg"
+    )
 
     with_lock() {
       exec 9>"$LOCK_FILE"
@@ -82,20 +90,25 @@ let
       fi
     }
 
-    ensure_github_repo() {
-      if gh repo view "$NOTES_REPO" >/dev/null 2>&1; then
-        return 0
-      fi
-
-      info "Creating private GitHub repo $NOTES_REPO..."
-      gh repo create "$NOTES_REPO" --private --description "Private Neorg notes"
-    }
-
     ensure_repo() {
+      local expected_root repo_root
+
       ensure_notes_dir
       ensure_gitignore
 
-      if [[ ! -d "$NOTES_DIR/.git" ]]; then
+      expected_root="$(realpath "$NOTES_DIR")"
+      if repo_root="$(git -C "$NOTES_DIR" rev-parse --show-toplevel 2>/dev/null)"; then
+        repo_root="$(realpath "$repo_root")"
+        if [[ "$repo_root" != "$expected_root" ]]; then
+          error "Notes directory is inside a different Git worktree: $repo_root"
+          exit 1
+        fi
+      else
+        if [[ -e "$NOTES_DIR/.git" ]]; then
+          error "Invalid Git metadata exists at $NOTES_DIR/.git. Repair or replace it before syncing."
+          exit 1
+        fi
+
         if [[ "''${NOTES_SYNC_SKIP_UNINITIALIZED:-0}" == "1" ]]; then
           warn "Notes repo is not initialized at $NOTES_DIR. Skipping automatic sync."
           exit 0
@@ -125,7 +138,6 @@ let
       fi
 
       ensure_origin
-      ensure_github_repo
       ensure_gitignore
     }
 
@@ -133,20 +145,33 @@ let
       git rev-parse --verify HEAD >/dev/null 2>&1
     }
 
-    commit_local_changes() {
-      if [[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]]; then
-        return 0
+    assert_note_only_worktree() {
+      local unexpected
+      unexpected="$(git status --porcelain=v1 --untracked-files=all -- . "''${NON_NOTE_EXCLUDES[@]}")"
+      if [[ -n "$unexpected" ]]; then
+        error "Refusing notes sync because non-note changes exist in $NOTES_DIR:"
+        printf '%s\n' "$unexpected" >&2
+        exit 1
       fi
+    }
 
-      git add -A
-      if git diff --cached --quiet; then
+    commit_local_changes() {
+      assert_note_only_worktree
+
+      git add -A -- "''${NOTE_PATHS[@]}"
+      if ! git diff --cached --quiet -- . "''${NON_NOTE_EXCLUDES[@]}"; then
+        error "Refusing notes sync because non-note paths are staged:"
+        git diff --cached --name-status -- . "''${NON_NOTE_EXCLUDES[@]}" >&2
+        exit 1
+      fi
+      if git diff --cached --quiet -- "''${NOTE_PATHS[@]}"; then
         return 0
       fi
 
       local host timestamp
       host="$(cat /proc/sys/kernel/hostname 2>/dev/null || printf 'unknown')"
       timestamp="$(date -Iseconds)"
-      git commit -m "notes: sync $host $timestamp"
+      git commit --only -m "notes: sync $host $timestamp" -- "''${NOTE_PATHS[@]}"
     }
 
     fetch_origin() {
@@ -162,6 +187,7 @@ let
         return 0
       fi
 
+      assert_note_only_worktree
       if has_head; then
         git rebase "origin/$NOTES_BRANCH"
       else
@@ -253,7 +279,6 @@ in
         Environment = [
           "NOTES_DIR=${notesDir}"
           "NOTES_REMOTE=${notesRemote}"
-          "NOTES_REPO=${notesRepo}"
           "NOTES_BRANCH=${notesBranch}"
           "NOTES_SYNC_NON_FATAL_NETWORK=1"
           "NOTES_SYNC_SKIP_UNINITIALIZED=1"
