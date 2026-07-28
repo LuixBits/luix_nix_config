@@ -40,8 +40,54 @@
   {
     mode = "n";
     key = "<leader>hc";
-    action = "<cmd>lua vim.cmd.edit(vim.fn.stdpath('config') .. '/CHEATSHEET.md')<CR>";
+    action = "<cmd>lua vim.cmd.edit(vim.fn.fnameescape(vim.fn.expand('~/notes/neovim.norg')))<CR>";
     desc = "Open Neovim cheat sheet";
+  }
+  {
+    mode = "n";
+    key = "<C-h>";
+    action = "<C-w>h";
+    desc = "Focus window left";
+  }
+  {
+    mode = "n";
+    key = "<C-j>";
+    action = "<C-w>j";
+    desc = "Focus window below";
+  }
+  {
+    mode = "n";
+    key = "<C-k>";
+    action = "<C-w>k";
+    desc = "Focus window above";
+  }
+  {
+    mode = "n";
+    key = "<C-l>";
+    action = "<C-w>l";
+    desc = "Focus window right";
+  }
+  {
+    mode = [
+      "n"
+      "t"
+    ];
+    key = "<C-t>";
+    action = ''
+      function()
+        if vim.bo.buftype == "terminal" and vim.b.toggle_number then
+          local terminal = require("toggleterm.terminal").get(vim.b.toggle_number, true)
+          if terminal then
+            terminal:toggle()
+            return
+          end
+        end
+
+        vim.cmd((vim.v.count > 0 and vim.v.count or "") .. "ToggleTerm")
+      end
+    '';
+    lua = true;
+    desc = "Hide or show terminal";
   }
   {
     mode = "n";

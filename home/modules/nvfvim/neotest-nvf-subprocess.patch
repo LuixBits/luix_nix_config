@@ -1,0 +1,28 @@
+diff --git a/lua/neotest/lib/subprocess.lua b/lua/neotest/lib/subprocess.lua
+index 7b28ddf..d925fa3 100644
+--- a/lua/neotest/lib/subprocess.lua
++++ b/lua/neotest/lib/subprocess.lua
+@@ -118,0 +119,11 @@ function neotest.lib.subprocess.init()
++      -- NVF's mnw wrapper exposes lazy plugins to the parent through its Lua
++      -- loader, while Neotest starts an unconfigured child Neovim. Add the
++      -- actual plugin root before requiring it in that child.
++      local treesitter_init = vim.api.nvim_get_runtime_file(
++        "lua/nvim-treesitter/init.lua",
++        false
++      )[1]
++      if treesitter_init then
++        local treesitter_root = treesitter_init:gsub("/lua/nvim%-treesitter/init%.lua$", "")
++        neotest.lib.subprocess.add_paths_to_rtp({ treesitter_root })
++      end
+diff --git a/lua/neotest/client/init.lua b/lua/neotest/client/init.lua
+index a48663f..93f86b5 100644
+--- a/lua/neotest/client/init.lua
++++ b/lua/neotest/client/init.lua
+@@ -573 +573,6 @@ function neotest.Client:_update_adapters(dir)
+-    to_add[#to_add + 1] = entry.adapter.is_test_file
++    -- add_paths_to_rtp expects paths, not the adapter functions themselves.
++    -- This matters when NVF launches Neotest's clean child Neovim.
++    local adapter_root = lib.subprocess.resolve_plugin_root(entry.adapter.is_test_file)
++    if adapter_root then
++      to_add[#to_add + 1] = adapter_root
++    end

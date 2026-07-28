@@ -161,11 +161,8 @@
           q = { "<Plug>(neorg.presenter.close)", "Close presentation" },
           ["<Esc>"] = { "<Plug>(neorg.presenter.close)", "Close presentation" },
           ["<Space>"] = { "<Plug>(luix.neorg.presenter.next-page)", "Next slide" },
-          ["<Right>"] = { "<Plug>(luix.neorg.presenter.next-page)", "Next slide" },
-          ["<Down>"] = { "<Plug>(luix.neorg.presenter.next-page)", "Next slide" },
-          ["<Left>"] = { "<Plug>(luix.neorg.presenter.previous-page)", "Previous slide" },
-          ["<Up>"] = { "<Plug>(luix.neorg.presenter.previous-page)", "Previous slide" },
-          ["<BS>"] = { "<Plug>(luix.neorg.presenter.previous-page)", "Previous slide" },
+          j = { "<Plug>(luix.neorg.presenter.next-page)", "Next slide" },
+          k = { "<Plug>(luix.neorg.presenter.previous-page)", "Previous slide" },
         }
 
         for key, map in pairs(maps) do

@@ -57,8 +57,43 @@
           gdscript = [ "gdformat" ];
         };
 
-        # Conform already knows gdformat's arguments; pin only its executable.
-        formatters.gdformat.command = lib.getExe' pkgs.gdtoolkit_4 "gdformat";
+        formatters = {
+          # Conform already knows gdformat's arguments; pin only its executable.
+          gdformat.command = lib.getExe' pkgs.gdtoolkit_4 "gdformat";
+
+          # NVF's Ruff preset currently sends `format.indent-width`, which
+          # Ruff 0.15 rejects because indent-width is a top-level setting.
+          # Let each project's Ruff configuration (or Ruff's defaults) decide
+          # indentation instead of injecting a broken command-line override.
+          ruff = {
+            args = lib.mkForce [
+              "format"
+              "--force-exclude"
+              "--stdin-filename"
+              "$FILENAME"
+              "-"
+            ];
+            range_args = lib.mkForce (
+              lib.generators.mkLuaInline ''
+                function(self, ctx)
+                  return {
+                    "format",
+                    "--force-exclude",
+                    "--range", string.format(
+                      "%d:%d-%d:%d",
+                      ctx.range.start[1],
+                      ctx.range.start[2] + 1,
+                      ctx.range["end"][1],
+                      ctx.range["end"][2] + 1
+                    ),
+                    "--stdin-filename", "$FILENAME",
+                    "-",
+                  }
+                end
+              ''
+            );
+          };
+        };
       };
     };
 

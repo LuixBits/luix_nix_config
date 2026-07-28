@@ -23,10 +23,6 @@ in
     ./sentry
   ];
 
-  # Keep the generated cheat sheet beside NVF's generated configuration so it
-  # can be opened from any project with <leader>hc.
-  xdg.configFile."nvf/CHEATSHEET.md".source = ./CHEATSHEET.md;
-
   programs.nvf = {
     enable = true;
     defaultEditor = true;
@@ -138,7 +134,19 @@ in
           enable = true;
           friendly-snippets.enable = true;
           setupOpts = {
-            keymap.preset = "super-tab";
+            keymap = {
+              preset = "super-tab";
+              # Lists move in the same direction everywhere: down with j and
+              # up with k. Ctrl is needed here because plain j/k insert text.
+              "<C-j>" = [
+                "select_next"
+                "fallback"
+              ];
+              "<C-k>" = [
+                "select_prev"
+                "fallback"
+              ];
+            };
             completion.documentation.auto_show_delay_ms = 150;
           };
         };
@@ -156,12 +164,38 @@ in
         filetree.nvimTree = {
           enable = true;
           mappings = {
-            toggle = "<leader>ee";
+            # Space e e always opens/focuses the tree; q closes it. This is the
+            # same lifecycle as the outline and other tool windows.
+            toggle = null;
             refresh = "<leader>er";
             findFile = "<leader>ef";
-            focus = "<leader>eo";
+            focus = "<leader>ee";
           };
           setupOpts = {
+            on_attach = lib.generators.mkLuaInline ''
+              function(bufnr)
+                local api = require("nvim-tree.api")
+                api.config.mappings.default_on_attach(bufnr)
+
+                local function opts(desc)
+                  return {
+                    buffer = bufnr,
+                    desc = "File explorer: " .. desc,
+                    noremap = true,
+                    silent = true,
+                    nowait = true,
+                  }
+                end
+
+                vim.keymap.set("n", "h", api.node.navigate.parent_close, opts("Close folder"))
+                vim.keymap.set("n", "l", api.node.open.edit, opts("Open folder or file"))
+                vim.keymap.set("n", "<C-h>", "<C-w>h", opts("Focus window left"))
+                vim.keymap.set("n", "<C-j>", "<C-w>j", opts("Focus window below"))
+                vim.keymap.set("n", "<C-k>", "<C-w>k", opts("Focus window above"))
+                vim.keymap.set("n", "<C-l>", "<C-w>l", opts("Focus window right"))
+              end
+            '';
+
             view = {
               width = 35;
               side = "left";
@@ -178,6 +212,7 @@ in
               # Show ignored files by default. They can still be toggled with
               # <leader>ei or I while the tree is focused.
               git_ignored = false;
+              exclude = [ ];
             };
 
             git.enable = true;
@@ -250,16 +285,33 @@ in
             defaults = {
               layout_config.horizontal.prompt_position = "top";
               sorting_strategy = "ascending";
+              mappings = {
+                i = {
+                  "<C-j>" = lib.generators.mkLuaInline "require('telescope.actions').move_selection_next";
+                  "<C-k>" = lib.generators.mkLuaInline "require('telescope.actions').move_selection_previous";
+                  "<Esc>" = lib.generators.mkLuaInline "require('telescope.actions').close";
+                };
+                n = {
+                  "q" = lib.generators.mkLuaInline "require('telescope.actions').close";
+                  "<Esc>" = lib.generators.mkLuaInline "require('telescope.actions').close";
+                };
+              };
             };
             pickers.find_files.hidden = true;
           };
         };
 
+        # Neorg exposes telescope.nvim through pack/start, so requiring
+        # Telescope can otherwise bypass NVF's lazy setup and its mappings.
+        luaConfigRC.telescope-configured = inputs.nvf.lib.nvim.dag.entryAfter [ "lazyConfigs" ] ''
+          require("lz.n").trigger_load("telescope")
+        '';
+
         git.gitsigns = {
           enable = true;
           mappings = {
-            nextHunk = "<leader>gn";
-            previousHunk = "<leader>gp";
+            nextHunk = "<leader>gj";
+            previousHunk = "<leader>gk";
             stageHunk = "<leader>gs";
             undoStageHunk = "<leader>gu";
             resetHunk = "<leader>gr";
@@ -284,9 +336,12 @@ in
 
         terminal.toggleterm = {
           enable = true;
+          # Defined as a regular mapping in keymaps.nix so it works on the
+          # first press even when ToggleTerm was loaded through LazyGit.
+          mappings.open = null;
           lazygit = {
             enable = true;
-            mappings.open = "<leader>gg";
+            mappings.open = "<leader>lg";
           };
         };
 

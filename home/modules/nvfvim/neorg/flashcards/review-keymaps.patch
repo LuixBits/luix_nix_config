@@ -1,0 +1,14 @@
+diff --git a/lua/neorg_flashcards/review.lua b/lua/neorg_flashcards/review.lua
+index 9d43479..24a52a6 100644
+--- a/lua/neorg_flashcards/review.lua
++++ b/lua/neorg_flashcards/review.lua
+@@ -13 +13 @@ local state = {
+-local footer = " 1! bad  2~ mid  3✓ good  ⏎/Space flip  n→ next  p← prev  e✎ edit  q× quit "
++local footer = " Space/Enter reveal or next | j next | k previous | e edit | 1/2/3 rate | q close "
+@@ -35,4 +35,2 @@ local function ensure_window()
+-      { "n", M.next, "Next card" },
+-      { "l", M.next, "Next card" },
+-      { "p", M.previous, "Previous card" },
+-      { "h", M.previous, "Previous card" },
++      { "j", M.next, "Next card" },
++      { "k", M.previous, "Previous card" },

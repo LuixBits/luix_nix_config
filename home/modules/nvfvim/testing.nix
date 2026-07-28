@@ -5,12 +5,18 @@
   ...
 }:
 let
+  pythonWithPytest = pkgs.python3.withPackages (pythonPackages: [ pythonPackages.pytest ]);
+
+  neotest-fixed = pkgs.vimPlugins.neotest.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ./neotest-nvf-subprocess.patch ];
+  });
+
   neotest-nodejs = pkgs.vimUtils.buildVimPlugin {
     pname = "neotest-nodejs";
     version = "unstable";
     src = inputs.neotest-nodejs;
     dependencies = with pkgs.vimPlugins; [
-      neotest
+      neotest-fixed
       nvim-nio
       plenary-nvim
     ];
@@ -22,12 +28,12 @@ let
 in
 {
   programs.nvf.settings.vim = {
-    startPlugins = with pkgs.vimPlugins; [
-      neotest
-      nvim-nio
-      plenary-nvim
-      neotest-phpunit
-      neotest-python
+    startPlugins = [
+      neotest-fixed
+      pkgs.vimPlugins.nvim-nio
+      pkgs.vimPlugins.plenary-nvim
+      pkgs.vimPlugins.neotest-phpunit
+      pkgs.vimPlugins.neotest-python
       neotest-nodejs
     ];
 
@@ -39,7 +45,12 @@ in
           "neotest-adapter-aliases"
         ]
         ''
-          require("neotest").setup({
+          -- Neotest checks nvim-nio with pcall(), which the lazy module loader
+          -- cannot see. Load it explicitly before Neotest starts.
+          local nio = require("nio")
+          local neotest = require("neotest")
+
+          neotest.setup({
             adapters = {
               require("neotest-phpunit")({
                 root_files = { "composer.json", "phpunit.xml", "phpunit.xml.dist" },
@@ -47,6 +58,22 @@ in
               }),
               require("neotest-python")({
                 dap = { justMyCode = false },
+                runner = "pytest",
+                python = function(root)
+                  local candidates = {
+                    root .. "/.venv/bin/python",
+                    root .. "/venv/bin/python",
+                  }
+                  if vim.env.VIRTUAL_ENV then
+                    table.insert(candidates, 1, vim.env.VIRTUAL_ENV .. "/bin/python")
+                  end
+                  for _, candidate in ipairs(candidates) do
+                    if candidate and vim.fn.executable(candidate) == 1 then
+                      return candidate
+                    end
+                  end
+                  return "${lib.getExe pythonWithPytest}"
+                end,
               }),
               require("neotest-nodejs")({
                 nodeCommand = "${lib.getExe pkgs.nodejs}",
@@ -66,10 +93,19 @@ in
                 end,
               }),
             },
+            summary = {
+              mappings = {
+                -- A tree behaves like every other tree: h/l close/open,
+                -- j/k move, Enter jumps to the selected test.
+                expand = "l",
+                parent = "h",
+                jumpto = "<CR>",
+              },
+            },
             consumers = {
               luix_run_all = function(client)
                 return {
-                  run = require("nio").create(function()
+                  run = nio.create(function()
                     local adapters = client:get_adapters()
 
                     if #adapters == 0 then
@@ -86,12 +122,41 @@ in
                     })
 
                     if adapter then
-                      require("neotest").run.run({ suite = true, adapter = adapter })
+                      neotest.run.run({ suite = true, adapter = adapter })
                     end
                   end),
                 }
               end,
             },
+          })
+
+          local test_windows = vim.api.nvim_create_augroup("LuixNeotestWindows", { clear = true })
+          vim.api.nvim_create_autocmd("FileType", {
+            group = test_windows,
+            pattern = { "neotest-summary", "neotest-output", "neotest-output-panel" },
+            callback = function(args)
+              local function close_test_window()
+                local filetype = vim.bo[args.buf].filetype
+                if filetype == "neotest-summary" then
+                  neotest.summary.close()
+                elseif filetype == "neotest-output-panel" then
+                  neotest.output_panel.close()
+                else
+                  pcall(vim.api.nvim_win_close, 0, true)
+                end
+              end
+
+              vim.keymap.set("n", "q", close_test_window, {
+                buffer = args.buf,
+                desc = "Close test window",
+                silent = true,
+              })
+              vim.keymap.set("n", "<Esc>", close_test_window, {
+                buffer = args.buf,
+                desc = "Close test window",
+                silent = true,
+              })
+            end,
           })
         '';
 
@@ -134,21 +199,20 @@ in
       }
       {
         mode = "n";
-        key = "<leader>tp";
-        action = "<cmd>lua require('neotest').output_panel.toggle()<CR>";
-        desc = "Toggle test output panel";
-      }
-      {
-        mode = "n";
         key = "<leader>ts";
-        action = "<cmd>lua require('neotest').summary.toggle()<CR>";
-        desc = "Toggle test summary";
-      }
-      {
-        mode = "n";
-        key = "<leader>tw";
-        action = "<cmd>lua require('neotest').watch.toggle()<CR>";
-        desc = "Watch nearest test";
+        action = ''
+          function()
+            local summary_buffer = vim.fn.bufnr("Neotest Summary")
+            local summary_window = summary_buffer >= 0 and vim.fn.bufwinid(summary_buffer) or -1
+            if summary_window ~= -1 then
+              vim.api.nvim_set_current_win(summary_window)
+            else
+              require("neotest").summary.open({ enter = true })
+            end
+          end
+        '';
+        lua = true;
+        desc = "Open or focus test summary";
       }
       {
         mode = "n";
