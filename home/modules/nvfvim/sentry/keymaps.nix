@@ -1,9 +1,9 @@
 [
   {
     mode = "n";
-    key = "<leader>s";
+    key = "<leader>sm";
     action = "<cmd>SentryMenu<CR>";
-    desc = "Sentry";
+    desc = "Sentry menu";
   }
   {
     mode = "n";
@@ -121,8 +121,8 @@
   }
   {
     mode = "n";
-    key = "<leader>sA";
+    key = "<leader>sl";
     action = "<cmd>SentryAction auth_status<CR>";
-    desc = "Sentry auth status";
+    desc = "Sentry login status";
   }
 ]

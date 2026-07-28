@@ -34,9 +34,17 @@
     roomplan.url = "github:LuixBits/luixbits-roomplanner.nvim";
     roomplan.inputs.nixpkgs.follows = "nixpkgs";
 
+    # Neotest adapter for Node's built-in test runner. This is kept as a raw
+    # source input because it is not packaged in our pinned nixpkgs yet.
+    neotest-nodejs = {
+      url = "github:AkisArou/neotest-nodejs";
+      flake = false;
+    };
+
   };
 
-  outputs = { nixpkgs, home-manager, ... }@inputs:
+  outputs =
+    { nixpkgs, home-manager, ... }@inputs:
     let
       mkHost =
         {

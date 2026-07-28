@@ -166,6 +166,22 @@
         "type": "github"
       }
     },
+    "neotest-nodejs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782407420,
+        "narHash": "sha256-tUiq9Doz12fWhcmh5n1V9u6a1ycwHMOH5yL3unZq2Os=",
+        "owner": "AkisArou",
+        "repo": "neotest-nodejs",
+        "rev": "68e558dff61f7ac630f55ab63a092c1767965386",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AkisArou",
+        "repo": "neotest-nodejs",
+        "type": "github"
+      }
+    },
     "nix-citizen": {
       "inputs": {
         "flake-compat": "flake-compat",
@@ -393,6 +409,7 @@
         "home-manager": "home-manager",
         "luixbits-neorg-flashcards": "luixbits-neorg-flashcards",
         "luixbits-sentry": "luixbits-sentry",
+        "neotest-nodejs": "neotest-nodejs",
         "nix-citizen": "nix-citizen",
         "nixpkgs": "nixpkgs_5",
         "nixpkgs-unstable": "nixpkgs-unstable",

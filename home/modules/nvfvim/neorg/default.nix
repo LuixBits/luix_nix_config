@@ -1,10 +1,12 @@
 {
   config,
   ...
-}: let
+}:
+let
   notesDir = "${config.home.homeDirectory}/notes";
   notesGitCommands = config.luix.notesSync.commands;
-in {
+in
+{
   imports = [
     ./media
     ./presentations
@@ -24,15 +26,15 @@ in {
       }
       {
         mode = "n";
-        key = "<leader>ngp";
+        key = "<leader>ngu";
         action = "<cmd>lua LuixNotesGit.run(${builtins.toJSON notesGitCommands.push})<CR>";
-        desc = "Push notes";
+        desc = "Push notes (upload)";
       }
       {
         mode = "n";
-        key = "<leader>ngP";
+        key = "<leader>ngd";
         action = "<cmd>lua LuixNotesGit.run(${builtins.toJSON notesGitCommands.pull})<CR>";
-        desc = "Pull notes";
+        desc = "Pull notes (download)";
       }
       {
         mode = "n";
@@ -49,9 +51,9 @@ in {
       enable = true;
       treesitter.enable = true;
       setupOpts.load = {
-        "core.defaults" = {};
-        "core.concealer" = {};
-        "core.integrations.telescope" = {};
+        "core.defaults" = { };
+        "core.concealer" = { };
+        "core.integrations.telescope" = { };
         "core.dirman" = {
           config = {
             workspaces.notes = notesDir;
