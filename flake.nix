@@ -25,10 +25,10 @@
     herdr.url = "github:ogulcancelik/herdr/v0.7.1";
 
     # Neorg flashcards plugin and NVF module
-    luixbits-neorg-flashcards.url = "github:devluixos/luixbits-neorg-flashcards.nvim";
+    luixbits-neorg-flashcards.url = "github:LuixBits/luixbits-neorg-flashcards.nvim";
 
     # Sentry plugin and NVF module
-    luixbits-sentry.url = "github:devluixos/luixbits-sentry.nvim";
+    luixbits-sentry.url = "github:LuixBits/luixbits-sentry.nvim";
 
     # RoomPlan plugin
     roomplan.url = "github:LuixBits/luixbits-roomplanner.nvim";

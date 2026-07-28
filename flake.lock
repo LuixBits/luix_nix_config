@@ -122,13 +122,13 @@
       "locked": {
         "lastModified": 1784489962,
         "narHash": "sha256-l7TR6FthKadLQKNbs34k5oZ4clUWJjiqM3hoO/u9Wyg=",
-        "owner": "devluixos",
+        "owner": "LuixBits",
         "repo": "luixbits-neorg-flashcards.nvim",
         "rev": "5cd528d79c6d7b3ac650f70c2e93153c32b6dec7",
         "type": "github"
       },
       "original": {
-        "owner": "devluixos",
+        "owner": "LuixBits",
         "repo": "luixbits-neorg-flashcards.nvim",
         "type": "github"
       }
@@ -140,13 +140,13 @@
       "locked": {
         "lastModified": 1784365566,
         "narHash": "sha256-S/D/2JLujwo6y/9BZ7TGun4HdanOriQX7DB2YjoX6jo=",
-        "owner": "devluixos",
+        "owner": "LuixBits",
         "repo": "luixbits-sentry.nvim",
         "rev": "c866aa41cd1884e94b37875228d188ed1212cfe5",
         "type": "github"
       },
       "original": {
-        "owner": "devluixos",
+        "owner": "LuixBits",
         "repo": "luixbits-sentry.nvim",
         "type": "github"
       }
