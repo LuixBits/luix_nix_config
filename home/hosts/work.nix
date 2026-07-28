@@ -25,7 +25,6 @@
     ../modules/nvfvim
     ../modules/virt-manager
     ../modules/work
-    ../modules/android-siga-emulator
   ];
 
   luix.godot.enable = true;
