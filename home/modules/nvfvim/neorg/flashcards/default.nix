@@ -2,12 +2,15 @@
   config,
   inputs,
   lib,
+  pkgs,
   ...
-}: let
+}:
+let
   notesDir = "${config.home.homeDirectory}/notes";
   flashcardsDir = "${notesDir}/japanese/flashcards";
   defaultFile = "${flashcardsDir}/cards.norg";
-in {
+in
+{
   imports = [
     inputs.luixbits-neorg-flashcards.homeManagerModules.nvf
   ];
@@ -18,6 +21,11 @@ in {
 
   programs.nvf.neorg-flashcards = {
     enable = true;
+    package =
+      inputs.luixbits-neorg-flashcards.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs
+        (old: {
+          patches = (old.patches or [ ]) ++ [ ./review-keymaps.patch ];
+        });
     languagePresets = [ "japanese" ];
     setupOpts = {
       flashcards_dir = flashcardsDir;

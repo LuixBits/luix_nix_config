@@ -16,6 +16,15 @@ in
         enable = true;
         autoStart = true;
         setupOpts.floating.border = "rounded";
+        # Stack-frame rows provide an `open` action rather than `expand`.
+        # Make Enter select the frame, matching the other focused tool views.
+        setupOpts.element_mappings.stacks = {
+          expand = [ ];
+          open = [
+            "<CR>"
+            "o"
+          ];
+        };
       };
 
       presets = {
@@ -157,11 +166,13 @@ in
         runToCursor = "<leader>dg";
         stepInto = "<leader>di";
         stepOut = "<leader>do";
-        stepOver = "<leader>dn";
-        stepBack = "<leader>dp";
-        goUp = "<leader>dk";
-        goDown = "<leader>dj";
-        toggleDapUI = "<leader>du";
+        stepOver = "<leader>dj";
+        # Reverse stepping is unsupported by most of our adapters. Stack
+        # frames are selected with j/k and Enter in the debugger panels.
+        stepBack = null;
+        goUp = null;
+        goDown = null;
+        toggleDapUI = null;
       };
 
       # Neotest adapters use the conventional names `python` and `php`.
@@ -175,10 +186,70 @@ in
 
     startPlugins = [ pkgs.vimPlugins.nvim-dap-virtual-text ];
 
+    keymaps = [
+      {
+        mode = "n";
+        key = "<leader>du";
+        action = ''
+          function()
+            local filetype = vim.bo.filetype
+            if filetype == "dap-repl" or filetype:match("^dapui_") then
+              require("dapui").close()
+              return
+            end
+
+            require("dapui").open()
+            local rank = {
+              dapui_scopes = 1,
+              dapui_breakpoints = 2,
+              dapui_stacks = 3,
+              dapui_watches = 4,
+              ["dap-repl"] = 5,
+              dapui_console = 6,
+            }
+            local target, best = nil, math.huge
+            for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+              local win_filetype = vim.bo[vim.api.nvim_win_get_buf(win)].filetype
+              if rank[win_filetype] and rank[win_filetype] < best then
+                target, best = win, rank[win_filetype]
+              end
+            end
+            if target then
+              vim.api.nvim_set_current_win(target)
+            end
+          end
+        '';
+        lua = true;
+        desc = "Open or focus debugger panels";
+      }
+    ];
+
     luaConfigRC.nvim-dap-virtual-text = inputs.nvf.lib.nvim.dag.entryAfter [ "nvim-dap" ] ''
       require("nvim-dap-virtual-text").setup({
         commented = true,
         only_first_definition = true,
+      })
+
+      local dap_windows = vim.api.nvim_create_augroup("LuixDapWindows", { clear = true })
+      vim.api.nvim_create_autocmd("FileType", {
+        group = dap_windows,
+        pattern = {
+          "dapui_scopes",
+          "dapui_breakpoints",
+          "dapui_stacks",
+          "dapui_watches",
+          "dap-repl",
+          "dapui_console",
+        },
+        callback = function(args)
+          vim.keymap.set("n", "q", function()
+            require("dapui").close()
+          end, {
+            buffer = args.buf,
+            desc = "Close debugger panels",
+            silent = true,
+          })
+        end,
       })
     '';
   };

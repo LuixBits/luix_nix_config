@@ -12,8 +12,8 @@
         goToDefinition = "gd";
         goToDeclaration = "gD";
         goToType = "grt";
-        listImplementations = "gri";
-        listReferences = "grr";
+        listImplementations = null;
+        listReferences = null;
 
         nextDiagnostic = null;
         previousDiagnostic = null;
@@ -36,19 +36,35 @@
       trouble = {
         enable = true;
         mappings = {
-          workspaceDiagnostics = "<leader>xx";
-          documentDiagnostics = "<leader>xb";
-          lspReferences = "<leader>xr";
-          quickfix = "<leader>xq";
-          locList = "<leader>xl";
-          symbols = "<leader>xs";
+          workspaceDiagnostics = null;
+          documentDiagnostics = null;
+          lspReferences = null;
+          quickfix = null;
+          locList = null;
+          symbols = null;
+        };
+        setupOpts = {
+          focus = true;
+          # Give current-file diagnostics their own mode so Trouble does not
+          # reuse a project-wide view with the wrong filter (or vice versa).
+          modes.buffer_diagnostics = {
+            mode = "diagnostics";
+            desc = "current-file diagnostics";
+            filter.buf = 0;
+          };
+          keys = {
+            "<cr>" = "jump_close";
+            o = "jump_close";
+          };
         };
       };
     };
 
     utility.outline.aerial-nvim = {
       enable = true;
-      mappings.toggle = "<leader>oo";
+      # Opening and focusing are one predictable action. Close the outline
+      # with q while it is focused.
+      mappings.toggle = null;
       setupOpts = {
         backends = [
           "lsp"
@@ -61,6 +77,14 @@
           min_width = 30;
         };
         show_guides = true;
+        keymaps = {
+          "<C-j>" = false;
+          "<C-k>" = false;
+          h = "actions.tree_close";
+          l = "actions.tree_open";
+          "<CR>" = "actions.jump";
+          q = "actions.close";
+        };
       };
     };
 
@@ -100,6 +124,27 @@
       })
     '';
 
+    # Use the same searchable picker for usages and implementations. These
+    # buffer-local mappings replace Neovim's built-in quickfix-style lists.
+    luaConfigRC.lsp-picker-mappings = inputs.nvf.lib.nvim.dag.entryAfter [ "lsp-servers" ] ''
+      vim.api.nvim_create_autocmd("LspAttach", {
+        callback = function(args)
+          vim.keymap.set("n", "grr", function()
+            require("telescope.builtin").lsp_references()
+          end, {
+            buffer = args.buf,
+            desc = "Find symbol usages",
+          })
+          vim.keymap.set("n", "gri", function()
+            require("telescope.builtin").lsp_implementations()
+          end, {
+            buffer = args.buf,
+            desc = "Find implementations",
+          })
+        end,
+      })
+    '';
+
     luaConfigRC.treesitter-textobjects-modern =
       inputs.nvf.lib.nvim.dag.entryAfter [ "treesitter-textobjects" ]
         ''
@@ -109,30 +154,119 @@
           })
         '';
 
+    # Python's Tree-sitter query reports a decorated function twice: once at
+    # its decorator and once at `def`. Skip the inner duplicate so one keypress
+    # always means one logical function or class. Other languages keep the
+    # plugin's normal movement unchanged.
+    luaConfigRC.treesitter-logical-movement =
+      inputs.nvf.lib.nvim.dag.entryAfter [ "treesitter-textobjects-modern" ]
+        ''
+          LuixTreesitterMove = {}
+
+          local textobject_move = require("nvim-treesitter-textobjects.move")
+
+          local function is_decorated_duplicate()
+            if vim.bo.filetype ~= "python" then
+              return false
+            end
+
+            local cursor = vim.api.nvim_win_get_cursor(0)
+            local node = vim.treesitter.get_node()
+            while node do
+              local node_type = node:type()
+              if node_type == "function_definition" or node_type == "class_definition" then
+                local row, column = node:start()
+                local parent = node:parent()
+                return parent ~= nil
+                  and parent:type() == "decorated_definition"
+                  and row + 1 == cursor[1]
+                  and column == cursor[2]
+              end
+              node = node:parent()
+            end
+
+            return false
+          end
+
+          local function move_once(direction, capture)
+            textobject_move[direction](capture, "textobjects")
+            if is_decorated_duplicate() then
+              textobject_move[direction](capture, "textobjects")
+            end
+          end
+
+          LuixTreesitterMove.next = function(capture)
+            move_once("goto_next_start", capture)
+          end
+
+          LuixTreesitterMove.previous = function(capture)
+            move_once("goto_previous_start", capture)
+          end
+        '';
+
     keymaps = [
       {
         mode = "n";
-        key = "<leader>on";
-        action = "<cmd>AerialNext<CR>";
-        desc = "Next outline symbol";
+        key = "<leader>xx";
+        action = ''
+          function()
+            local trouble = require("trouble")
+            trouble.close("buffer_diagnostics")
+            trouble.close("lsp_references")
+            local view = trouble.open("diagnostics")
+            if view then
+              view:action("first")
+            end
+          end
+        '';
+        lua = true;
+        desc = "Open or focus all problems";
       }
       {
         mode = "n";
-        key = "<leader>op";
-        action = "<cmd>AerialPrev<CR>";
-        desc = "Previous outline symbol";
+        key = "<leader>xb";
+        action = ''
+          function()
+            local trouble = require("trouble")
+            trouble.close("diagnostics")
+            trouble.close("lsp_references")
+            local view = trouble.open("buffer_diagnostics")
+            if view then
+              view:action("first")
+            end
+          end
+        '';
+        lua = true;
+        desc = "Open or focus current-file problems";
+      }
+      {
+        mode = "n";
+        key = "<leader>xr";
+        action = ''
+          function()
+            local trouble = require("trouble")
+            trouble.close("diagnostics")
+            trouble.close("buffer_diagnostics")
+            local view = trouble.open("lsp_references")
+            if view then
+              view:action("first")
+            end
+          end
+        '';
+        lua = true;
+        desc = "Open or focus symbol usages";
+      }
+      {
+        mode = "n";
+        key = "<leader>oo";
+        action = "<cmd>AerialOpen<CR>";
+        desc = "Open or focus code outline";
       }
       {
         mode = "n";
         key = "<leader>ob";
         action = "<cmd>lua require('dropbar.api').pick()<CR>";
         desc = "Pick breadcrumb";
-      }
-      {
-        mode = "n";
-        key = "<leader>oc";
-        action = "<cmd>lua require('dropbar.api').goto_context_start()<CR>";
-        desc = "Jump to context start";
       }
       {
         mode = "n";
@@ -148,15 +282,15 @@
       }
       {
         mode = "n";
-        key = "<leader>xn";
+        key = "<leader>xj";
         action = "<cmd>lua vim.diagnostic.jump({ count = 1, float = true })<CR>";
-        desc = "Next diagnostic";
+        desc = "Next diagnostic (down)";
       }
       {
         mode = "n";
-        key = "<leader>xp";
+        key = "<leader>xk";
         action = "<cmd>lua vim.diagnostic.jump({ count = -1, float = true })<CR>";
-        desc = "Previous diagnostic";
+        desc = "Previous diagnostic (up)";
       }
       {
         mode = "n";
@@ -172,7 +306,7 @@
       }
       {
         mode = "n";
-        key = "<leader>lg";
+        key = "<leader>ld";
         action = "<cmd>lua require('gdscript-extended-lsp').pick()<CR>";
         desc = "Find Godot documentation";
       }
@@ -266,14 +400,14 @@
           "x"
           "o"
         ];
-        key = "<leader>jfn";
+        key = "<leader>jfj";
         action = ''
           function()
-            require("nvim-treesitter-textobjects.move").goto_next_start("@function.outer", "textobjects")
+            LuixTreesitterMove.next("@function.outer")
           end
         '';
         lua = true;
-        desc = "Next function";
+        desc = "Next function (down)";
       }
       {
         mode = [
@@ -281,14 +415,14 @@
           "x"
           "o"
         ];
-        key = "<leader>jfp";
+        key = "<leader>jfk";
         action = ''
           function()
-            require("nvim-treesitter-textobjects.move").goto_previous_start("@function.outer", "textobjects")
+            LuixTreesitterMove.previous("@function.outer")
           end
         '';
         lua = true;
-        desc = "Previous function";
+        desc = "Previous function (up)";
       }
       {
         mode = [
@@ -296,14 +430,14 @@
           "x"
           "o"
         ];
-        key = "<leader>jcn";
+        key = "<leader>jcj";
         action = ''
           function()
-            require("nvim-treesitter-textobjects.move").goto_next_start("@class.outer", "textobjects")
+            LuixTreesitterMove.next("@class.outer")
           end
         '';
         lua = true;
-        desc = "Next class";
+        desc = "Next class (down)";
       }
       {
         mode = [
@@ -311,36 +445,36 @@
           "x"
           "o"
         ];
-        key = "<leader>jcp";
+        key = "<leader>jck";
         action = ''
           function()
-            require("nvim-treesitter-textobjects.move").goto_previous_start("@class.outer", "textobjects")
+            LuixTreesitterMove.previous("@class.outer")
           end
         '';
         lua = true;
-        desc = "Previous class";
+        desc = "Previous class (up)";
       }
       {
         mode = "n";
-        key = "<leader>jsn";
+        key = "<leader>jsl";
         action = ''
           function()
             require("nvim-treesitter-textobjects.swap").swap_next("@parameter.inner")
           end
         '';
         lua = true;
-        desc = "Swap with next parameter";
+        desc = "Swap parameter right";
       }
       {
         mode = "n";
-        key = "<leader>jsp";
+        key = "<leader>jsh";
         action = ''
           function()
             require("nvim-treesitter-textobjects.swap").swap_previous("@parameter.inner")
           end
         '';
         lua = true;
-        desc = "Swap with previous parameter";
+        desc = "Swap parameter left";
       }
     ];
   };
