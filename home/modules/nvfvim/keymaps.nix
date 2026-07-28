@@ -21,56 +21,44 @@
   }
   {
     mode = "n";
-    key = "<leader>ff";
-    action = "<cmd>Telescope find_files<CR>";
-    desc = "Find files";
+    key = "<leader>fa";
+    action = "<cmd>lua require('telescope.builtin').find_files({ hidden = true, no_ignore = true, no_ignore_parent = true })<CR>";
+    desc = "Find all files including ignored";
   }
   {
     mode = "n";
-    key = "<leader>fg";
-    action = "<cmd>Telescope live_grep<CR>";
-    desc = "Live grep";
+    key = "<leader>fw";
+    action = "<cmd>lua require('telescope.builtin').grep_string()<CR>";
+    desc = "Find word under cursor";
   }
   {
     mode = "n";
-    key = "<leader>fb";
-    action = "<cmd>Telescope buffers<CR>";
-    desc = "Find buffers";
+    key = "<leader>fk";
+    action = "<cmd>Telescope keymaps<CR>";
+    desc = "Find keymaps";
   }
   {
     mode = "n";
-    key = "<leader>fh";
-    action = "<cmd>Telescope help_tags<CR>";
-    desc = "Find help";
+    key = "<leader>hc";
+    action = "<cmd>lua vim.cmd.edit(vim.fn.stdpath('config') .. '/CHEATSHEET.md')<CR>";
+    desc = "Open Neovim cheat sheet";
   }
   {
     mode = "n";
-    key = "<leader>lp";
-    action = "<cmd>lua require('gitsigns').preview_hunk()<CR>";
-    desc = "Preview git hunk";
+    key = "<leader>ei";
+    action = "<cmd>lua require('nvim-tree.api').filter.git.ignored.toggle()<CR>";
+    desc = "Toggle ignored files";
   }
   {
     mode = "n";
-    key = "<leader>ee";
-    action = "<cmd>NvimTreeToggle<CR>";
-    desc = "Toggle file explorer";
+    key = "<leader>eh";
+    action = "<cmd>lua require('nvim-tree.api').filter.dotfiles.toggle()<CR>";
+    desc = "Toggle dotfiles";
   }
   {
     mode = "n";
-    key = "<leader>ef";
-    action = "<cmd>NvimTreeFindFile<CR>";
-    desc = "Find current file in tree";
-  }
-  {
-    mode = "n";
-    key = "<leader>xx";
-    action = "<cmd>Telescope diagnostics<CR>";
-    desc = "Workspace diagnostics";
-  }
-  {
-    mode = "n";
-    key = "<leader>xd";
-    action = "<cmd>lua vim.diagnostic.open_float()<CR>";
-    desc = "Line diagnostic";
+    key = "<leader>ec";
+    action = "<cmd>lua require('nvim-tree.api').tree.collapse_all()<CR>";
+    desc = "Collapse file explorer";
   }
 ]

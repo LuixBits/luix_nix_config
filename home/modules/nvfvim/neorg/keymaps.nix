@@ -32,9 +32,9 @@
   }
   {
     mode = "n";
-    key = "<leader>nI";
+    key = "<leader>nm";
     action = "<cmd>PasteImage<CR>";
-    desc = "Paste image";
+    desc = "Paste media image";
   }
   {
     mode = "n";
@@ -44,7 +44,7 @@
   }
   {
     mode = "n";
-    key = "<leader>nT";
+    key = "<leader>ne";
     action = "<Plug>(neorg-template-engine.edit-templates)";
     desc = "Edit note templates";
   }

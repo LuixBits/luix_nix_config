@@ -5,16 +5,27 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   keymaps = import ./keymaps.nix;
-in {
+in
+{
   # Import NVF’s Home‑Manager module
   imports = [
     inputs.nvf.homeManagerModules.default
+    ./languages.nix
+    ./ide.nix
+    ./quality.nix
+    ./debugging.nix
+    ./testing.nix
     ./neorg
     ./roomplan
     ./sentry
   ];
+
+  # Keep the generated cheat sheet beside NVF's generated configuration so it
+  # can be opened from any project with <leader>hc.
+  xdg.configFile."nvf/CHEATSHEET.md".source = ./CHEATSHEET.md;
 
   programs.nvf = {
     enable = true;
@@ -88,18 +99,6 @@ in {
           pkgs.vimPlugins.kanagawa-nvim
         ];
 
-        # Languages (LSP servers). NVF exposes many language modules; enable those
-        # corresponding to your setup. For Vue, add a custom LSP under vim.lsp.servers.
-        languages = {
-          enableTreesitter = true;
-          typescript.enable = true; # TypeScript/JavaScript
-          css.enable = true;
-          json.enable = true;
-          lua.enable = true;
-          markdown.enable = true;
-          nix.enable = true; # nixd language server
-        };
-
         visuals = {
           indent-blankline = {
             enable = true;
@@ -121,9 +120,17 @@ in {
         binds.whichKey = {
           enable = true;
           register = {
+            "<leader>d" = "+Debug";
             "<leader>e" = "+Explorer";
-            "<leader>l" = "+Git";
+            "<leader>f" = "+Find";
+            "<leader>g" = "+Git";
+            "<leader>h" = "+Help";
+            "<leader>j" = "+Structure";
+            "<leader>l" = "+Code";
+            "<leader>o" = "+Outline";
+            "<leader>t" = "+Tests";
             "<leader>x" = "+Diagnostics";
+            "<leader>xt" = "+TODOs";
           };
         };
 
@@ -140,9 +147,20 @@ in {
         comments.comment-nvim.enable = true;
         utility.surround.enable = true;
         notes.todo-comments.enable = true;
+        notes.todo-comments.mappings = {
+          quickFix = "<leader>xtq";
+          telescope = "<leader>xtf";
+          trouble = "<leader>xtt";
+        };
 
         filetree.nvimTree = {
           enable = true;
+          mappings = {
+            toggle = "<leader>ee";
+            refresh = "<leader>er";
+            findFile = "<leader>ef";
+            focus = "<leader>eo";
+          };
           setupOpts = {
             view = {
               width = 35;
@@ -150,20 +168,26 @@ in {
             };
 
             renderer = {
-              group_empty = true;
+              # Do not collapse single-child directories into one visual row.
+              group_empty = false;
               indent_markers.enable = true;
             };
 
             filters = {
               dotfiles = false;
-              git_ignored = true;
+              # Show ignored files by default. They can still be toggled with
+              # <leader>ei or I while the tree is focused.
+              git_ignored = false;
             };
 
             git.enable = true;
+            diagnostics.enable = true;
 
             update_focused_file = {
               enable = true;
-              update_root = true;
+              # Keep the tree rooted at the project instead of silently moving
+              # its root to whichever file was focused last.
+              update_root = false;
             };
           };
         };
@@ -171,12 +195,43 @@ in {
         statusline.lualine = {
           enable = true;
           theme = "auto";
-          sectionSeparator = { left = ""; right = ""; };
-          componentSeparator = { left = ""; right = ""; };
+          sectionSeparator = {
+            left = "";
+            right = "";
+          };
+          componentSeparator = {
+            left = "";
+            right = "";
+          };
         };
 
         telescope = {
           enable = true;
+          mappings = {
+            findProjects = null;
+            findFiles = "<leader>ff";
+            liveGrep = "<leader>fg";
+            buffers = "<leader>fb";
+            helpTags = "<leader>fh";
+            open = null;
+            resume = "<leader>fr";
+
+            gitFiles = null;
+            gitCommits = null;
+            gitBufferCommits = null;
+            gitBranches = null;
+            gitStatus = null;
+            gitStash = null;
+
+            lspDocumentSymbols = null;
+            lspWorkspaceSymbols = null;
+            lspReferences = null;
+            lspImplementations = null;
+            lspDefinitions = null;
+            lspTypeDefinitions = null;
+            diagnostics = null;
+            treesitter = null;
+          };
           extensions = [
             {
               name = "fzf";
@@ -202,6 +257,21 @@ in {
 
         git.gitsigns = {
           enable = true;
+          mappings = {
+            nextHunk = "<leader>gn";
+            previousHunk = "<leader>gp";
+            stageHunk = "<leader>gs";
+            undoStageHunk = "<leader>gu";
+            resetHunk = "<leader>gr";
+            stageBuffer = "<leader>ga";
+            resetBuffer = "<leader>gx";
+            previewHunk = "<leader>gh";
+            blameLine = "<leader>gb";
+            toggleBlame = "<leader>gl";
+            diffThis = "<leader>gd";
+            diffProject = "<leader>gw";
+            toggleDeleted = "<leader>ge";
+          };
           setupOpts = {
             attach_to_untracked = true;
             current_line_blame = true;
@@ -216,7 +286,7 @@ in {
           enable = true;
           lazygit = {
             enable = true;
-            mappings.open = "<leader>lg";
+            mappings.open = "<leader>gg";
           };
         };
 
@@ -231,10 +301,30 @@ in {
                 "└───────────────────────────┘"
               ];
               center = [
-                { icon = " "; desc = "Find file"; key = "f"; action = "Telescope find_files"; }
-                { icon = " "; desc = "Live grep"; key = "g"; action = "Telescope live_grep"; }
-                { icon = " "; desc = "File tree"; key = "e"; action = "NvimTreeToggle"; }
-                { icon = " "; desc = "Quit"; key = "q"; action = "qa"; }
+                {
+                  icon = " ";
+                  desc = "Find file";
+                  key = "f";
+                  action = "Telescope find_files";
+                }
+                {
+                  icon = " ";
+                  desc = "Live grep";
+                  key = "g";
+                  action = "Telescope live_grep";
+                }
+                {
+                  icon = " ";
+                  desc = "File tree";
+                  key = "e";
+                  action = "NvimTreeToggle";
+                }
+                {
+                  icon = " ";
+                  desc = "Quit";
+                  key = "q";
+                  action = "qa";
+                }
               ];
               footer = [ "Tip: press ? for which-key" ];
             };
@@ -243,7 +333,7 @@ in {
 
         theme.enable = false;
 
-        luaConfigRC.kanagawa = inputs.nvf.lib.nvim.dag.entryBefore ["pluginConfigs" "lazyConfigs"] ''
+        luaConfigRC.kanagawa = inputs.nvf.lib.nvim.dag.entryBefore [ "pluginConfigs" "lazyConfigs" ] ''
           require("kanagawa").setup({
             compile = false,
             undercurl = true,
