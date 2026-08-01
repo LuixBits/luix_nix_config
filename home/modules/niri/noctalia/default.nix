@@ -44,7 +44,7 @@ let
 
         lock-and-suspend = {
           action = "lock_and_suspend";
-          enabled = true;
+          enabled = false;
           timeout = 900;
         };
 
