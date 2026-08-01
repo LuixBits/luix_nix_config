@@ -10,6 +10,7 @@
     ../modules/applications
     ../modules/cli
     ../modules/programming
+    ../modules/spatial-input-development
     ../modules/herdr
     ../modules/kitty
     ../modules/buildandpush
@@ -28,6 +29,11 @@
   ];
 
   luix.godot.enable = true;
+  luix.spatialInputDevelopment.enable = true;
+
+  # Native Wayland corrupts Firefox's chrome texture cache on this GPU,
+  # hiding tab titles, URL text, and bookmark labels. XWayland renders it correctly.
+  home.sessionVariables.MOZ_ENABLE_WAYLAND = "0";
 
   home.packages = with pkgs; [
     protonup-qt

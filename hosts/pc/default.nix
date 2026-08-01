@@ -8,10 +8,13 @@
     ../features/media-tools.nix
     ../features/flatpak.nix
     ../features/gaming.nix
+    ../features/spatial-input.nix
     ./hardware-configuration.nix
   ];
 
   networking.hostName = "pc";
+
+  hardware.spatial-input.enable = true;
 
   # Use the newer USB4/Thunderbolt stack for the TS5 Plus dock.
   boot.kernelPackages = pkgs.linuxPackages_6_18;
