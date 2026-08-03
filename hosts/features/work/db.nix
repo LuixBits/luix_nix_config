@@ -5,7 +5,9 @@
     package = pkgs.mariadb_114;
 
     settings.mysqld = {
-      bind-address = "0.0.0.0";
+      # Work databases are local development state. Do not expose them to the
+      # office LAN, Wi-Fi, VPN, or other routed interfaces.
+      bind-address = "127.0.0.1";
       character-set-server = "utf8mb4";
       collation-server = "utf8mb4_unicode_ci";
       lower_case_table_names = 1;
@@ -58,8 +60,6 @@
 
   # Credentials are intentionally not stored in git.
   # Add user/database bootstrap SQL from a local, untracked module if needed.
-
-  networking.firewall.allowedTCPPorts = [ 3306 ];
 
   boot.kernel.sysctl = {
     "vm.swappiness" = 10;

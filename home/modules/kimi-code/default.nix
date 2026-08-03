@@ -1,6 +1,7 @@
 { config, lib, pkgs, ... }:
 let
   inherit (lib)
+    getExe
     mkEnableOption
     mkIf
     mkOption
@@ -12,19 +13,20 @@ let
     version = "0.27.0";
 
     src = pkgs.fetchurl {
-      url = "https://code.kimi.com/kimi-code/binaries/${version}/kimi-code-linux-x64";
-      hash = "sha256-7surRbwbmStkjEY4eglyw0D6x9iyVJYW8erOyQ5ZWjE=";
+      url = "https://registry.npmjs.org/@moonshot-ai/kimi-code/-/kimi-code-${version}.tgz";
+      hash = "sha256-qc9kB7RTrGm609YSuqaDim5dq2gMoui8fCTbFAV5qqA=";
     };
 
-    dontUnpack = true;
-
-    nativeBuildInputs = [ pkgs.autoPatchelfHook ];
-    buildInputs = [ pkgs.stdenv.cc.cc.lib ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
 
     installPhase = ''
       runHook preInstall
 
-      install -Dm755 "$src" "$out/bin/kimi"
+      mkdir -p "$out/lib/kimi-code" "$out/bin"
+      cp -R . "$out/lib/kimi-code/"
+
+      makeWrapper ${getExe pkgs.nodejs} "$out/bin/kimi" \
+        --add-flags "$out/lib/kimi-code/dist/main.mjs"
 
       runHook postInstall
     '';
@@ -32,10 +34,9 @@ let
     meta = {
       description = "Agentic coding CLI from Moonshot AI";
       homepage = "https://code.kimi.com/";
-      license = lib.licenses.unfree;
+      license = lib.licenses.mit;
       mainProgram = "kimi";
-      platforms = [ "x86_64-linux" ];
-      sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
+      platforms = pkgs.nodejs.meta.platforms;
     };
   };
 in
@@ -46,7 +47,7 @@ in
     package = mkOption {
       type = types.package;
       default = kimiCode;
-      defaultText = "Kimi Code packaged from the pinned upstream binary";
+      defaultText = "Kimi Code packaged from the pinned upstream npm release";
       description = "Package providing the `kimi` executable.";
     };
   };

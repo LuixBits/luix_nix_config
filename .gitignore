@@ -1,2 +1,18 @@
 # Host-specific hardware configs are tracked under hosts/.
 result
+
+# Local credentials and private key material must never enter the public repo.
+.env
+.env.*
+!.env.example
+!.env.sample
+secrets.nix
+**/secrets.nix
+secrets/
+**/secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+*.kdbx
+gitleaks-report.*
