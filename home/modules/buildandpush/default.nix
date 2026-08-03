@@ -7,6 +7,7 @@ let
     pkgs.coreutils
     pkgs.findutils
     pkgs.git
+    pkgs.gitleaks
     pkgs.gnugrep
     pkgs.gnused
     pkgs.jq
@@ -25,6 +26,46 @@ let
     info()  { printf "\033[1;34m[INFO]\033[0m %s\n"  "$*"; }
     warn()  { printf "\033[1;33m[WARN]\033[0m %s\n"  "$*"; }
     error() { printf "\033[1;31m[ERR ]\033[0m %s\n"  "$*" >&2; }
+
+    run_gitleaks() {
+      local dir="$1"
+      local privilege="$2"
+      shift 2
+
+      if [[ "$privilege" == "sudo" ]]; then
+        sudo env PATH="${scriptPath}" ${pkgs.gitleaks}/bin/gitleaks "$@" "$dir"
+      else
+        ${pkgs.gitleaks}/bin/gitleaks "$@" "$dir"
+      fi
+    }
+
+    scan_staged_secrets() {
+      local dir="$1"
+      local privilege="$2"
+
+      info "Scanning staged changes in $dir for secrets..."
+      if ! run_gitleaks "$dir" "$privilege" git \
+        --pre-commit \
+        --redact \
+        --staged \
+        --no-banner; then
+        error "Secret scan failed for staged changes in $dir. Nothing was pushed."
+        return 1
+      fi
+    }
+
+    scan_repository_secrets() {
+      local dir="$1"
+      local privilege="$2"
+
+      info "Scanning committed history in $dir for secrets before push..."
+      if ! run_gitleaks "$dir" "$privilege" git \
+        --redact \
+        --no-banner; then
+        error "Secret scan failed for committed history in $dir. Nothing was pushed."
+        return 1
+      fi
+    }
 
     ensure_repo() {
       local dir="$1"
@@ -51,12 +92,14 @@ let
       info "Committing & pushing $dir (as current user)…"
       git -C "$dir" add -A
       if ! git -C "$dir" diff --cached --quiet; then
+        scan_staged_secrets "$dir" normal
         git -C "$dir" commit -m "$COMMIT_MSG"
       else
         info "No staged changes in $dir; skipping commit."
       fi
       local current_branch
       current_branch="$(git -C "$dir" rev-parse --abbrev-ref HEAD)"
+      scan_repository_secrets "$dir" normal
       git -C "$dir" push -u origin "$current_branch"
     }
 
@@ -68,12 +111,14 @@ let
       fi
       sudo_git "$dir" add -A
       if ! sudo_git "$dir" diff --cached --quiet; then
+        scan_staged_secrets "$dir" sudo
         sudo_git "$dir" commit -m "$COMMIT_MSG"
       else
         info "No staged changes in $dir; skipping commit."
       fi
       local current_branch
       current_branch="$(sudo_git "$dir" rev-parse --abbrev-ref HEAD)"
+      scan_repository_secrets "$dir" sudo
       sudo_git "$dir" push -u origin "$current_branch"
     }
 
@@ -269,6 +314,17 @@ let
       if ! git_repo "$dir" symbolic-ref -q HEAD >/dev/null 2>&1; then
         warn "Detached HEAD in $dir; skipping git pull."
         return 0
+      fi
+
+      local git_dir
+      git_dir="$(git_repo "$dir" rev-parse --absolute-git-dir)"
+      if [[ -f "$git_dir/MERGE_HEAD" \
+        || -d "$git_dir/rebase-merge" \
+        || -d "$git_dir/rebase-apply" \
+        || -f "$git_dir/CHERRY_PICK_HEAD" \
+        || -f "$git_dir/REVERT_HEAD" ]]; then
+        error "Repo $dir has an in-progress Git operation. Finish or abort it before running buildall."
+        return 1
       fi
 
       if [[ -n "$(git_repo "$dir" diff --name-only --diff-filter=U)" ]]; then
