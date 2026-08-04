@@ -22,6 +22,7 @@
     ../modules/niri
     ../modules/qutebrowser
     ../modules/kdenlive
+    ../modules/teams
     ../modules/prismlauncher
     ../modules/nvfvim
     ../modules/flatpak

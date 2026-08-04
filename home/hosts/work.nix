@@ -24,6 +24,7 @@
     ../modules/kdenlive
     ../modules/nvfvim
     ../modules/virt-manager
+    ../modules/teams
     ../modules/work
   ];
 
