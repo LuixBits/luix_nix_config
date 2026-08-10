@@ -95,7 +95,7 @@ in
 
       lua = {
         enable = true;
-        lsp.lazydev.enable = true;
+        extensions.lazydev.enable = true;
       };
 
       nix = {
@@ -105,6 +105,13 @@ in
 
       markdown.enable = true;
     };
+
+    # NVF currently registers the `lazydev` spec with the `lazydev-nvim`
+    # package. Its strict lazy-plugin validator requires an explicit loader
+    # until the upstream spec name is corrected.
+    lazy.plugins.lazydev.load = ''
+      vim.cmd.packadd("lazydev.nvim")
+    '';
 
     filetype = {
       filename."project.godot" = "gdresource";
