@@ -40,7 +40,7 @@
   {
     mode = "n";
     key = "<leader>hc";
-    action = "<cmd>lua vim.cmd.edit(vim.fn.fnameescape(vim.fn.expand('~/notes/neovim.norg')))<CR>";
+    action = "<cmd>lua vim.cmd.edit(vim.fn.fnameescape(vim.fn.stdpath('config') .. '/CHEATSHEET.md'))<CR>";
     desc = "Open Neovim cheat sheet";
   }
   {

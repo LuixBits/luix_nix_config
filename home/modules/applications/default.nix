@@ -1,6 +1,19 @@
 { lib, pkgs, ... }:
 let
   firefoxDesktop = "firefox.desktop";
+  # TEMPORARY WORKAROUND: Firefox 153 corrupts browser chrome under native
+  # Wayland on this host. Remove this wrapper after the upstream regression is
+  # fixed and native Wayland has been verified on the work host.
+  # Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=2049922
+  firefoxX11 = pkgs.symlinkJoin {
+    name = "firefox-x11-${pkgs.firefox.version}";
+    paths = [ pkgs.firefox ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram "$out/bin/firefox" \
+        --set MOZ_ENABLE_WAYLAND 0
+    '';
+  };
   firefoxWebHandlers = lib.genAttrs [
     "application/rss+xml"
     "application/xhtml+xml"
@@ -30,7 +43,7 @@ in
     bottles
     chromium
     discord
-    firefox
+    firefoxX11
     gnome-disk-utility
     gimp-with-plugins
     libreoffice

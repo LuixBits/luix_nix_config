@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 let
   notesDir = "${config.home.homeDirectory}/notes";
-  notesRemote = "git@github.com:devluixos/notes.git";
+  notesRemote = "git@github.com:LuixBits/notes.git";
   notesBranch = "main";
 
   scriptPath = lib.makeBinPath [

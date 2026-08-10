@@ -23,6 +23,85 @@ in
     ./sentry
   ];
 
+  # Keep the concise quick reference with NVF's generated configuration so it
+  # is always available from any project through <leader>hc.
+  xdg.configFile."nvf/CHEATSHEET.md".text = ''
+    # Neovim quick reference
+
+    `Leader` is Space. Press Space and pause to see the available groups.
+    Use `<leader>fk` to search every active keymap.
+
+    ## Find and navigate
+
+    | Key | Action |
+    | --- | --- |
+    | `<leader>ff` | Find a file by name |
+    | `<leader>fg` | Find text inside project files |
+    | `<leader>fw` | Find the word under the cursor |
+    | `<leader>fb` | Find an open buffer |
+    | `<leader>fs` | Find functions, classes, and other symbols in this file |
+    | `<leader>oo` | Open or focus the code outline |
+    | `gO` | List symbols in the current file |
+    | `<leader>jfj` / `<leader>jfk` | Next / previous function |
+    | `<leader>jcj` / `<leader>jck` | Next / previous class |
+
+    ## Code intelligence
+
+    These keys are available when a language server is attached.
+
+    | Key | Action |
+    | --- | --- |
+    | `gd` | Go to definition |
+    | `gD` | Go to declaration |
+    | `grr` | Find references and usages |
+    | `gri` | Find implementations |
+    | `grt` | Go to type definition |
+    | `grn` | Rename symbol |
+    | `gra` | Code action |
+    | `K` | Show documentation |
+    | `Ctrl-o` / `Ctrl-i` | Go backward / forward through jumps |
+
+    ## Files and windows
+
+    | Key | Action |
+    | --- | --- |
+    | `<leader>ee` | Toggle the file explorer |
+    | `<leader>ef` | Reveal the current file in the explorer |
+    | `<leader>eo` | Focus the open file explorer |
+    | `Ctrl-h/j/k/l` | Focus the window left/down/up/right |
+    | `<leader>w` | Save |
+    | `<leader>q` | Close the current window |
+    | `Ctrl-t` | Show or hide the terminal |
+
+    In file trees and other tool windows, use `j`/`k` to move, Enter to open,
+    `h`/`l` to close/open tree nodes, and `q` to close the tool window.
+
+    ## Editing code structures
+
+    | Key | Action |
+    | --- | --- |
+    | `vaf` / `vif` | Select around / inside a function |
+    | `vac` / `vic` | Select around / inside a class |
+    | `daf` | Delete a function |
+    | `cif` | Change a function body |
+    | `gcc` | Toggle a line comment |
+    | `gc` plus a motion | Toggle comments over that motion |
+
+    ## Problems, formatting, and tests
+
+    | Key | Action |
+    | --- | --- |
+    | `<leader>xx` / `<leader>xb` | All / current-file problems |
+    | `<leader>xj` / `<leader>xk` | Next / previous problem |
+    | `<leader>xd` | Explain the problem on this line |
+    | `<leader>lf` / `<leader>ll` | Format / lint the current file |
+    | `<leader>tn` / `<leader>tf` | Test nearest / current file |
+    | `<leader>ts` | Open or focus the test summary |
+    | `<leader>db` / `<leader>dc` | Toggle breakpoint / start or continue debugging |
+
+    Press `<leader>hc` to return to this page.
+  '';
+
   programs.nvf = {
     enable = true;
     defaultEditor = true;
@@ -164,12 +243,10 @@ in
         filetree.nvimTree = {
           enable = true;
           mappings = {
-            # Space e e always opens/focuses the tree; q closes it. This is the
-            # same lifecycle as the outline and other tool windows.
-            toggle = null;
+            toggle = "<leader>ee";
             refresh = "<leader>er";
             findFile = "<leader>ef";
-            focus = "<leader>ee";
+            focus = "<leader>eo";
           };
           setupOpts = {
             on_attach = lib.generators.mkLuaInline ''
@@ -381,7 +458,7 @@ in
                   action = "qa";
                 }
               ];
-              footer = [ "Tip: press ? for which-key" ];
+              footer = [ "Tip: press Space and pause for key hints" ];
             };
           };
         };

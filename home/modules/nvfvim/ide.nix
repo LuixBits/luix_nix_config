@@ -141,6 +141,12 @@
             buffer = args.buf,
             desc = "Find implementations",
           })
+          vim.keymap.set("n", "<leader>fs", function()
+            require("telescope.builtin").lsp_document_symbols()
+          end, {
+            buffer = args.buf,
+            desc = "Find document symbols",
+          })
         end,
       })
     '';
@@ -295,8 +301,8 @@
       {
         mode = "n";
         key = "<leader>li";
-        action = "<cmd>LspInfo<CR>";
-        desc = "LSP information";
+        action = "<cmd>checkhealth vim.lsp<CR>";
+        desc = "LSP health and clients";
       }
       {
         mode = "n";
