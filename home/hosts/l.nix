@@ -20,6 +20,7 @@
     ../modules/vpn
     ../modules/audio
     ../modules/niri
+    ../modules/japanese-input
     ../modules/qutebrowser
     ../modules/kdenlive
     ../modules/teams
