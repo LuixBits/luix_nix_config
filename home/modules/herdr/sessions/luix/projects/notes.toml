@@ -1,0 +1,19 @@
+name = "Notes"
+description = "Synced Luix notes"
+group = "Luix"
+working_dir = "~/notes"
+
+[[tabs]]
+name = "Notes Nvim"
+command = "nvim ."
+
+[[tabs]]
+name = "Notes Codex"
+command = "codex-new"
+
+[[tabs]]
+name = "Notes Kimi"
+command = "kimi"
+
+[[tabs]]
+name = "Notes CLI"

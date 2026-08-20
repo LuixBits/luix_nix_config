@@ -106,11 +106,11 @@ in
       markdown.enable = true;
     };
 
-    # NVF currently registers the `lazydev` spec with the `lazydev-nvim`
-    # package. Its strict lazy-plugin validator requires an explicit loader
-    # until the upstream spec name is corrected.
-    lazy.plugins.lazydev.load = ''
-      vim.cmd.packadd("lazydev.nvim")
+    # NVF registers the LazyDev package as `lazydev-nvim`. Keep the explicit
+    # loader on that same spec so Neovim does not try to packadd the
+    # nonexistent `lazydev.nvim` directory during startup.
+    lazy.plugins."lazydev-nvim".load = ''
+      vim.cmd.packadd("lazydev-nvim")
     '';
 
     filetype = {

@@ -1,0 +1,19 @@
+name = "Luix Config"
+description = "Luix NixOS and Home Manager configuration"
+group = "Luix"
+working_dir = "~/luix_nix_config"
+
+[[tabs]]
+name = "Luix Config Nvim"
+command = "nvim ."
+
+[[tabs]]
+name = "Luix Config Codex"
+command = "codex-new"
+
+[[tabs]]
+name = "Luix Config Kimi"
+command = "kimi"
+
+[[tabs]]
+name = "Luix Config CLI"

@@ -14,6 +14,44 @@ let
         --set MOZ_ENABLE_WAYLAND 0
     '';
   };
+  herdrAdminFirefox = pkgs.writeShellApplication {
+    name = "herdr-firefox-admin";
+    runtimeInputs = [ firefoxX11 pkgs.coreutils ];
+    text = ''
+      data_home="''${XDG_DATA_HOME:-$HOME/.local/share}"
+      profile_dir="$data_home/luix-browser-profiles/firefox-admin"
+      install -d -m 0700 "$profile_dir"
+
+      if [ "$#" -eq 0 ]; then
+        set -- about:blank
+      fi
+
+      exec firefox \
+        --no-remote \
+        --profile "$profile_dir" \
+        --new-window "$1"
+    '';
+  };
+  herdrNormalChromium = pkgs.writeShellApplication {
+    name = "herdr-chromium-normal";
+    runtimeInputs = [ pkgs.chromium pkgs.coreutils ];
+    text = ''
+      data_home="''${XDG_DATA_HOME:-$HOME/.local/share}"
+      profile_dir="$data_home/luix-browser-profiles/chromium-normal"
+      install -d -m 0700 "$profile_dir"
+
+      if [ "$#" -eq 0 ]; then
+        set -- \
+          "https://discord.com/app" \
+          "https://www.youtube.com/"
+      fi
+
+      exec chromium \
+        --user-data-dir="$profile_dir" \
+        --new-window \
+        "$@"
+    '';
+  };
   firefoxWebHandlers = lib.genAttrs [
     "application/rss+xml"
     "application/xhtml+xml"
@@ -44,6 +82,8 @@ in
     chromium
     discord
     firefoxX11
+    herdrAdminFirefox
+    herdrNormalChromium
     gnome-disk-utility
     gimp-with-plugins
     libreoffice

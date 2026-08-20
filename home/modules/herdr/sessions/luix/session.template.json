@@ -3,29 +3,33 @@
   "workspaces": [
     {
       "id": "w1",
-      "custom_name": null,
-      "identity_cwd": "@HOME@/projects/luixbits-noctalia-plugins",
+      "custom_name": "Projects",
+      "identity_cwd": "@HOME@/projects",
       "public_pane_numbers": {
         "1": 1,
         "2": 2,
-        "3": 3
+        "3": 3,
+        "4": 4,
+        "21": 5
       },
-      "next_public_pane_number": 4,
+      "next_public_pane_number": 6,
       "public_tab_numbers": [
         1,
         2,
-        3
+        3,
+        4,
+        5
       ],
-      "next_public_tab_number": 4,
+      "next_public_tab_number": 6,
       "tabs": [
         {
-          "custom_name": "Noctalia Plugins",
+          "custom_name": "Projects Nvim",
           "layout": {
             "Pane": 1
           },
           "panes": {
             "1": {
-              "cwd": "@HOME@/projects/luixbits-noctalia-plugins"
+              "cwd": "@HOME@/projects"
             }
           },
           "zoomed": false,
@@ -33,13 +37,13 @@
           "root_pane": 1
         },
         {
-          "custom_name": "Noctalia Codex",
+          "custom_name": "Projects Codex",
           "layout": {
             "Pane": 2
           },
           "panes": {
             "2": {
-              "cwd": "@HOME@/projects/luixbits-noctalia-plugins"
+              "cwd": "@HOME@/projects"
             }
           },
           "zoomed": false,
@@ -47,47 +51,27 @@
           "root_pane": 2
         },
         {
-          "custom_name": "Noctalia CLI",
+          "custom_name": "Projects Kimi",
           "layout": {
             "Pane": 3
           },
           "panes": {
             "3": {
-              "cwd": "@HOME@/projects/luixbits-noctalia-plugins"
+              "cwd": "@HOME@/projects"
             }
           },
           "zoomed": false,
           "focused": 3,
           "root_pane": 3
-        }
-      ],
-      "active_tab": 0
-    },
-    {
-      "id": "w2",
-      "custom_name": null,
-      "identity_cwd": "@HOME@/projects/neovim-plugins",
-      "public_pane_numbers": {
-        "4": 1,
-        "5": 2,
-        "6": 3
-      },
-      "next_public_pane_number": 4,
-      "public_tab_numbers": [
-        1,
-        2,
-        3
-      ],
-      "next_public_tab_number": 4,
-      "tabs": [
+        },
         {
-          "custom_name": "Neovim Plugins",
+          "custom_name": "Projects CLI",
           "layout": {
             "Pane": 4
           },
           "panes": {
             "4": {
-              "cwd": "@HOME@/projects/neovim-plugins"
+              "cwd": "@HOME@/projects"
             }
           },
           "zoomed": false,
@@ -95,13 +79,49 @@
           "root_pane": 4
         },
         {
-          "custom_name": "Neovim Codex",
+          "custom_name": "Projects Browser",
+          "layout": {
+            "Pane": 21
+          },
+          "panes": {
+            "21": {
+              "cwd": "@HOME@/projects"
+            }
+          },
+          "zoomed": false,
+          "focused": 21,
+          "root_pane": 21
+        }
+      ],
+      "active_tab": 0
+    },
+    {
+      "id": "w2",
+      "custom_name": "Luix Config",
+      "identity_cwd": "@HOME@/luix_nix_config",
+      "public_pane_numbers": {
+        "5": 1,
+        "6": 2,
+        "7": 3,
+        "8": 4
+      },
+      "next_public_pane_number": 5,
+      "public_tab_numbers": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "next_public_tab_number": 5,
+      "tabs": [
+        {
+          "custom_name": "Luix Config Nvim",
           "layout": {
             "Pane": 5
           },
           "panes": {
             "5": {
-              "cwd": "@HOME@/projects/neovim-plugins"
+              "cwd": "@HOME@/luix_nix_config"
             }
           },
           "zoomed": false,
@@ -109,47 +129,27 @@
           "root_pane": 5
         },
         {
-          "custom_name": "Neovim CLI",
+          "custom_name": "Luix Config Codex",
           "layout": {
             "Pane": 6
           },
           "panes": {
             "6": {
-              "cwd": "@HOME@/projects/neovim-plugins"
+              "cwd": "@HOME@/luix_nix_config"
             }
           },
           "zoomed": false,
           "focused": 6,
           "root_pane": 6
-        }
-      ],
-      "active_tab": 0
-    },
-    {
-      "id": "w3",
-      "custom_name": null,
-      "identity_cwd": "@HOME@/projects/LuixBitsRemotion",
-      "public_pane_numbers": {
-        "7": 1,
-        "8": 2,
-        "9": 3
-      },
-      "next_public_pane_number": 4,
-      "public_tab_numbers": [
-        1,
-        2,
-        3
-      ],
-      "next_public_tab_number": 4,
-      "tabs": [
+        },
         {
-          "custom_name": "Remotion",
+          "custom_name": "Luix Config Kimi",
           "layout": {
             "Pane": 7
           },
           "panes": {
             "7": {
-              "cwd": "@HOME@/projects/LuixBitsRemotion"
+              "cwd": "@HOME@/luix_nix_config"
             }
           },
           "zoomed": false,
@@ -157,53 +157,57 @@
           "root_pane": 7
         },
         {
-          "custom_name": "Remotion Codex",
+          "custom_name": "Luix Config CLI",
           "layout": {
             "Pane": 8
           },
           "panes": {
             "8": {
-              "cwd": "@HOME@/projects/LuixBitsRemotion"
+              "cwd": "@HOME@/luix_nix_config"
             }
           },
           "zoomed": false,
           "focused": 8,
           "root_pane": 8
-        },
-        {
-          "custom_name": "Remotion CLI",
-          "layout": {
-            "Pane": 9
-          },
-          "panes": {
-            "9": {
-              "cwd": "@HOME@/projects/LuixBitsRemotion"
-            }
-          },
-          "zoomed": false,
-          "focused": 9,
-          "root_pane": 9
         }
       ],
       "active_tab": 0
     },
     {
-      "id": "w4",
-      "custom_name": null,
+      "id": "w3",
+      "custom_name": "Notes",
       "identity_cwd": "@HOME@/notes",
       "public_pane_numbers": {
-        "10": 1,
-        "11": 2
+        "9": 1,
+        "10": 2,
+        "11": 3,
+        "12": 4
       },
-      "next_public_pane_number": 3,
+      "next_public_pane_number": 5,
       "public_tab_numbers": [
         1,
-        2
+        2,
+        3,
+        4
       ],
-      "next_public_tab_number": 3,
+      "next_public_tab_number": 5,
       "tabs": [
         {
-          "custom_name": "Notes",
+          "custom_name": "Notes Nvim",
+          "layout": {
+            "Pane": 9
+          },
+          "panes": {
+            "9": {
+              "cwd": "@HOME@/notes"
+            }
+          },
+          "zoomed": false,
+          "focused": 9,
+          "root_pane": 9
+        },
+        {
+          "custom_name": "Notes Codex",
           "layout": {
             "Pane": 10
           },
@@ -217,7 +221,7 @@
           "root_pane": 10
         },
         {
-          "custom_name": "Notes CLI",
+          "custom_name": "Notes Kimi",
           "layout": {
             "Pane": 11
           },
@@ -229,6 +233,208 @@
           "zoomed": false,
           "focused": 11,
           "root_pane": 11
+        },
+        {
+          "custom_name": "Notes CLI",
+          "layout": {
+            "Pane": 12
+          },
+          "panes": {
+            "12": {
+              "cwd": "@HOME@/notes"
+            }
+          },
+          "zoomed": false,
+          "focused": 12,
+          "root_pane": 12
+        }
+      ],
+      "active_tab": 0
+    },
+    {
+      "id": "w4",
+      "custom_name": "Utils",
+      "identity_cwd": "@HOME@",
+      "public_pane_numbers": {
+        "13": 1,
+        "14": 2,
+        "15": 3,
+        "16": 4,
+        "22": 5
+      },
+      "next_public_pane_number": 6,
+      "public_tab_numbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "next_public_tab_number": 6,
+      "tabs": [
+        {
+          "custom_name": "Utils Nvim",
+          "layout": {
+            "Pane": 13
+          },
+          "panes": {
+            "13": {
+              "cwd": "@HOME@"
+            }
+          },
+          "zoomed": false,
+          "focused": 13,
+          "root_pane": 13
+        },
+        {
+          "custom_name": "Utils Codex",
+          "layout": {
+            "Pane": 14
+          },
+          "panes": {
+            "14": {
+              "cwd": "@HOME@"
+            }
+          },
+          "zoomed": false,
+          "focused": 14,
+          "root_pane": 14
+        },
+        {
+          "custom_name": "Utils Kimi",
+          "layout": {
+            "Pane": 15
+          },
+          "panes": {
+            "15": {
+              "cwd": "@HOME@"
+            }
+          },
+          "zoomed": false,
+          "focused": 15,
+          "root_pane": 15
+        },
+        {
+          "custom_name": "Utils CLI",
+          "layout": {
+            "Pane": 16
+          },
+          "panes": {
+            "16": {
+              "cwd": "@HOME@"
+            }
+          },
+          "zoomed": false,
+          "focused": 16,
+          "root_pane": 16
+        },
+        {
+          "custom_name": "Utils Browser",
+          "layout": {
+            "Pane": 22
+          },
+          "panes": {
+            "22": {
+              "cwd": "@HOME@"
+            }
+          },
+          "zoomed": false,
+          "focused": 22,
+          "root_pane": 22
+        }
+      ],
+      "active_tab": 0
+    },
+    {
+      "id": "w5",
+      "custom_name": "Remotion",
+      "identity_cwd": "@HOME@/projects/LuixBitsRemotion",
+      "public_pane_numbers": {
+        "17": 1,
+        "18": 2,
+        "19": 3,
+        "20": 4,
+        "23": 5
+      },
+      "next_public_pane_number": 6,
+      "public_tab_numbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "next_public_tab_number": 6,
+      "tabs": [
+        {
+          "custom_name": "Remotion Nvim",
+          "layout": {
+            "Pane": 17
+          },
+          "panes": {
+            "17": {
+              "cwd": "@HOME@/projects/LuixBitsRemotion"
+            }
+          },
+          "zoomed": false,
+          "focused": 17,
+          "root_pane": 17
+        },
+        {
+          "custom_name": "Remotion Codex",
+          "layout": {
+            "Pane": 18
+          },
+          "panes": {
+            "18": {
+              "cwd": "@HOME@/projects/LuixBitsRemotion"
+            }
+          },
+          "zoomed": false,
+          "focused": 18,
+          "root_pane": 18
+        },
+        {
+          "custom_name": "Remotion Kimi",
+          "layout": {
+            "Pane": 19
+          },
+          "panes": {
+            "19": {
+              "cwd": "@HOME@/projects/LuixBitsRemotion"
+            }
+          },
+          "zoomed": false,
+          "focused": 19,
+          "root_pane": 19
+        },
+        {
+          "custom_name": "Remotion CLI",
+          "layout": {
+            "Pane": 20
+          },
+          "panes": {
+            "20": {
+              "cwd": "@HOME@/projects/LuixBitsRemotion"
+            }
+          },
+          "zoomed": false,
+          "focused": 20,
+          "root_pane": 20
+        },
+        {
+          "custom_name": "Remotion Browser",
+          "layout": {
+            "Pane": 23
+          },
+          "panes": {
+            "23": {
+              "cwd": "@HOME@/projects/LuixBitsRemotion"
+            }
+          },
+          "zoomed": false,
+          "focused": 23,
+          "root_pane": 23
         }
       ],
       "active_tab": 0
