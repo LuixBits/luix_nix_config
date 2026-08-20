@@ -37,4 +37,25 @@ in
       prefix = "<leader>nc";
     };
   };
+
+  programs.nvf.settings.vim.keymaps = [
+    {
+      mode = "n";
+      key = "<leader>ncd";
+      action = "<cmd>NeorgFlashcardReviewDue<CR>";
+      desc = "Review due flashcards";
+    }
+    {
+      mode = "n";
+      key = "<leader>ncg";
+      action = "<cmd>NeorgFlashcardOverview<CR>";
+      desc = "Flashcard dashboard";
+    }
+    {
+      mode = "n";
+      key = "<leader>nca";
+      action = "<cmd>NeorgFlashcardStats<CR>";
+      desc = "Flashcard dashboard analytics";
+    }
+  ];
 }

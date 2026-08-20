@@ -53,9 +53,7 @@ in
     qpwgraph
     qownnotes
     vlc
-    wdisplays
     kdePackages.okular
-
 
     # Media tools
     audacity
