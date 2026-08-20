@@ -34,6 +34,16 @@
   # Ensure old DisplayLink modules never load on this host.
   boot.blacklistedKernelModules = [ "evdi" ];
 
+  # The Surface Laptop Studio can report tablet/slate mode during display and
+  # dock transitions. Libinput otherwise suspends its built-in keyboard and
+  # touchpad on Wayland, leaving pointer movement or clicks apparently stuck.
+  environment.etc."libinput/local-overrides.quirks".text = ''
+    [Microsoft Surface Laptop Studio Built-In Peripherals]
+    MatchName=*Microsoft Surface*
+    MatchDMIModalias=dmi:*svnMicrosoftCorporation:*pnSurfaceLaptopStudio:*
+    ModelTabletModeNoSuspend=1
+  '';
+
   # Work around firmware reboot/power button issues on this host.
   boot.kernelParams = [ "reboot=efi" ];
   services.logind.settings.Login = {

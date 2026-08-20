@@ -3,14 +3,11 @@ let
   isWorkProfile = hostName == "work" || (hostName == null && config.home.username == "luiz");
   isLaptopProfile = hostName == "l";
   isPcProfile = hostName == "pc";
-  workLaptopOutput = "eDP-1";
   laptopInternalOutput = "eDP-1";
   sharedMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
   sharedRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
   # Match external displays by make/model/serial so DisplayLink connector order
   # changes do not break rotation/placement.
-  workMainOutput = sharedMainOutput;
-  workRightPortraitOutput = sharedRightPortraitOutput;
   pcMainOutput = sharedMainOutput;
   pcRightPortraitOutput = sharedRightPortraitOutput;
   outputConfig =
@@ -34,21 +31,10 @@ let
         }
       ''
     else if isWorkProfile then
-      ''
-        output "${workLaptopOutput}" {
-            position x=0 y=0
-        }
-
-        output "${workMainOutput}" {
-            position x=1600 y=0
-            focus-at-startup
-        }
-
-        output "${workRightPortraitOutput}" {
-            transform "270"
-            position x=5040 y=0
-        }
-      ''
+      # Shikane owns all work-host output positions. Keeping a second set of
+      # positions here makes hot-plug events race and can leave Niri with a
+      # large, stale global coordinate offset.
+      ""
     else if isPcProfile then
       ''
         output "${pcMainOutput}" {
@@ -140,6 +126,7 @@ let
 in
 {
   imports = [
+    ./display-profiles.nix
     ./noctalia
     ./polkit
   ];

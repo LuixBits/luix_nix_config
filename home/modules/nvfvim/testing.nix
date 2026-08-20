@@ -27,6 +27,9 @@ let
   };
 in
 {
+  xdg.configFile."nvf/lua/luix/neotest_phpunit.lua".source =
+    ./lua/luix/neotest_phpunit.lua;
+
   programs.nvf.settings.vim = {
     startPlugins = [
       neotest-fixed
@@ -34,8 +37,34 @@ in
       pkgs.vimPlugins.plenary-nvim
       pkgs.vimPlugins.neotest-phpunit
       pkgs.vimPlugins.neotest-python
+      pkgs.vimPlugins.neotest-vitest
+      pkgs.vimPlugins.overseer-nvim
       neotest-nodejs
     ];
+
+    luaConfigRC.overseer = inputs.nvf.lib.nvim.dag.entryAfter [ "pluginConfigs" ] ''
+      require("overseer").setup({
+        task_list = {
+          direction = "bottom",
+          min_height = 10,
+          max_height = 20,
+          keymaps = {
+            ["<Esc>"] = { "<CMD>close<CR>", desc = "Close task list" },
+          },
+        },
+        form = { border = "rounded" },
+        task_win = { border = "rounded" },
+        component_aliases = {
+          -- Neotest tasks are ephemeral and disappear when Neovim exits. Keep
+          -- them for the current session so successful output does not vanish
+          -- before it can be inspected.
+          default_neotest = {
+            "on_exit_set_status",
+            "on_complete_notify",
+          },
+        },
+      })
+    '';
 
     luaConfigRC.neotest =
       inputs.nvf.lib.nvim.dag.entryAfter
@@ -43,6 +72,7 @@ in
           "pluginConfigs"
           "nvim-dap"
           "neotest-adapter-aliases"
+          "overseer"
         ]
         ''
           -- Neotest checks nvim-nio with pcall(), which the lazy module loader
@@ -50,12 +80,20 @@ in
           local nio = require("nio")
           local neotest = require("neotest")
 
+          local phpunit_adapter = require("luix.neotest_phpunit").wrap(
+            require("neotest-phpunit")({
+              root_files = {
+                "composer.json",
+                "phpunit.xml",
+                "phpunit.xml.dist",
+              },
+              filter_dirs = { ".git", "node_modules", "vendor", "var" },
+            })
+          )
+
           neotest.setup({
             adapters = {
-              require("neotest-phpunit")({
-                root_files = { "composer.json", "phpunit.xml", "phpunit.xml.dist" },
-                filter_dirs = { ".git", "node_modules", "vendor", "var" },
-              }),
+              phpunit_adapter,
               require("neotest-python")({
                 dap = { justMyCode = false },
                 runner = "pytest",
@@ -73,6 +111,17 @@ in
                     end
                   end
                   return "${lib.getExe pythonWithPytest}"
+                end,
+              }),
+              require("neotest-vitest")({
+                filter_dir = function(name)
+                  return not vim.tbl_contains({
+                    ".git",
+                    "build",
+                    "coverage",
+                    "dist",
+                    "node_modules",
+                  }, name)
                 end,
               }),
               require("neotest-nodejs")({
@@ -93,33 +142,69 @@ in
                 end,
               }),
             },
-            summary = {
-              mappings = {
-                -- A tree behaves like every other tree: h/l close/open,
-                -- j/k move, Enter jumps to the selected test.
-                expand = "l",
-                parent = "h",
-                jumpto = "<CR>",
-              },
-            },
             consumers = {
+              -- This is Overseer's supported Neotest integration. Test runs
+              -- gain a durable task/output view while Neotest remains the
+              -- source of discovery, inline status, and diagnostics.
+              overseer = require("neotest.consumers.overseer"),
               luix_run_all = function(client)
                 return {
                   run = nio.create(function()
                     local adapters = client:get_adapters()
+                    local preferred_by_filetype = {
+                      php = { "neotest-phpunit" },
+                      python = { "neotest-python" },
+                      javascript = { "neotest-vitest", "neotest-nodejs" },
+                      javascriptreact = { "neotest-vitest", "neotest-nodejs" },
+                      typescript = { "neotest-vitest", "neotest-nodejs" },
+                      typescriptreact = { "neotest-vitest", "neotest-nodejs" },
+                      vue = { "neotest-vitest" },
+                    }
+                    local preferred = preferred_by_filetype[vim.bo.filetype]
 
                     if #adapters == 0 then
                       require("neotest.lib").notify(
-                        "No test adapter found for this project",
+                        preferred and preferred[1] == "neotest-vitest"
+                            and "No Vitest tests found. Add and configure Vitest in this package first."
+                          or "No test adapter found for this project",
                         vim.log.levels.WARN
                       )
                       return
                     end
 
                     table.sort(adapters)
-                    local adapter = require("nio").ui.select(adapters, {
-                      prompt = "Test adapter:",
-                    })
+
+                    local adapter
+
+                    if preferred then
+                      for _, candidate in ipairs(preferred) do
+                        for _, adapter_id in ipairs(adapters) do
+                          if vim.startswith(adapter_id, candidate .. ":") then
+                            adapter = adapter_id
+                            break
+                          end
+                        end
+                        if adapter then
+                          break
+                        end
+                      end
+
+                      if not adapter then
+                        require("neotest.lib").notify(
+                          preferred[1] == "neotest-vitest"
+                              and "No Vitest tests found. Add and configure Vitest in this package first."
+                            or "No " .. preferred[1] .. " project found for this buffer.",
+                          vim.log.levels.WARN
+                        )
+                        return
+                      end
+                    elseif #adapters == 1 then
+                      adapter = adapters[1]
+                    else
+                      adapter = nio.ui.select(adapters, {
+                        prompt = "Test adapter:",
+                      })
+                    end
 
                     if adapter then
                       neotest.run.run({ suite = true, adapter = adapter })
@@ -128,12 +213,45 @@ in
                 }
               end,
             },
+            diagnostic = {
+              enabled = true,
+              severity = vim.diagnostic.severity.ERROR,
+            },
+            status = {
+              signs = true,
+              virtual_text = true,
+            },
+            summary = {
+              count = true,
+              follow = true,
+              expand_errors = true,
+              open = "botright vsplit | vertical resize 50",
+              mappings = {
+                -- A tree behaves like every other tree: h/l close/open,
+                -- j/k move, and Enter jumps to the selected test.
+                expand = "l",
+                parent = "h",
+                jumpto = "<CR>",
+              },
+            },
+            output = {
+              open_on_run = false,
+            },
+            output_panel = {
+              open = "botright split | resize 18",
+            },
           })
 
-          local test_windows = vim.api.nvim_create_augroup("LuixNeotestWindows", { clear = true })
+          local test_windows = vim.api.nvim_create_augroup("LuixTestWindows", { clear = true })
           vim.api.nvim_create_autocmd("FileType", {
             group = test_windows,
-            pattern = { "neotest-summary", "neotest-output", "neotest-output-panel" },
+            pattern = {
+              "neotest-summary",
+              "neotest-output",
+              "neotest-output-panel",
+              "OverseerList",
+              "OverseerOutput",
+            },
             callback = function(args)
               local function close_test_window()
                 local filetype = vim.bo[args.buf].filetype
@@ -141,6 +259,8 @@ in
                   neotest.summary.close()
                 elseif filetype == "neotest-output-panel" then
                   neotest.output_panel.close()
+                elseif filetype == "OverseerList" then
+                  require("overseer").close()
                 else
                   pcall(vim.api.nvim_win_close, 0, true)
                 end
@@ -177,7 +297,7 @@ in
         mode = "n";
         key = "<leader>ta";
         action = "<cmd>lua require('neotest').luix_run_all.run()<CR>";
-        desc = "Test all with chosen adapter";
+        desc = "Test all for current language";
       }
       {
         mode = "n";
@@ -194,8 +314,33 @@ in
       {
         mode = "n";
         key = "<leader>to";
-        action = "<cmd>lua require('neotest').output.open({ enter = true })<CR>";
-        desc = "Test output";
+        action = ''
+          function()
+            local overseer = require("overseer")
+            local tasks = overseer.list_tasks({
+              include_ephemeral = true,
+              filter = function(task)
+                return task.metadata.neotest_group_id ~= nil
+              end,
+            })
+            local task = tasks[1]
+            if not task then
+              vim.notify("No test output yet", vim.log.levels.INFO)
+              return
+            end
+
+            local buffer = task:get_bufnr()
+            local window = buffer and vim.fn.bufwinid(buffer) or -1
+            if window ~= -1 then
+              vim.api.nvim_set_current_win(window)
+            else
+              task:open_output("horizontal")
+              vim.cmd("resize 18")
+            end
+          end
+        '';
+        lua = true;
+        desc = "Open latest test output";
       }
       {
         mode = "n";
@@ -212,7 +357,13 @@ in
           end
         '';
         lua = true;
-        desc = "Open or focus test summary";
+        desc = "Open or focus test explorer";
+      }
+      {
+        mode = "n";
+        key = "<leader>tt";
+        action = "<cmd>OverseerToggle bottom<CR>";
+        desc = "Toggle test task history";
       }
       {
         mode = "n";

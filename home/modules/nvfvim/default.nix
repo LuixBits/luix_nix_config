@@ -96,7 +96,9 @@ in
     | `<leader>xd` | Explain the problem on this line |
     | `<leader>lf` / `<leader>ll` | Format / lint the current file |
     | `<leader>tn` / `<leader>tf` | Test nearest / current file |
-    | `<leader>ts` | Open or focus the test summary |
+    | `<leader>ta` | Test the complete suite for the current language |
+    | `<leader>ts` / `<leader>to` | Test explorer / latest test output |
+    | `<leader>tt` | Test run history and status |
     | `<leader>db` / `<leader>dc` | Toggle breakpoint / start or continue debugging |
 
     Press `<leader>hc` to return to this page.
