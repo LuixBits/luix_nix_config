@@ -1,0 +1,23 @@
+name = "Utils"
+description = "General-purpose utility workspace"
+group = "Luix"
+working_dir = "~"
+
+[[tabs]]
+name = "Utils Nvim"
+command = "nvim ."
+
+[[tabs]]
+name = "Utils Codex"
+command = "codex-new"
+
+[[tabs]]
+name = "Utils Kimi"
+command = "kimi"
+
+[[tabs]]
+name = "Utils CLI"
+
+[[tabs]]
+name = "Utils Browser"
+command = "herdr-browser-tab"

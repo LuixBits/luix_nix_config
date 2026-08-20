@@ -1,10 +1,10 @@
 name = "Remotion"
 description = "LuixBits Remotion project"
-group = "Projects"
+group = "Luix"
 working_dir = "~/projects/LuixBitsRemotion"
 
 [[tabs]]
-name = "Remotion"
+name = "Remotion Nvim"
 command = "nvim ."
 
 [[tabs]]
@@ -12,4 +12,12 @@ name = "Remotion Codex"
 command = "codex-new"
 
 [[tabs]]
+name = "Remotion Kimi"
+command = "kimi"
+
+[[tabs]]
 name = "Remotion CLI"
+
+[[tabs]]
+name = "Remotion Browser"
+command = "herdr-browser-tab http://localhost:3000"

@@ -1,0 +1,12 @@
+name = "Browsers"
+description = "Isolated admin and everyday browser profiles"
+group = "Luix"
+working_dir = "~"
+
+[[tabs]]
+name = "Admin Firefox"
+command = "herdr-firefox-admin"
+
+[[tabs]]
+name = "Normal Chromium"
+command = "herdr-chromium-normal"

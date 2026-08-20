@@ -1,0 +1,7 @@
+mode = "sidebar"
+interval_seconds = 5
+window_title_totals = false
+battery = false
+disk = false
+icons = "auto"
+ram_display = "percent"

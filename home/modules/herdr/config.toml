@@ -1,5 +1,31 @@
 onboarding = false
 
+[experimental]
+kitty_graphics = true
+
+[ui]
+agent_panel_sort = "spaces"
+
+[ui.sidebar.agents]
+row_gap = 0
+rows = [
+  ["state_icon", "workspace", "agent"],
+]
+
+[ui.sidebar.spaces]
+row_gap = 0
+rows = [
+  ["state_icon", "workspace"],
+  ["branch", "git_status", "$usage"],
+]
+
+[ui.toast]
+delivery = "herdr"
+delay_seconds = 1
+
+[ui.toast.herdr]
+position = "bottom-right"
+
 [terminal]
 default_shell = "/run/current-system/sw/bin/fish"
 shell_mode = "non_login"
@@ -19,3 +45,9 @@ key = "prefix+down"
 type = "plugin_action"
 command = "cloudmanic.herdr-plus.quick-actions"
 description = "herdr-plus: quick actions"
+
+[[keys.command]]
+key = "prefix+k"
+type = "plugin_action"
+command = "herdr-bar.open"
+description = "herdr-bar: fuzzy jump"

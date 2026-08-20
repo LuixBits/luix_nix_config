@@ -22,7 +22,7 @@
     nix-citizen.url = "github:LovingMelody/nix-citizen";
 
     # Herdr terminal workflow
-    herdr.url = "github:ogulcancelik/herdr/v0.7.1";
+    herdr.url = "github:herdrdev/herdr/v0.8.2";
 
     # Neorg flashcards plugin and NVF module
     luixbits-neorg-flashcards.url = "github:LuixBits/luixbits-neorg-flashcards.nvim/develop";

@@ -4,7 +4,7 @@
     enable = true;
     font = {
       name = "Hurmit Nerd Font Mono";
-      size = 24;
+      size = 18;
     };
     settings = {
       shell = "${pkgs.fish}/bin/fish";

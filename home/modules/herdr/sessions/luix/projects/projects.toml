@@ -1,0 +1,23 @@
+name = "Projects"
+description = "Top-level project workspace"
+group = "Luix"
+working_dir = "~/projects"
+
+[[tabs]]
+name = "Projects Nvim"
+command = "nvim ."
+
+[[tabs]]
+name = "Projects Codex"
+command = "codex-new"
+
+[[tabs]]
+name = "Projects Kimi"
+command = "kimi"
+
+[[tabs]]
+name = "Projects CLI"
+
+[[tabs]]
+name = "Projects Browser"
+command = "herdr-browser-tab"
