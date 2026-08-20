@@ -80,7 +80,7 @@ let
   noWaybarConfig = lib.replaceStrings [
     "spawn-at-startup \"waybar\"\n"
   ] [
-    "spawn-at-startup \"noctalia\"\n"
+    ""
   ] baseConfig;
   noCommaConfig = lib.replaceStrings [
     "    Mod+Comma  { consume-window-into-column; }\n"

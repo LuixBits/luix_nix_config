@@ -108,6 +108,7 @@ let
       avatar_path = "${wallpaperDir}/mystical-forest-3840x2160-14976.jpg";
       corner_radius_scale = 0.0;
       font_family = "Hurmit Nerd Font Mono";
+      launch_apps_as_systemd_services = true;
       polkit_agent = true;
       settings_show_advanced = true;
       ui_scale = 1.35;
@@ -287,7 +288,17 @@ in
 
   programs.noctalia = {
     enable = true;
+    systemd.enable = true;
     settings = noctaliaSettings;
+  };
+
+  # Noctalia keeps a native PipeWire connection for its audio model. Tie the
+  # supported user service to PipeWire so a daemon restart also refreshes the
+  # shell's device list instead of leaving the control center disconnected.
+  systemd.user.services.noctalia.Unit = {
+    Wants = [ "pipewire.service" "wireplumber.service" ];
+    After = [ "pipewire.service" "wireplumber.service" ];
+    PartOf = [ "pipewire.service" ];
   };
 
   home.packages = [ noctaliaIpc ];
