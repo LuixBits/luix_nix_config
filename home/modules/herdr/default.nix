@@ -1,6 +1,7 @@
 { config, inputs, lib, pkgs, ... }:
 let
   herdrPackage = inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  codexCommand = "${config.programs.codex.package}/bin/codex";
   herdrConfig = ./config.toml;
   herdrPlusPluginId = "cloudmanic.herdr-plus";
   herdrPlusVersion = "0.1.10";
@@ -55,6 +56,16 @@ let
         'command = ["bun",' \
         'command = ["${herdrBrowserBun}",'
   '';
+  herdrBrowserConfig = pkgs.writeText "herdr-browser.json" (builtins.toJSON {
+    linkOpenPlacement = "overlay";
+    focusOnOpen = true;
+    browserZoom = 1.0;
+    showDiagnostics = false;
+    # Herdr Browser renders Chromium through the Kitty graphics protocol.
+    # A 0.75 capture scale cuts the pixel workload substantially on HiDPI
+    # displays while keeping development pages readable.
+    captureScale = 0.75;
+  });
   herdrBrowserTab = pkgs.writeShellScriptBin "herdr-browser-tab" ''
     set -eu
 
@@ -383,39 +394,42 @@ let
       sessionName = "herdr-siga";
       description = "Starts or attaches to the configured Herdr SIGA session.";
       sessionTemplate = ./sessions/siga/session.template.json;
+      layoutRevision = builtins.hashString "sha256" (
+        (builtins.readFile ./sessions/siga/session.template.json)
+        + "\nbootstrap-agent-command=codex\n"
+      );
       projectDirs = [ ./sessions/siga/projects ];
-      requiredPanes = [
-        { workspace = "w1"; pane = 2; }
-        { workspace = "w1"; pane = 8; }
-        { workspace = "w3"; pane = 3; }
-        { workspace = "w3"; pane = 4; }
-        { workspace = "w4"; pane = 1; }
-        { workspace = "w4"; pane = 4; }
-        { workspace = "w5"; pane = 1; }
-      ];
-      requiredTabs = [
-        { workspace = "w1"; tab = 2; }
-        { workspace = "w3"; tab = 5; }
-        { workspace = "w4"; tab = 4; }
-        { workspace = "w5"; tab = 1; }
-      ];
-      bootstrapCommands = [
-        { pane = "w1:p2"; command = "nvim ."; }
-        { pane = "w1:p8"; command = "codex-new"; }
-        { pane = "w3:p3"; command = "nvim ."; }
-        { pane = "w3:p4"; command = "codex-new"; }
-        { pane = "w4:p1"; command = "nvim ."; }
-        { pane = "w4:p4"; command = "codex-new"; }
-        { pane = "w5:p1"; command = "nvim ."; }
-      ];
-      focusTabs = [ "w1:t2" "w3:t5" "w5:t1" "w4:t4" ];
+      requiredTabs = lib.concatMap
+        (workspace: map (tab: { inherit workspace tab; }) [ 1 2 3 ])
+        [ "w1" "w3" "w4" "w5" ]
+        ++ map (workspace: { inherit workspace; tab = 4; }) [ "w1" "w3" ];
+      requiredPanes = lib.concatMap
+        (workspace: map (pane: { inherit workspace pane; }) [ 1 2 3 ])
+        [ "w1" "w3" "w4" "w5" ]
+        ++ map (workspace: { inherit workspace; pane = 4; }) [ "w1" "w3" ];
+      bootstrapCommands =
+        lib.concatMap
+          (workspace: [
+            { pane = "${workspace}:p1"; command = "nvim ."; }
+            { pane = "${workspace}:p2"; command = codexCommand; }
+          ])
+          [ "w1" "w3" "w4" "w5" ]
+        ++ [
+          { pane = "w1:p4"; command = "${herdrBrowserTab}/bin/herdr-browser-tab https://roi.local"; }
+          { pane = "w3:p4"; command = "${herdrBrowserTab}/bin/herdr-browser-tab https://siga-webshop.local/ch-de"; }
+        ];
+      # Select every workspace's Neovim tab and finish on Roiguard.
+      focusTabs = [ "w5:t1" "w4:t1" "w3:t1" "w1:t1" ];
     }
     {
       commandName = "herdr-luix";
       sessionName = "herdr-luix";
       description = "Starts or attaches to the configured Herdr Luix session.";
       sessionTemplate = ./sessions/luix/session.template.json;
-      layoutRevision = builtins.hashString "sha256" (builtins.readFile ./sessions/luix/session.template.json);
+      layoutRevision = builtins.hashString "sha256" (
+        (builtins.readFile ./sessions/luix/session.template.json)
+        + "\nbootstrap-agent-command=codex\n"
+      );
       projectDirs = [ ./sessions/luix/projects ];
       requiredTabs = lib.concatMap
         (workspace: map (tab: { inherit workspace tab; }) [ 1 2 3 4 ])
@@ -429,7 +443,7 @@ let
         lib.concatMap
           (workspace: [
             { pane = "${workspace}:p1"; command = "nvim ."; }
-            { pane = "${workspace}:p2"; command = "codex-new"; }
+            { pane = "${workspace}:p2"; command = codexCommand; }
             { pane = "${workspace}:p3"; command = "kimi"; }
           ])
           [ "w1" "w2" "w3" "w4" "w5" ]
@@ -516,6 +530,28 @@ in
       "${config.home.homeDirectory}/projects" \
       "${config.home.homeDirectory}/notes" \
       "${config.home.homeDirectory}/projects/LuixBitsRemotion"
+  '';
+
+  # Keep the lifecycle/session hooks in sync with the pinned Herdr release.
+  # Without this, an older hook can survive a Herdr upgrade indefinitely.
+  home.activation.ensureHerdrAgentIntegrations = lib.hm.dag.entryAfter [ "ensureCodexConfig" ] ''
+    kimi_config_dir="${config.home.homeDirectory}/.kimi-code"
+    run mkdir -p "$kimi_config_dir"
+
+    run ${pkgs.coreutils}/bin/env \
+      CODEX_HOME="${config.home.homeDirectory}/.codex" \
+      ${herdrPackage}/bin/herdr integration install codex
+    run ${pkgs.coreutils}/bin/env \
+      KIMI_CODE_HOME="$kimi_config_dir" \
+      ${herdrPackage}/bin/herdr integration install kimi
+  '';
+
+  # Keep this file writable so Herdr Browser can persist toolbar zoom changes.
+  # Rebuilding reapplies the declarative performance-oriented defaults above.
+  home.activation.configureHerdrBrowser = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    browser_config_dir="${config.xdg.configHome}/herdr/plugins/config/official.browser"
+    run mkdir -p "$browser_config_dir"
+    run install -m 0644 ${herdrBrowserConfig} "$browser_config_dir/browser.json"
   '';
 
   home.packages = [ herdrPackage herdrBrowserTab ] ++ herdrSessionPackages;

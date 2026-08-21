@@ -4,8 +4,12 @@ group = "Personal"
 working_dir = "~/notes"
 
 [[tabs]]
-name = "Notes"
+name = "Notes Nvim"
 command = "nvim ."
+
+[[tabs]]
+name = "Notes Codex"
+command = "codex"
 
 [[tabs]]
 name = "Notes CLI"

@@ -4,12 +4,16 @@ group = "SIGA"
 working_dir = "~/siga/roiguard"
 
 [[tabs]]
-name = "Roiguard"
+name = "Roiguard Nvim"
 command = "nvim ."
 
 [[tabs]]
-name = "Codex Roiguard"
-command = "codex-new"
+name = "Roiguard Codex"
+command = "codex"
 
 [[tabs]]
 name = "Roiguard CLI"
+
+[[tabs]]
+name = "Roiguard Browser"
+command = "herdr-browser-tab https://roi.local"

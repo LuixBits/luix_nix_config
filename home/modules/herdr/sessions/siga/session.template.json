@@ -3,23 +3,39 @@
   "workspaces": [
     {
       "id": "w1",
-      "custom_name": null,
+      "custom_name": "Roiguard",
       "identity_cwd": "@HOME@/siga/roiguard",
       "public_pane_numbers": {
+        "1": 1,
         "2": 2,
-        "10": 9,
-        "9": 8
+        "3": 3,
+        "4": 4
       },
-      "next_public_pane_number": 10,
+      "next_public_pane_number": 5,
       "public_tab_numbers": [
+        1,
         2,
-        4,
-        5
+        3,
+        4
       ],
-      "next_public_tab_number": 6,
+      "next_public_tab_number": 5,
       "tabs": [
         {
-          "custom_name": "Roiguard",
+          "custom_name": "Roiguard Nvim",
+          "layout": {
+            "Pane": 1
+          },
+          "panes": {
+            "1": {
+              "cwd": "@HOME@/siga/roiguard"
+            }
+          },
+          "zoomed": false,
+          "focused": 1,
+          "root_pane": 1
+        },
+        {
+          "custom_name": "Roiguard Codex",
           "layout": {
             "Pane": 2
           },
@@ -33,13 +49,139 @@
           "root_pane": 2
         },
         {
-          "custom_name": "Codex Roiguard",
+          "custom_name": "Roiguard CLI",
+          "layout": {
+            "Pane": 3
+          },
+          "panes": {
+            "3": {
+              "cwd": "@HOME@/siga/roiguard"
+            }
+          },
+          "zoomed": false,
+          "focused": 3,
+          "root_pane": 3
+        },
+        {
+          "custom_name": "Roiguard Browser",
+          "layout": {
+            "Pane": 4
+          },
+          "panes": {
+            "4": {
+              "cwd": "@HOME@/siga/roiguard"
+            }
+          },
+          "zoomed": false,
+          "focused": 4,
+          "root_pane": 4
+        }
+      ],
+      "active_tab": 0
+    },
+    {
+      "id": "w3",
+      "custom_name": "Webshop",
+      "identity_cwd": "@HOME@/siga/webshop",
+      "public_pane_numbers": {
+        "5": 1,
+        "6": 2,
+        "7": 3,
+        "8": 4
+      },
+      "next_public_pane_number": 5,
+      "public_tab_numbers": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "next_public_tab_number": 5,
+      "tabs": [
+        {
+          "custom_name": "Webshop Nvim",
+          "layout": {
+            "Pane": 5
+          },
+          "panes": {
+            "5": {
+              "cwd": "@HOME@/siga/webshop"
+            }
+          },
+          "zoomed": false,
+          "focused": 5,
+          "root_pane": 5
+        },
+        {
+          "custom_name": "Webshop Codex",
+          "layout": {
+            "Pane": 6
+          },
+          "panes": {
+            "6": {
+              "cwd": "@HOME@/siga/webshop"
+            }
+          },
+          "zoomed": false,
+          "focused": 6,
+          "root_pane": 6
+        },
+        {
+          "custom_name": "Webshop CLI",
+          "layout": {
+            "Pane": 7
+          },
+          "panes": {
+            "7": {
+              "cwd": "@HOME@/siga/webshop"
+            }
+          },
+          "zoomed": false,
+          "focused": 7,
+          "root_pane": 7
+        },
+        {
+          "custom_name": "Webshop Browser",
+          "layout": {
+            "Pane": 8
+          },
+          "panes": {
+            "8": {
+              "cwd": "@HOME@/siga/webshop"
+            }
+          },
+          "zoomed": false,
+          "focused": 8,
+          "root_pane": 8
+        }
+      ],
+      "active_tab": 0
+    },
+    {
+      "id": "w4",
+      "custom_name": "Nix Config",
+      "identity_cwd": "@HOME@/luix_nix_config",
+      "public_pane_numbers": {
+        "9": 1,
+        "10": 2,
+        "11": 3
+      },
+      "next_public_pane_number": 4,
+      "public_tab_numbers": [
+        1,
+        2,
+        3
+      ],
+      "next_public_tab_number": 4,
+      "tabs": [
+        {
+          "custom_name": "Nix Config Nvim",
           "layout": {
             "Pane": 9
           },
           "panes": {
             "9": {
-              "cwd": "@HOME@/siga/roiguard"
+              "cwd": "@HOME@/luix_nix_config"
             }
           },
           "zoomed": false,
@@ -47,47 +189,75 @@
           "root_pane": 9
         },
         {
-          "custom_name": "Roiguard CLI",
+          "custom_name": "Nix Config Codex",
           "layout": {
             "Pane": 10
           },
           "panes": {
             "10": {
-              "cwd": "@HOME@/siga/roiguard"
+              "cwd": "@HOME@/luix_nix_config"
             }
           },
           "zoomed": false,
           "focused": 10,
           "root_pane": 10
+        },
+        {
+          "custom_name": "Nix Config CLI",
+          "layout": {
+            "Pane": 11
+          },
+          "panes": {
+            "11": {
+              "cwd": "@HOME@/luix_nix_config"
+            }
+          },
+          "zoomed": false,
+          "focused": 11,
+          "root_pane": 11
         }
       ],
       "active_tab": 0
     },
     {
-      "id": "w3",
-      "custom_name": null,
-      "identity_cwd": "@HOME@/siga/webshop",
+      "id": "w5",
+      "custom_name": "Notes",
+      "identity_cwd": "@HOME@/notes",
       "public_pane_numbers": {
-        "13": 3,
-        "15": 5,
-        "14": 4
+        "12": 1,
+        "13": 2,
+        "14": 3
       },
-      "next_public_pane_number": 6,
+      "next_public_pane_number": 4,
       "public_tab_numbers": [
-        3,
-        4,
-        5
+        1,
+        2,
+        3
       ],
-      "next_public_tab_number": 6,
+      "next_public_tab_number": 4,
       "tabs": [
         {
-          "custom_name": "Webshop",
+          "custom_name": "Notes Nvim",
+          "layout": {
+            "Pane": 12
+          },
+          "panes": {
+            "12": {
+              "cwd": "@HOME@/notes"
+            }
+          },
+          "zoomed": false,
+          "focused": 12,
+          "root_pane": 12
+        },
+        {
+          "custom_name": "Notes Codex",
           "layout": {
             "Pane": 13
           },
           "panes": {
             "13": {
-              "cwd": "@HOME@/siga/webshop"
+              "cwd": "@HOME@/notes"
             }
           },
           "zoomed": false,
@@ -95,147 +265,25 @@
           "root_pane": 13
         },
         {
-          "custom_name": "Webshop Codex",
+          "custom_name": "Notes CLI",
           "layout": {
             "Pane": 14
           },
           "panes": {
             "14": {
-              "cwd": "@HOME@/siga/webshop"
+              "cwd": "@HOME@/notes"
             }
           },
           "zoomed": false,
           "focused": 14,
           "root_pane": 14
-        },
-        {
-          "custom_name": "Webshop CLI",
-          "layout": {
-            "Pane": 15
-          },
-          "panes": {
-            "15": {
-              "cwd": "@HOME@/siga/webshop"
-            }
-          },
-          "zoomed": false,
-          "focused": 15,
-          "root_pane": 15
-        }
-      ],
-      "active_tab": 2
-    },
-    {
-      "id": "w4",
-      "custom_name": null,
-      "identity_cwd": "@HOME@/luix_nix_config",
-      "public_pane_numbers": {
-        "20": 5,
-        "19": 4,
-        "16": 1
-      },
-      "next_public_pane_number": 6,
-      "public_tab_numbers": [
-        1,
-        4,
-        5
-      ],
-      "next_public_tab_number": 6,
-      "tabs": [
-        {
-          "custom_name": "Config",
-          "layout": {
-            "Pane": 16
-          },
-          "panes": {
-            "16": {
-              "cwd": "@HOME@/luix_nix_config"
-            }
-          },
-          "zoomed": false,
-          "focused": 16,
-          "root_pane": 16
-        },
-        {
-          "custom_name": "Config Codex",
-          "layout": {
-            "Pane": 19
-          },
-          "panes": {
-            "19": {
-              "cwd": "@HOME@/luix_nix_config"
-            }
-          },
-          "zoomed": false,
-          "focused": 19,
-          "root_pane": 19
-        },
-        {
-          "custom_name": "Config CLI",
-          "layout": {
-            "Pane": 20
-          },
-          "panes": {
-            "20": {
-              "cwd": "@HOME@/luix_nix_config"
-            }
-          },
-          "zoomed": false,
-          "focused": 20,
-          "root_pane": 20
-        }
-      ],
-      "active_tab": 1
-    },
-    {
-      "id": "w5",
-      "custom_name": null,
-      "identity_cwd": "@HOME@/notes",
-      "public_pane_numbers": {
-        "21": 1,
-        "23": 2
-      },
-      "next_public_pane_number": 3,
-      "public_tab_numbers": [
-        1,
-        2
-      ],
-      "next_public_tab_number": 3,
-      "tabs": [
-        {
-          "custom_name": "Notes",
-          "layout": {
-            "Pane": 21
-          },
-          "panes": {
-            "21": {
-              "cwd": "@HOME@/notes"
-            }
-          },
-          "zoomed": false,
-          "focused": 21,
-          "root_pane": 21
-        },
-        {
-          "custom_name": "Notes CLI",
-          "layout": {
-            "Pane": 23
-          },
-          "panes": {
-            "23": {
-              "cwd": "@HOME@/notes"
-            }
-          },
-          "zoomed": false,
-          "focused": 23,
-          "root_pane": 23
         }
       ],
       "active_tab": 0
     }
   ],
-  "active": 2,
-  "selected": 2,
+  "active": 0,
+  "selected": 0,
   "sidebar_width": 26,
   "sidebar_section_split": 0.5,
   "collapsed_space_keys": []

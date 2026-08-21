@@ -9,7 +9,7 @@ command = "nvim ."
 
 [[tabs]]
 name = "Remotion Codex"
-command = "codex-new"
+command = "codex"
 
 [[tabs]]
 name = "Remotion Kimi"
