@@ -94,9 +94,10 @@ in
     | `<leader>nc` | Open the Flashcards hub: Overview, Cards, and Stats |
 
     In the hub, use `1`/`2`/`3` or `Tab` to change page, `j`/`k` to move,
-    and Enter for the selected action. Press `?` for the complete local key
-    list. During review, use Space or Enter to reveal, `h` for a hint,
-    `1`/`2`/`3` to rate, `u` to undo, and `q` to close.
+    and Enter for the selected action. Press `?` in the hub, review window, or
+    add form for the shortcuts that work there. During review, use Space or
+    Enter to reveal, `h` for a hint, `1`/`2`/`3` to rate, `u` to undo, and `q`
+    to close.
 
     ## Problems, formatting, and tests
 
