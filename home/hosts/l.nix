@@ -31,6 +31,18 @@
 
   luix.godot.enable = true;
 
+  programs.graphify.projectRoots = [
+    "${config.home.homeDirectory}/projects/spatial-input"
+    "${config.home.homeDirectory}/projects/luix-bits-game"
+    "${config.home.homeDirectory}/projects/luixbits-roomplanner.nvim"
+    "${config.home.homeDirectory}/projects/luixbits-neorg-flashcards.nvim"
+    "${config.home.homeDirectory}/projects/motion_canvas_luix"
+    "${config.home.homeDirectory}/projects/LuixBitsVoice"
+    "${config.home.homeDirectory}/projects/LuixBitsRemotion"
+    "${config.home.homeDirectory}/projects/shorts-poc"
+    "${config.home.homeDirectory}/luix_nix_config"
+  ];
+
   home.activation.cleanupBrokenNvimConfig = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
     nvim_dir="${config.xdg.configHome}/nvim"
     if { [ -L "$nvim_dir" ] && [ ! -d "$nvim_dir" ]; } || { [ -e "$nvim_dir" ] && [ ! -d "$nvim_dir" ]; }; then

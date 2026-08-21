@@ -16,3 +16,6 @@ secrets/
 *.pfx
 *.kdbx
 gitleaks-report.*
+
+# Generated local Graphify knowledge graph.
+graphify-out/

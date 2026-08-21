@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   codexVersion = "0.149.0";
   codexPackage = pkgs.stdenvNoCC.mkDerivation {
@@ -63,10 +68,12 @@ let
 in
 {
   imports = [
+    ../graphify
     ../kimi-code
     ../sentry-cli
   ];
 
+  programs.graphify.enable = true;
   programs.kimiCode.enable = true;
   programs.sentryCli.enable = true;
 
