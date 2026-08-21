@@ -4,12 +4,12 @@ group = "System"
 working_dir = "~/luix_nix_config"
 
 [[tabs]]
-name = "Config"
+name = "Nix Config Nvim"
 command = "nvim ."
 
 [[tabs]]
-name = "Config Codex"
-command = "codex-new"
+name = "Nix Config Codex"
+command = "codex"
 
 [[tabs]]
-name = "Config CLI"
+name = "Nix Config CLI"

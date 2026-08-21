@@ -4,12 +4,16 @@ group = "SIGA"
 working_dir = "~/siga/webshop"
 
 [[tabs]]
-name = "Webshop"
+name = "Webshop Nvim"
 command = "nvim ."
 
 [[tabs]]
 name = "Webshop Codex"
-command = "codex-new"
+command = "codex"
 
 [[tabs]]
 name = "Webshop CLI"
+
+[[tabs]]
+name = "Webshop Browser"
+command = "herdr-browser-tab https://siga-webshop.local/ch-de"

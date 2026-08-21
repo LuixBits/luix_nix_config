@@ -1,13 +1,37 @@
-{ config, inputs, lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 let
-  pkgsUnstable = import inputs.nixpkgs-unstable {
-    system = pkgs.stdenv.hostPlatform.system;
-    config = {
-      allowUnfree = true;
-      allowUnsupportedSystem = true;
+  codexVersion = "0.149.0";
+  codexPackage = pkgs.stdenvNoCC.mkDerivation {
+    pname = "codex";
+    version = codexVersion;
+
+    src = pkgs.fetchurl {
+      url = "https://github.com/openai/codex/releases/download/rust-v${codexVersion}/codex-package-x86_64-unknown-linux-musl.tar.gz";
+      hash = "sha256-HAi6Jiggt41J6nqT8ya2tDC3Ll/kaDDkM+3vEuUSMkQ=";
+    };
+
+    sourceRoot = ".";
+    dontStrip = true;
+
+    installPhase = ''
+      runHook preInstall
+
+      mkdir -p "$out"
+      cp -R bin codex-path codex-resources codex-package.json "$out/"
+
+      runHook postInstall
+    '';
+
+    meta = {
+      description = "OpenAI Codex CLI official release bundle";
+      homepage = "https://github.com/openai/codex";
+      license = lib.licenses.asl20;
+      mainProgram = "codex";
+      platforms = [ "x86_64-linux" ];
     };
   };
-  codexPackage = pkgsUnstable.codex;
+  # Preserve the historical command while both names use the same current,
+  # declaratively pinned release.
   codexNew = pkgs.writeShellScriptBin "codex-new" ''
     exec ${codexPackage}/bin/codex "$@"
   '';
