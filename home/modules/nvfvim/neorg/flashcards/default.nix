@@ -25,10 +25,10 @@ in
       flashcards_dir = flashcardsDir;
       default_file = defaultFile;
       default_kind = "japanese";
+      ui.show_shortcuts = true;
     };
     keymaps = {
       enable = true;
-      mode = "hub";
       prefix = "<leader>nc";
     };
   };
