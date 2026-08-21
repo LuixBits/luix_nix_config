@@ -121,16 +121,16 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1787238619,
-        "narHash": "sha256-0BpEEQaALytGqaDm8njvHT7uCkuTutND17RZ/rUcRkk=",
+        "lastModified": 1787340729,
+        "narHash": "sha256-kjT0R2FST9n2nvsRFkaCG08TPCDnvMC8d8/AdGiIyTs=",
         "owner": "LuixBits",
         "repo": "luixbits-neorg-flashcards.nvim",
-        "rev": "d9eb13f6925b4f0f0fb33350fc02b10fa0fbeb32",
+        "rev": "a1d5ee0c129c6d5633264c97b280366ccc057dfc",
         "type": "github"
       },
       "original": {
         "owner": "LuixBits",
-        "ref": "develop",
+        "ref": "feature/unified-flashcards-hub",
         "repo": "luixbits-neorg-flashcards.nvim",
         "type": "github"
       }
@@ -372,11 +372,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1787322198,
-        "narHash": "sha256-MlaZ6QFcTtx1DGvE1NGjtd3067KqhNTgAXYWAfBrrZk=",
+        "lastModified": 1787336864,
+        "narHash": "sha256-ITJ2a5gbWjrG8DHX1XKrNo5TEpaJYBG+KQA5Hlvlkt0=",
         "owner": "notashelf",
         "repo": "nvf",
-        "rev": "83d781d065b1b584baaf40436cbad6559ff14a8a",
+        "rev": "af19044ebe20d43f4fc4d4851e8c78760a9a2d46",
         "type": "github"
       },
       "original": {
