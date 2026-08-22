@@ -7,7 +7,6 @@
 let
   notesDir = "${config.home.homeDirectory}/notes";
   flashcardsDir = "${notesDir}/japanese/flashcards";
-  defaultFile = "${flashcardsDir}/cards.norg";
 in
 {
   imports = [
@@ -20,11 +19,20 @@ in
 
   programs.nvf.neorg-flashcards = {
     enable = true;
-    schemaPresets = [ "japanese" ];
+    schemaPresets.japanese = [
+      "japanese"
+      "japanese_production"
+      "japanese_kanji"
+      "japanese_sentence"
+    ];
     setupOpts = {
-      flashcards_dir = flashcardsDir;
-      default_file = defaultFile;
-      default_kind = "japanese";
+      default_collection = "japanese";
+      collections.japanese = {
+        label = "Japanese";
+        path = flashcardsDir;
+        default_file = "cards.norg";
+        default_card_type = "japanese";
+      };
       ui.show_shortcuts = true;
     };
     keymaps = {
