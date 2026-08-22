@@ -121,11 +121,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1787390335,
-        "narHash": "sha256-IdU3wOkEmW+/0wJmYl0vnh+s759V5ZWesNZucPW2vfE=",
+        "lastModified": 1787392145,
+        "narHash": "sha256-6LhPaYtpGurBr5ZbhcfkI3ZR/hUt1isijqRcigCQyPU=",
         "owner": "LuixBits",
         "repo": "luixbits-neorg-flashcards.nvim",
-        "rev": "422f02b1f0f99f6d8e9f8135c8f53a79b11d47a0",
+        "rev": "bd2c050814595a2abda0ac19c1d0f9dc4e309c78",
         "type": "github"
       },
       "original": {
