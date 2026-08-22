@@ -121,18 +121,14 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1787416223,
-        "narHash": "sha256-JPdE9MDR4+h2kDuHt/w3UKBts5CFZ2aosEd/fzcAtNw=",
-        "owner": "LuixBits",
-        "repo": "luixbits-neorg-flashcards.nvim",
-        "rev": "89d691e13d53953d2e3489ca06c090e41c5d815a",
-        "type": "github"
+        "lastModified": 1787436774,
+        "narHash": "sha256-CwmNr04BIMjzJaGjBYLWcMfAOKjDZ6OJpEvlwOlTVRs=",
+        "path": "/home/luix/projects/luixbits-neorg-flashcards.nvim",
+        "type": "path"
       },
       "original": {
-        "owner": "LuixBits",
-        "ref": "v0.2.0",
-        "repo": "luixbits-neorg-flashcards.nvim",
-        "type": "github"
+        "path": "/home/luix/projects/luixbits-neorg-flashcards.nvim",
+        "type": "path"
       }
     },
     "luixbits-sentry": {

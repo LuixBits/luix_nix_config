@@ -93,17 +93,19 @@ in
     | --- | --- |
     | `<leader>nc` | Open the Flashcards hub: Overview, Cards, and Stats |
 
-    In the hub, use `1`/`2`/`3` or `Tab` to change page and `Ctrl-W W` to switch
-    panes. `j`/`k` move the main selection or scroll the focused pane;
-    `Ctrl-D`/`Ctrl-U` scroll half a page, and `gg`/`G` go to the top/bottom.
-    Press `?` in the hub, review window, or card form for the complete local
-    shortcuts. On Cards, `e` opens
-    structured editing, `c` opens collection problems, and `D` asks before
-    deleting with a recovery backup. During review, use `Space` or `Enter` to
-    reveal, `h` for a hint, `1`/`2`/`3` to rate, `u` to undo, and `q` to close.
-    In the card form, use `Enter` to advance and `Ctrl-S` to save and return.
-    `Ctrl-N` saves and starts another card while adding; `q` or `Escape` closes
-    safely.
+    In the hub, use `1`/`2`/`3` or `Tab` to change page, `C` to switch subject,
+    and `Ctrl-W W` to switch panes. `j`/`k` move the main selection or scroll
+    the focused pane; `Ctrl-D`/`Ctrl-U` scroll half a page, and `gg`/`G` go to
+    the top or bottom. Press `?` for the complete local shortcuts, then search
+    that help with `/`, `n`, and `N`.
+
+    On Cards, `/` searches, `f` includes Card Clinic and card-type filters, `a`
+    adds, `e` opens structured editing, and `D` asks before deleting with a
+    recovery backup. During review, use `Space` or `Enter` to reveal, `h` for a
+    hint, `t` when a short typed check is available, `1`/`2`/`3` to rate, and
+    `u` to undo. In the card form, `Enter` opens long fields or advances,
+    `Ctrl-S` saves, and `Ctrl-N` saves and starts another card. `q` or `Escape`
+    closes safely.
 
     ## Problems, formatting, and tests
 
