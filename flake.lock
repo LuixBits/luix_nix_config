@@ -121,16 +121,16 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1787392145,
-        "narHash": "sha256-6LhPaYtpGurBr5ZbhcfkI3ZR/hUt1isijqRcigCQyPU=",
+        "lastModified": 1787416223,
+        "narHash": "sha256-JPdE9MDR4+h2kDuHt/w3UKBts5CFZ2aosEd/fzcAtNw=",
         "owner": "LuixBits",
         "repo": "luixbits-neorg-flashcards.nvim",
-        "rev": "bd2c050814595a2abda0ac19c1d0f9dc4e309c78",
+        "rev": "89d691e13d53953d2e3489ca06c090e41c5d815a",
         "type": "github"
       },
       "original": {
         "owner": "LuixBits",
-        "ref": "feature/unified-flashcards-hub",
+        "ref": "v0.2.0",
         "repo": "luixbits-neorg-flashcards.nvim",
         "type": "github"
       }

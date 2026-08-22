@@ -20,7 +20,7 @@ in
 
   programs.nvf.neorg-flashcards = {
     enable = true;
-    languagePresets = [ "japanese" ];
+    schemaPresets = [ "japanese" ];
     setupOpts = {
       flashcards_dir = flashcardsDir;
       default_file = defaultFile;
