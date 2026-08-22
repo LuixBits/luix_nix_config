@@ -93,11 +93,14 @@ in
     | --- | --- |
     | `<leader>nc` | Open the Flashcards hub: Overview, Cards, and Stats |
 
-    In the hub, use `1`/`2`/`3` or `Tab` to change page, `j`/`k` to move,
-    and Enter for the selected action. Press `?` in the hub, review window, or
-    add form for the shortcuts that work there. During review, use Space or
-    Enter to reveal, `h` for a hint, `1`/`2`/`3` to rate, `u` to undo, and `q`
-    to close.
+    In the hub, use `1`/`2`/`3` or `Tab` to change page. `j`/`k` move the main
+    selection or scroll the focused side pane; Ctrl-D/Ctrl-U scroll half a
+    page, and `gg`/`G` go to the top/bottom. Press `?` in the hub, review
+    window, or add form for the complete local shortcuts. During review, use
+    Space or Enter to reveal, `h` for a hint, `1`/`2`/`3` to rate, `u` to undo,
+    and `q` to close. In the add form, use Enter to advance, Ctrl-S to save and
+    return, Ctrl-N to save and start another card, and `q` or Escape to close
+    safely.
 
     ## Problems, formatting, and tests
 
