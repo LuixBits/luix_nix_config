@@ -5,10 +5,21 @@
 - Never run `home-manager switch` or execute a Home Manager activation package
   directly, including an `activate` script from the Nix store.
 - Agents may inspect, edit, and validate configuration without activation.
-- After changes that require a rebuild, provide the exact normal NixOS flake
-  command for the target host, such as `sudo nixos-rebuild switch --flake .#l`,
-  and ask the user to run it in their terminal. Do not try an alternative
-  activation path.
+- Before suggesting any host-specific Nix command, read the live hostname from
+  both `hostname` and `/proc/sys/kernel/hostname`; also check `/etc/hostname`
+  when available. Never copy a host from an example, repository default, prior
+  turn, or previously evaluated configuration.
+- Verify that `nixosConfigurations.<hostname>.config.networking.hostName`
+  evaluates to the same live hostname. A successful all-host flake check does
+  not select an activation target. If identity cannot be verified, do not give
+  or run an actionable activation command.
+- Before a local activation handoff, also compare the target's configured `/`
+  and `/boot` devices with the live mount UUIDs. Use the existing filesystem
+  preflight logic as the source of truth and refuse any mismatch.
+- After changes that require a rebuild, provide one exact normal NixOS flake
+  command containing the verified host and ask the user to run it in their
+  terminal. Do not offer alternative host targets or try another activation
+  path.
 
 ## Graphify knowledge graph
 
