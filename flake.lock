@@ -121,7 +121,7 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1787498888,
+        "lastModified": 1787510472,
         "narHash": "sha256-Fhuy3wU5LJi6M6OK7JaahB/Krk8Dw1VXZR57Y8xHMqk=",
         "path": "/home/luix/projects/luixbits-neorg-flashcards.nvim",
         "type": "path"
