@@ -93,6 +93,11 @@ in
     | --- | --- |
     | `<leader>nc` | Open the Flashcards hub: Overview, Cards, and Stats |
 
+    Japanese and Computer Science are separate collections, each with one
+    straightforward card form. Add another collection in
+    `home/modules/nvfvim/neorg/flashcards/default.nix`, rebuild, then use `C`
+    to switch to it. `C` does not create configuration.
+
     In the hub, use `1`/`2`/`3` or `Tab` to change page, `C` to switch subject,
     and `Ctrl-W W` to switch panes. `j`/`k` move the main selection or scroll
     the focused pane; `Ctrl-D`/`Ctrl-U` scroll half a page, and `gg`/`G` go to
