@@ -529,6 +529,16 @@ let
   '';
 in
 {
+  home.file.".agents/skills/verify-nixos-host" = {
+    source = ./skill;
+    force = true;
+  };
+
+  home.file.".codex/skills/verify-nixos-host" = {
+    source = ./skill;
+    force = true;
+  };
+
   home.packages = [
     buildall
     flakeonly

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify NixOS Host"
+  short_description: "Prevent wrong-host NixOS rebuild targets"
+  default_prompt: "Use $verify-nixos-host to verify this machine before giving me a NixOS rebuild command."
