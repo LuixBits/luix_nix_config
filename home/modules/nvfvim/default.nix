@@ -87,6 +87,31 @@ in
     | `gcc` | Toggle a line comment |
     | `gc` plus a motion | Toggle comments over that motion |
 
+    ## Flashcards
+
+    | Key | Action |
+    | --- | --- |
+    | `<leader>nc` | Open the Flashcards hub: Overview, Cards, and Stats |
+
+    Japanese and Computer Science are separate collections, each with one
+    straightforward card form. Add another collection in
+    `home/modules/nvfvim/neorg/flashcards/default.nix`, rebuild, then use `C`
+    to switch to it. `C` does not create configuration.
+
+    In the hub, use `1`/`2`/`3` or `Tab` to change page, `C` to switch subject,
+    and `Ctrl-W W` to switch panes. `j`/`k` move the main selection or scroll
+    the focused pane; `Ctrl-D`/`Ctrl-U` scroll half a page, and `gg`/`G` go to
+    the top or bottom. Press `?` for the complete local shortcuts, then search
+    that help with `/`, `n`, and `N`.
+
+    On Cards, `/` searches, `f` includes Card Clinic and card-type filters, `a`
+    adds, `e` opens structured editing, and `D` asks before deleting with a
+    recovery backup. During review, use `Space` or `Enter` to reveal, `h` for a
+    hint, `t` when a short typed check is available, `1`/`2`/`3` to rate, and
+    `u` to undo. In the card form, `Enter` opens long fields or advances,
+    `Ctrl-S` saves, and `Ctrl-N` saves and starts another card. `q` or `Escape`
+    closes safely.
+
     ## Problems, formatting, and tests
 
     | Key | Action |
