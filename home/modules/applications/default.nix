@@ -86,6 +86,7 @@ in
     herdrNormalChromium
     gnome-disk-utility
     gimp-with-plugins
+    impression
     libreoffice
     nautilus
     obs-studio
