@@ -415,7 +415,7 @@ let
           ])
           [ "w1" "w3" "w4" "w5" ]
         ++ [
-          { pane = "w1:p4"; command = "${herdrBrowserTab}/bin/herdr-browser-tab https://roi.local"; }
+          { pane = "w1:p4"; command = "${herdrBrowserTab}/bin/herdr-browser-tab 'https://roi.local?dev=1'"; }
           { pane = "w3:p4"; command = "${herdrBrowserTab}/bin/herdr-browser-tab https://siga-webshop.local/ch-de"; }
         ];
       # Select every workspace's Neovim tab and finish on Roiguard.

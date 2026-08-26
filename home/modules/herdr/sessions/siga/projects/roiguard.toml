@@ -16,4 +16,4 @@ name = "Roiguard CLI"
 
 [[tabs]]
 name = "Roiguard Browser"
-command = "herdr-browser-tab https://roi.local"
+command = "herdr-browser-tab 'https://roi.local?dev=1'"
