@@ -24,8 +24,8 @@
     # Herdr terminal workflow
     herdr.url = "github:herdrdev/herdr/v0.8.2";
 
-    # Neorg flashcards plugin and NVF module
-    luixbits-neorg-flashcards.url = "github:LuixBits/luixbits-neorg-flashcards.nvim/develop";
+    # Use the local v0.3 checkout until the release tag exists.
+    luixbits-neorg-flashcards.url = "path:/home/luix/projects/luixbits-neorg-flashcards.nvim";
 
     # Sentry plugin and NVF module
     luixbits-sentry.url = "github:LuixBits/luixbits-sentry.nvim";
