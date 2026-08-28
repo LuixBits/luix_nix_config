@@ -12,12 +12,8 @@
     ./hardware-configuration.nix
   ];
 
-  networking.hostName = "pc";
-
   hardware.spatial-input.enable = true;
 
-  # Use the newer USB4/Thunderbolt stack for the TS5 Plus dock.
-  boot.kernelPackages = pkgs.linuxPackages_6_18;
   boot.initrd.availableKernelModules = [ "thunderbolt" ];
   boot.kernelParams = [
     # Same firmware reboot workaround used on the work host.
@@ -57,4 +53,6 @@
     pciutils
     rocmPackages.rocminfo
   ];
+
+  system.stateVersion = "25.11";
 }

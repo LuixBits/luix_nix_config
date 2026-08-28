@@ -1,21 +1,15 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ config, lib, ... }:
 {
   nixpkgs.config.allowUnfree = true;
 
-  home.username = "luix";
-  home.homeDirectory = "/home/luix";
+  home.username = "luiz";
+  home.homeDirectory = "/home/luiz";
   home.stateVersion = "25.11";
 
   imports = [
     ../modules/applications
     ../modules/cli
     ../modules/programming
-    ../modules/spatial-input-development
     ../modules/herdr
     ../modules/kitty
     ../modules/buildandpush
@@ -28,21 +22,13 @@
     ../modules/niri
     ../modules/qutebrowser
     ../modules/kdenlive
-    ../modules/prismlauncher
     ../modules/nvfvim
-    ../modules/flatpak
+    ../modules/virt-manager
+    ../modules/teams
+    ../modules/work
   ];
 
   luix.godot.enable = true;
-  luix.spatialInputDevelopment.enable = true;
-
-  # Native Wayland corrupts Firefox's chrome texture cache on this GPU,
-  # hiding tab titles, URL text, and bookmark labels. XWayland renders it correctly.
-  home.sessionVariables.MOZ_ENABLE_WAYLAND = "0";
-
-  home.packages = with pkgs; [
-    protonup-qt
-  ];
 
   home.activation.cleanupBrokenNvimConfig = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
     nvim_dir="${config.xdg.configHome}/nvim"
@@ -59,7 +45,7 @@
   xdg.enable = true;
   fonts.fontconfig.enable = true;
 
-  # ensure ~/.nix-profile points at the managed Home Manager profile so packages resolve
+  # Ensure ~/.nix-profile points at the managed Home Manager profile.
   home.file.".nix-profile" = {
     source = config.home.path;
     force = true;

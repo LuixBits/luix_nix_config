@@ -1,20 +1,13 @@
-{ lib, pkgs, ... }:
+{ lib, ... }:
 {
   imports = [
     ./hardware-configuration.nix
     ../common/base.nix
     ../../audiofix.nix
+    ../roles/work.nix
     ../features/hardware-intel.nix
-    ../features/virt-manager.nix
-    ../features/work/appimage.nix
-    ../features/work/cx.nix
     # ../features/work/pia-manual.nix
   ];
-
-  networking.hostName = "work";
-  networking.extraHosts = ''
-    127.0.0.1 siga-webshop.local siga-blog.local roi.local webauth.local
-  '';
 
   # services.piaManual = {
   #   # Keep credentials out of git by storing them in /run/secrets/pia.env.
@@ -22,14 +15,10 @@
   #   runAfterLoginForUser = "luiz";
   # };
 
-  # Shared common/base defines user `luix`; disable it on work to keep a single user.
-  users.users.luix.enable = lib.mkForce false;
-
-  services.flatpak.enable = true;
-  services.xserver.videoDrivers = lib.mkForce [ "nvidia" "modesetting" ];
-
-  # Use the newer stable kernel's USB4/Thunderbolt stack for the TS5 Plus dock.
-  boot.kernelPackages = pkgs.linuxPackages_6_18;
+  services.xserver.videoDrivers = lib.mkForce [
+    "nvidia"
+    "modesetting"
+  ];
 
   # Ensure old DisplayLink modules never load on this host.
   boot.blacklistedKernelModules = [ "evdi" ];
@@ -52,17 +41,5 @@
     PowerKeyIgnoreInhibited = true;
   };
 
-  users.users.luiz = {
-    isNormalUser = true;
-    description = "Luiz";
-    uid = 1000;
-    home = "/home/luiz";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
-  };
-
-  nixpkgs.config = {
-    allowUnsupportedSystem = true;
-  };
-
-  system.stateVersion = lib.mkForce "25.11";
+  system.stateVersion = "25.11";
 }

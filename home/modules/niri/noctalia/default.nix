@@ -1,21 +1,48 @@
-{ config, inputs, lib, pkgs, hostName ? null, ... }:
+{
+  config,
+  inputs,
+  lib,
+  machine ? null,
+  pkgs,
+  role ? null,
+  ...
+}:
 let
-  wallpaperDir = "/home/luix/Pictures/Wallpapers";
-  localPluginSourceDir = "${config.home.homeDirectory}/projects/noctalia-plugins";
+  wallpaperDir = "${config.home.homeDirectory}/Pictures/Wallpapers";
   defaultWallpaper = "${wallpaperDir}/autumn-trees-forest-aerial-view-birds-eye-view-green-trees-3840x2160-3153.jpg";
   lockscreenWallpaper = "${wallpaperDir}/gameboy-retro-3840x2160-13655.jpg";
 
   sharedSettings = {
+    accessibility.ui_scale = 1.35;
+
     bar.default = {
-      center = [ "group:g1" "cat" ];
-      end = [ "notifications" "volume" "brightness" "battery" "control-center" "session" ];
+      center = [
+        "group:g1"
+        "cat"
+      ];
+      end = [
+        "notifications"
+        "volume"
+        "brightness"
+        "battery"
+        "control-center"
+        "session"
+      ];
       font_weight = 700;
       margin_edge = 0;
       margin_ends = 0;
       padding = 12;
       radius = 0;
       scale = 1.15;
-      start = [ "launcher" "casio_deck" "wallpaper" "cpu" "temp" "network" "ram" ];
+      start = [
+        "launcher"
+        "casio_deck"
+        "wallpaper"
+        "cpu"
+        "temp"
+        "network"
+        "ram"
+      ];
       thickness = 43;
       widget_spacing = 9;
 
@@ -23,7 +50,10 @@ let
         {
           fill = "surface_variant";
           id = "g1";
-          members = [ "clipboard" "clock" ];
+          members = [
+            "clipboard"
+            "clock"
+          ];
           opacity = 1.0;
           padding = 6.0;
         }
@@ -33,7 +63,11 @@ let
     desktop_widgets.enabled = false;
 
     idle = {
-      behavior_order = [ "lock" "screen-off" "lock-and-suspend" ];
+      behavior_order = [
+        "lock"
+        "screen-off"
+        "lock-and-suspend"
+      ];
 
       behavior = {
         lock = {
@@ -67,34 +101,36 @@ let
     osd.position = "top_right";
 
     plugins = {
-      enabled = [ "noctalia/bongocat" "luixbits/casio-deck" ];
+      auto_update = "all";
+      enabled = [
+        "noctalia/bongocat"
+        "luixbits/casio-deck"
+      ];
       source = [
         {
-          auto_update = true;
           kind = "git";
           location = "https://github.com/noctalia-dev/official-plugins";
           name = "official";
         }
         {
-          auto_update = true;
           kind = "git";
           location = "https://github.com/noctalia-dev/community-plugins";
           name = "community";
         }
         {
-          auto_update = false;
-          kind = "path";
-          location = localPluginSourceDir;
-          name = "local-dev";
+          kind = "git";
+          location = "https://github.com/LuixBits/luixbits-noctalia-plugins";
+          name = "luixbits";
         }
       ];
     };
 
     plugin_settings."luixbits/casio-deck" = {
       watch_model = "casio_abl100we_3565";
-      helper_command = "${localPluginSourceDir}/scripts/helper/run-abl100-helper.sh --model abl100we --listener --app-info-profile smart-sync --scan-timeout 60 --connect-timeout 25 --app-init-timeout 25 --reconnect-delay 2";
-      stop_command = "${localPluginSourceDir}/scripts/helper/stop-abl100-helper.sh";
-      pair_command = "${localPluginSourceDir}/scripts/helper/run-abl100-helper.sh --model abl100we --setup-pairing --app-info-profile smart-sync --sync-time-on-connect --once --debug --scan-timeout 90 --connect-timeout 25 --app-init-timeout 25";
+      # Empty overrides let the portable plugin resolve its bundled helpers.
+      helper_command = "";
+      stop_command = "";
+      pair_command = "";
       saved_watch_address = "FC:51:1B:85:68:53";
       saved_watch_name = "CASIO ABL-100WE";
       autostart_helper = true;
@@ -109,16 +145,15 @@ let
       corner_radius_scale = 0.0;
       font_family = "Hurmit Nerd Font Mono";
       launch_apps_as_systemd_services = true;
-      polkit_agent = true;
+      # The dedicated KDE agent from ../polkit owns authentication prompts.
+      polkit_agent = false;
       settings_show_advanced = true;
-      ui_scale = 1.35;
 
       animation.speed = 1.5;
 
       panel = {
         clipboard_placement = "attached";
         launcher_placement = "attached";
-        launcher_session_search = true;
       };
 
       shadow.alpha = 0.5;
@@ -129,7 +164,12 @@ let
 
       templates = {
         builtin_ids = [ "kitty" ];
-        community_ids = [ "neovim" "obsidian" "steam" "yazi" ];
+        community_ids = [
+          "neovim"
+          "obsidian"
+          "steam"
+          "yazi"
+        ];
       };
     };
 
@@ -153,7 +193,18 @@ let
     };
   };
 
-  perHostSettings = {
+  perRoleSettings = {
+    work = {
+      shell = {
+        animation.enabled = false;
+        launcher.pinned = [ "teams-web" ];
+        shadow.alpha = 0.0;
+      };
+      backdrop.enabled = false;
+    };
+  };
+
+  perMachineSettings = {
     l = {
       dock.monitors = [ "eDP-1" ];
 
@@ -242,11 +293,21 @@ let
       dock.monitors = [ "HDMI-A-2" ];
     };
 
-    work = {
-      shell.animation.enabled = false;
-      shell.shadow.alpha = 0.0;
-      dock.monitors = [ "DP-2" "DP-1" "eDP-1" ];
-      backdrop.enabled = false;
+    framework = {
+      dock = {
+        enabled = true;
+        active_monitor_only = true;
+        launcher_position = "start";
+        pinned = [ "teams-web" ];
+      };
+    };
+
+    surface = {
+      dock.monitors = [
+        "DP-2"
+        "DP-1"
+        "eDP-1"
+      ];
       desktop_widgets = {
         enabled = true;
         schema_version = 2;
@@ -265,13 +326,16 @@ let
     };
   };
 
-  hostSettings =
-    if hostName != null && builtins.hasAttr hostName perHostSettings then
-      perHostSettings.${hostName}
+  roleSettings =
+    if role != null && builtins.hasAttr role perRoleSettings then perRoleSettings.${role} else { };
+
+  machineSettings =
+    if machine != null && builtins.hasAttr machine perMachineSettings then
+      perMachineSettings.${machine}
     else
       { };
 
-  noctaliaSettings = lib.recursiveUpdate sharedSettings hostSettings;
+  noctaliaSettings = lib.recursiveUpdate (lib.recursiveUpdate sharedSettings roleSettings) machineSettings;
 
   noctaliaIpc = pkgs.writeShellScriptBin "noctalia-ipc" ''
     set -eu
@@ -296,8 +360,14 @@ in
   # supported user service to PipeWire so a daemon restart also refreshes the
   # shell's device list instead of leaving the control center disconnected.
   systemd.user.services.noctalia.Unit = {
-    Wants = [ "pipewire.service" "wireplumber.service" ];
-    After = [ "pipewire.service" "wireplumber.service" ];
+    Wants = [
+      "pipewire.service"
+      "wireplumber.service"
+    ];
+    After = [
+      "pipewire.service"
+      "wireplumber.service"
+    ];
     PartOf = [ "pipewire.service" ];
   };
 

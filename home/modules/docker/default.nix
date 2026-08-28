@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   home.packages = with pkgs; [
-    docker_29
+    docker
     docker-compose
   ];
 }

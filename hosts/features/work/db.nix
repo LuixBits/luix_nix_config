@@ -2,7 +2,7 @@
 {
   services.mysql = {
     enable = true;
-    package = pkgs.mariadb_114;
+    package = pkgs.mariadb;
 
     settings.mysqld = {
       # Work databases are local development state. Do not expose them to the

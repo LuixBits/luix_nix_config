@@ -1,7 +1,12 @@
-{ pkgs, lib, ... }:
+{
+  lib,
+  networkHostName ? "pc",
+  pkgs,
+  ...
+}:
 let
   defaultFlake = "/etc/nixos";
-  defaultHost = "pc";
+  defaultHost = networkHostName;
   scriptPath = lib.makeBinPath [
     pkgs.bash
     pkgs.coreutils
@@ -10,6 +15,7 @@ let
     pkgs.gitleaks
     pkgs.gnugrep
     pkgs.gnused
+    pkgs.hostname
     pkgs.jq
     pkgs.nix
     pkgs.nixos-rebuild
@@ -173,6 +179,50 @@ let
     warn()  { printf "\033[1;33m[WARN]\033[0m %s\n"  "$*"; }
     error() { printf "\033[1;31m[ERR ]\033[0m %s\n"  "$*" >&2; }
 
+    read_live_hostname() {
+      local command_name proc_name etc_name
+      command_name="$(hostname | tr -d '[:space:]')"
+      proc_name="$(tr -d '[:space:]' < /proc/sys/kernel/hostname)"
+
+      if [[ -z "$command_name" || -z "$proc_name" || "$command_name" != "$proc_name" ]]; then
+        error "Preflight failed: hostname sources disagree (hostname='$command_name', /proc='$proc_name')."
+        return 1
+      fi
+
+      if [[ -r /etc/hostname ]]; then
+        etc_name="$(tr -d '[:space:]' < /etc/hostname)"
+        if [[ -z "$etc_name" || "$command_name" != "$etc_name" ]]; then
+          error "Preflight failed: /etc/hostname disagrees (live='$command_name', /etc='$etc_name')."
+          return 1
+        fi
+      fi
+
+      printf '%s' "$command_name"
+    }
+
+    preflight_host_identity() {
+      local target="$1"
+      local live_host configured_host host_attr
+
+      live_host="$(read_live_hostname)" || return 1
+      if [[ "$target" != "$live_host" ]]; then
+        error "Preflight failed: target '$target' is not this machine's live hostname '$live_host'."
+        return 1
+      fi
+
+      host_attr="''${FLAKE_REF}#nixosConfigurations.''${target}.config.networking.hostName"
+      if ! configured_host="$(nix eval --raw "$host_attr" 2>/dev/null)"; then
+        error "Preflight failed: nixosConfigurations.$target is not defined."
+        return 1
+      fi
+      if [[ "$configured_host" != "$live_host" ]]; then
+        error "Preflight failed: target '$target' configures hostname '$configured_host', not '$live_host'."
+        return 1
+      fi
+
+      info "Preflight OK: live and configured hostname both match ($live_host)."
+    }
+
     check_fs_match() {
       local mountpoint="$1"
       local expected_dev="$2"
@@ -236,13 +286,10 @@ let
 
     FLAKE_RAW="''${CONFIG_FLAKE:-${defaultFlake}}"
     if [[ -d "$FLAKE_RAW" ]]; then
-      if [[ "$FLAKE_RAW" == "/etc/nixos" ]]; then
-        # Keep /etc/nixos as a standard flake ref (symlink-friendly).
-        FLAKE_REF="$FLAKE_RAW"
-      else
-        # For local dev paths, include uncommitted files via path:.
-        FLAKE_REF="path:$FLAKE_RAW"
-      fi
+      # Always resolve local directories through path:. Git-style local flake
+      # refs omit untracked files, including generated hardware configuration
+      # during the first Framework switch.
+      FLAKE_REF="path:$(readlink -f "$FLAKE_RAW")"
     else
       FLAKE_REF="$FLAKE_RAW"
     fi
@@ -250,15 +297,20 @@ let
 
     if [[ $# -gt 0 ]]; then
       case "$1" in
-        l|pc|work)
+        framework|l|pc|work)
           HOST="$1"
           shift
+          ;;
+        *)
+          error "Usage: flakeonly [framework|l|pc|work]"
+          exit 2
           ;;
       esac
     fi
 
+    nix flake update --flake "$FLAKE_REF"
+    preflight_host_identity "$HOST"
     preflight_fs_guard "$HOST"
-    nix flake update --flake "$FLAKE_RAW"
     sudo nixos-rebuild switch --flake "''${FLAKE_REF}#''${HOST}"
   '';
 
@@ -280,6 +332,50 @@ let
     info()  { printf "\033[1;34m[INFO]\033[0m %s\n"  "$*"; }
     warn()  { printf "\033[1;33m[WARN]\033[0m %s\n"  "$*"; }
     error() { printf "\033[1;31m[ERR ]\033[0m %s\n"  "$*" >&2; }
+
+    read_live_hostname() {
+      local command_name proc_name etc_name
+      command_name="$(hostname | tr -d '[:space:]')"
+      proc_name="$(tr -d '[:space:]' < /proc/sys/kernel/hostname)"
+
+      if [[ -z "$command_name" || -z "$proc_name" || "$command_name" != "$proc_name" ]]; then
+        error "Preflight failed: hostname sources disagree (hostname='$command_name', /proc='$proc_name')."
+        return 1
+      fi
+
+      if [[ -r /etc/hostname ]]; then
+        etc_name="$(tr -d '[:space:]' < /etc/hostname)"
+        if [[ -z "$etc_name" || "$command_name" != "$etc_name" ]]; then
+          error "Preflight failed: /etc/hostname disagrees (live='$command_name', /etc='$etc_name')."
+          return 1
+        fi
+      fi
+
+      printf '%s' "$command_name"
+    }
+
+    preflight_host_identity() {
+      local target="$1"
+      local live_host configured_host host_attr
+
+      live_host="$(read_live_hostname)" || return 1
+      if [[ "$target" != "$live_host" ]]; then
+        error "Preflight failed: target '$target' is not this machine's live hostname '$live_host'."
+        return 1
+      fi
+
+      host_attr="''${FLAKE_REF}#nixosConfigurations.''${target}.config.networking.hostName"
+      if ! configured_host="$(nix eval --raw "$host_attr" 2>/dev/null)"; then
+        error "Preflight failed: nixosConfigurations.$target is not defined."
+        return 1
+      fi
+      if [[ "$configured_host" != "$live_host" ]]; then
+        error "Preflight failed: target '$target' configures hostname '$configured_host', not '$live_host'."
+        return 1
+      fi
+
+      info "Preflight OK: live and configured hostname both match ($live_host)."
+    }
 
     git_repo() {
       local dir="$1"
@@ -463,18 +559,15 @@ let
 
     FLAKE_RAW="''${CONFIG_FLAKE:-${defaultFlake}}"
     if [[ -d "$FLAKE_RAW" ]]; then
-      if [[ "$FLAKE_RAW" == "/etc/nixos" ]]; then
-        # Keep /etc/nixos as a standard flake ref (symlink-friendly).
-        FLAKE_REF="$FLAKE_RAW"
-      else
-        # For local dev paths, include uncommitted files via path:.
-        FLAKE_REF="path:$FLAKE_RAW"
-      fi
+      # Always resolve local directories through path:. Git-style local flake
+      # refs omit untracked files, including generated hardware configuration
+      # during the first Framework switch.
+      FLAKE_REF="path:$(readlink -f "$FLAKE_RAW")"
     else
       FLAKE_REF="$FLAKE_RAW"
     fi
     usage() {
-      echo "Usage: buildall [--sync-noctalia] <pc|l|work> [commit-message...]" >&2
+      echo "Usage: buildall [--sync-noctalia] <framework|l|pc|work> [commit-message...]" >&2
       exit 2
     }
 
@@ -487,7 +580,7 @@ let
           SYNC_NOCTALIA=1
           shift
           ;;
-        pc|l|work)
+        framework|l|pc|work)
           HOST="$1"
           shift
           break
@@ -504,19 +597,15 @@ let
 
     sync_flake_repo "$FLAKE_RAW"
 
-    if ! nix eval --raw "''${FLAKE_REF}#nixosConfigurations.''${HOST}.config.networking.hostName" >/dev/null 2>&1; then
-      echo "Host '$HOST' is not defined in this flake." >&2
-      exit 1
-    fi
-
     MSG="''${*:-update: $(date -Iseconds)}"
 
     if [[ "$SYNC_NOCTALIA" -eq 1 ]]; then
       syncnoctalia "$HOST"
     fi
 
+    nix flake update --flake "$FLAKE_REF"
+    preflight_host_identity "$HOST"
     preflight_fs_guard "$HOST"
-    nix flake update --flake "$FLAKE_RAW"
     sudo nixos-rebuild switch --flake "''${FLAKE_REF}#''${HOST}"
     pushconfigs "$MSG"
   '';
