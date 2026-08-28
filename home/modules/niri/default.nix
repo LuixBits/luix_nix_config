@@ -1,8 +1,17 @@
-{ config, pkgs, lib, hostName ? null, ... }:
+{
+  config,
+  lib,
+  machine ? null,
+  pkgs,
+  role ? null,
+  ...
+}:
 let
-  isWorkProfile = hostName == "work" || (hostName == null && config.home.username == "luiz");
-  isLaptopProfile = hostName == "l";
-  isPcProfile = hostName == "pc";
+  isWorkRole = role == "work";
+  isFrameworkMachine = machine == "framework";
+  isSurfaceMachine = machine == "surface";
+  isLaptopProfile = machine == "l";
+  isPcProfile = machine == "pc";
   laptopInternalOutput = "eDP-1";
   sharedMainOutput = "PNP(BNQ) BenQ EX3415R R7M0014701Q";
   sharedRightPortraitOutput = "LG Electronics LG HDR 4K 405NTQDBG628";
@@ -30,10 +39,13 @@ let
             position x=5086 y=0
         }
       ''
-    else if isWorkProfile then
+    else if isWorkRole && isSurfaceMachine then
       # Shikane owns all work-host output positions. Keeping a second set of
       # positions here makes hot-plug events race and can leave Niri with a
       # large, stale global coordinate offset.
+      ""
+    else if isWorkRole && isFrameworkMachine then
+      # Shikane owns the Framework panel and work-display layouts.
       ""
     else if isPcProfile then
       ''
@@ -66,7 +78,7 @@ let
         }
       '';
   workRenderConfig =
-    if isWorkProfile then
+    if isWorkRole && isSurfaceMachine then
       ''
         // Keep work on the Intel render node: this is the only path that
         // consistently brings both DisplayLink outputs up.
@@ -77,21 +89,33 @@ let
     else
       "";
   baseConfig = builtins.readFile "${pkgs.niri.doc}/share/doc/niri/default-config.kdl";
-  noWaybarConfig = lib.replaceStrings [
-    "spawn-at-startup \"waybar\"\n"
-  ] [
-    ""
-  ] baseConfig;
-  noCommaConfig = lib.replaceStrings [
-    "    Mod+Comma  { consume-window-into-column; }\n"
-  ] [
-    ""
-  ] noWaybarConfig;
-  widthConfig = lib.replaceStrings [
-    "    Mod+Period { expel-window-from-column; }\n"
-  ] [
-    "    Mod+Period { set-column-width \"+10%\"; }\n"
-  ] noCommaConfig;
+  noWaybarConfig =
+    lib.replaceStrings
+      [
+        "spawn-at-startup \"waybar\"\n"
+      ]
+      [
+        ""
+      ]
+      baseConfig;
+  noCommaConfig =
+    lib.replaceStrings
+      [
+        "    Mod+Comma  { consume-window-into-column; }\n"
+      ]
+      [
+        ""
+      ]
+      noWaybarConfig;
+  widthConfig =
+    lib.replaceStrings
+      [
+        "    Mod+Period { expel-window-from-column; }\n"
+      ]
+      [
+        "    Mod+Period { set-column-width \"+10%\"; }\n"
+      ]
+      noCommaConfig;
   noctaliaLauncherBinds = ''
     Mod+Space hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-ipc" "panel-toggle" "launcher"; }
     Mod+D hotkey-overlay-title="Noctalia: Launcher" { spawn "noctalia-ipc" "panel-toggle" "launcher"; }
@@ -101,28 +125,44 @@ let
   noctaliaLockBind = ''
     Super+Alt+L hotkey-overlay-title="Noctalia: Lock" { spawn "noctalia-ipc" "session" "lock"; }
   '';
-  noFuzzelConfig = lib.replaceStrings [
-    "    Mod+D hotkey-overlay-title=\"Run an Application: fuzzel\" { spawn \"fuzzel\"; }\n"
-  ] [
-    "    ${noctaliaLauncherBinds}\n"
-  ] widthConfig;
-  noctaliaConfig = lib.replaceStrings [
-    "    Super+Alt+L hotkey-overlay-title=\"Lock the Screen: swaylock\" { spawn \"swaylock\"; }\n"
-  ] [
-    "    ${noctaliaLockBind}\n"
-  ] noFuzzelConfig;
-  kittyTerminalConfig = lib.replaceStrings [
-    "    Mod+T hotkey-overlay-title=\"Open a Terminal: alacritty\" { spawn \"alacritty\"; }\n"
-  ] [
-    "    Mod+T hotkey-overlay-title=\"Open a Terminal: kitty\" { spawn \"kitty\"; }\n"
-  ] noctaliaConfig;
-  noBrightnessConfig = lib.replaceStrings [
-    "    XF86MonBrightnessUp allow-when-locked=true { spawn \"brightnessctl\" \"--class=backlight\" \"set\" \"+10%\"; }\n"
-    "    XF86MonBrightnessDown allow-when-locked=true { spawn \"brightnessctl\" \"--class=backlight\" \"set\" \"10%-\"; }\n"
-  ] [
-    ""
-    ""
-  ] kittyTerminalConfig;
+  noFuzzelConfig =
+    lib.replaceStrings
+      [
+        "    Mod+D hotkey-overlay-title=\"Run an Application: fuzzel\" { spawn \"fuzzel\"; }\n"
+      ]
+      [
+        "    ${noctaliaLauncherBinds}\n"
+      ]
+      widthConfig;
+  noctaliaConfig =
+    lib.replaceStrings
+      [
+        "    Super+Alt+L hotkey-overlay-title=\"Lock the Screen: swaylock\" { spawn \"swaylock\"; }\n"
+      ]
+      [
+        "    ${noctaliaLockBind}\n"
+      ]
+      noFuzzelConfig;
+  kittyTerminalConfig =
+    lib.replaceStrings
+      [
+        "    Mod+T hotkey-overlay-title=\"Open a Terminal: alacritty\" { spawn \"alacritty\"; }\n"
+      ]
+      [
+        "    Mod+T hotkey-overlay-title=\"Open a Terminal: kitty\" { spawn \"kitty\"; }\n"
+      ]
+      noctaliaConfig;
+  noBrightnessConfig =
+    lib.replaceStrings
+      [
+        "    XF86MonBrightnessUp allow-when-locked=true { spawn \"brightnessctl\" \"--class=backlight\" \"set\" \"+10%\"; }\n"
+        "    XF86MonBrightnessDown allow-when-locked=true { spawn \"brightnessctl\" \"--class=backlight\" \"set\" \"10%-\"; }\n"
+      ]
+      [
+        ""
+        ""
+      ]
+      kittyTerminalConfig;
 in
 {
   imports = [
@@ -131,10 +171,8 @@ in
     ./polkit
   ];
 
-  xdg.configFile."niri/config.kdl".text =
-    noBrightnessConfig
-    + ''
-      ${outputConfig}
-      ${workRenderConfig}
-    '';
+  xdg.configFile."niri/config.kdl".text = noBrightnessConfig + ''
+    ${outputConfig}
+    ${workRenderConfig}
+  '';
 }

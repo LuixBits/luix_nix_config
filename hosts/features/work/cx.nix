@@ -21,7 +21,7 @@
   environment.systemPackages = with pkgs; [
     cloudflare-warp
     mysql84
-    nodejs_24
+    nodejs
 
     (php83.buildEnv {
       extraConfig = ''

@@ -93,16 +93,16 @@ in
     | --- | --- |
     | `<leader>nc` | Open the Flashcards hub: Overview, Cards, and Stats |
 
-    Japanese and Computer Science are separate collections, each with one
-    straightforward card form. Add another collection in
-    `home/modules/nvfvim/neorg/flashcards/default.nix`, rebuild, then use `C`
-    to switch to it. `C` does not create configuration.
+    The portable v0.2 release currently manages the Japanese flashcards
+    directory as one collection. The former Computer Science collection
+    depends on the unpublished local v0.3 checkout and must be restored with
+    its source and card-data migration before it can be enabled again.
 
-    In the hub, use `1`/`2`/`3` or `Tab` to change page, `C` to switch subject,
-    and `Ctrl-W W` to switch panes. `j`/`k` move the main selection or scroll
-    the focused pane; `Ctrl-D`/`Ctrl-U` scroll half a page, and `gg`/`G` go to
-    the top or bottom. Press `?` for the complete local shortcuts, then search
-    that help with `/`, `n`, and `N`.
+    In the hub, use `1`/`2`/`3` or `Tab` to change page and `Ctrl-W W` to
+    switch panes. `j`/`k` move the main selection or scroll the focused pane;
+    `Ctrl-D`/`Ctrl-U` scroll half a page, and `gg`/`G` go to the top or bottom.
+    Press `?` for the complete local shortcuts, then search that help with `/`,
+    `n`, and `N`.
 
     On Cards, `/` searches, `f` includes Card Clinic and card-type filters, `a`
     adds, `e` opens structured editing, and `D` asks before deleting with a

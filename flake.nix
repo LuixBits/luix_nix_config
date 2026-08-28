@@ -1,5 +1,5 @@
 {
-  description = "Fixed flake for NixOS + home-manager + NVF";
+  description = "Multi-host NixOS and Home Manager configuration";
 
   inputs = {
     # primary channels
@@ -9,6 +9,10 @@
     # home-manager
     home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Model-specific laptop support
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
+    nixos-hardware.inputs.nixpkgs.follows = "nixpkgs";
 
     # NVF (Neovim framework)
     nvf.url = "github:notashelf/nvf";
@@ -20,15 +24,19 @@
 
     # Star Citizen helper flake
     nix-citizen.url = "github:LovingMelody/nix-citizen";
+    nix-citizen.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
     # Herdr terminal workflow
     herdr.url = "github:herdrdev/herdr/v0.8.2";
+    herdr.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
-    # Use the local v0.3 checkout until the release tag exists.
-    luixbits-neorg-flashcards.url = "path:/home/luix/projects/luixbits-neorg-flashcards.nvim";
+    # Neorg flashcards plugin and NVF module
+    luixbits-neorg-flashcards.url = "github:LuixBits/luixbits-neorg-flashcards.nvim?ref=v0.2.0";
+    luixbits-neorg-flashcards.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
     # Sentry plugin and NVF module
     luixbits-sentry.url = "github:LuixBits/luixbits-sentry.nvim";
+    luixbits-sentry.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
     # RoomPlan plugin
     roomplan.url = "github:LuixBits/luixbits-roomplanner.nvim";
@@ -48,16 +56,29 @@
     let
       mkHost =
         {
-          hostName,
+          hostModule,
           homeHost,
           hmUser,
+          machine,
+          networkHostName,
+          role,
         }:
         nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
-          specialArgs = { inherit inputs; };
+          specialArgs = {
+            inherit
+              inputs
+              machine
+              networkHostName
+              role
+              ;
+          };
 
           modules = [
-            ./hosts/${hostName}
+            hostModule
+            {
+              networking.hostName = networkHostName;
+            }
 
             # Home-Manager as a NixOS module
             home-manager.nixosModules.home-manager
@@ -66,7 +87,12 @@
               home-manager.backupFileExtension = "hm-back";
               home-manager.overwriteBackup = true;
               home-manager.extraSpecialArgs = {
-                inherit inputs hostName;
+                inherit
+                  inputs
+                  machine
+                  networkHostName
+                  role
+                  ;
               };
               home-manager.users = {
                 "${hmUser}" = import homeHost;
@@ -74,24 +100,43 @@
             }
           ];
         };
+      frameworkSystem = mkHost {
+        hostModule = ./hosts/framework;
+        homeHost = ./home/hosts/framework.nix;
+        hmUser = "luiz";
+        machine = "framework";
+        networkHostName = "framework";
+        role = "work";
+      };
     in
     {
       nixosConfigurations = {
         pc = mkHost {
-          hostName = "pc";
+          hostModule = ./hosts/pc;
           homeHost = ./home/hosts/pc.nix;
           hmUser = "luix";
+          machine = "pc";
+          networkHostName = "pc";
+          role = "personal";
         };
         l = mkHost {
-          hostName = "l";
+          hostModule = ./hosts/l;
           homeHost = ./home/hosts/l.nix;
           hmUser = "luix";
+          machine = "l";
+          networkHostName = "l";
+          role = "personal";
         };
         work = mkHost {
-          hostName = "work";
+          hostModule = ./hosts/work;
           homeHost = ./home/hosts/work.nix;
           hmUser = "luiz";
+          machine = "surface";
+          networkHostName = "work";
+          role = "work";
         };
+
+        framework = frameworkSystem;
       };
     };
 }

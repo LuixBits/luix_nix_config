@@ -1,4 +1,4 @@
-{ config, ... }:
+{ networkHostName, ... }:
 {
   # Keep common values as the source of truth for all hosts.
   # This flake lives in /home/luix and /etc/nixos is a symlink to it. The
@@ -7,7 +7,7 @@
   system.autoUpgrade = {
     enable = false;
     allowReboot = false;
-    flake = "/etc/nixos#${config.networking.hostName}";
+    flake = "/etc/nixos#${networkHostName}";
     dates = "daily";
   };
 

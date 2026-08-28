@@ -5,6 +5,7 @@
 }:
 let
   notesDir = "${config.home.homeDirectory}/notes";
+  flashcardsDir = "${notesDir}/japanese/flashcards";
 in
 {
   imports = [
@@ -13,26 +14,14 @@ in
 
   programs.nvf.neorg-flashcards = {
     enable = true;
-    schemaPresets = {
-      japanese = [ "japanese" ];
-      computer_science = [ "question_answer" ];
-    };
+    # v0.2 is the newest published, portable release. The former named
+    # Computer Science collection used an unpublished local v0.3 checkout;
+    # restore it only together with that source and an explicit card migration.
+    schemaPresets = [ "japanese" ];
     setupOpts = {
-      default_collection = "japanese";
-      collections = {
-        japanese = {
-          label = "Japanese";
-          path = "${notesDir}/japanese/flashcards";
-          default_file = "cards.norg";
-          default_card_type = "japanese";
-        };
-        computer_science = {
-          label = "Computer Science";
-          path = "${notesDir}/computer-science/flashcards";
-          default_file = "cards.norg";
-          default_card_type = "question_answer";
-        };
-      };
+      flashcards_dir = flashcardsDir;
+      default_file = "${flashcardsDir}/cards.norg";
+      default_kind = "japanese";
       ui.show_shortcuts = true;
     };
     keymaps = {

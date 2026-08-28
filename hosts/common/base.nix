@@ -1,10 +1,14 @@
-{ config, inputs, pkgs, ... }:
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}:
 let
   pkgsUnstable = import inputs.nixpkgs-unstable {
     system = pkgs.stdenv.hostPlatform.system;
     config = {
       allowUnfree = true;
-      allowUnsupportedSystem = true;
     };
   };
 in
@@ -34,9 +38,12 @@ in
 
   virtualisation.docker = {
     enable = true;
-    package = pkgs.docker_29;
+    package = pkgs.docker;
     daemon.settings = {
-      dns = [ "1.1.1.1" "8.8.8.8" ];
+      dns = [
+        "1.1.1.1"
+        "8.8.8.8"
+      ];
       features = {
         buildkit = true;
       };
@@ -50,7 +57,10 @@ in
 
   # Display manager (SDDM) + X11 stack for the greeter
   services.xserver.enable = true;
-  services.xserver.xkb = { layout = "ch"; variant = ""; };
+  services.xserver.xkb = {
+    layout = "ch";
+    variant = "";
+  };
   services.displayManager.sddm = {
     enable = true;
     settings = {
@@ -122,13 +132,16 @@ in
 
   nixpkgs.config.allowUnfree = true;
 
-  # Graphics (25.11 uses hardware.graphics.*)
+  # Graphics stack
   hardware.graphics = {
     enable = true;
   };
 
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
     warn-dirty = false;
 
     # Only local admins should be able to submit builds to the daemon.
@@ -156,5 +169,4 @@ in
     xwayland-satellite
   ];
 
-  system.stateVersion = "25.11";
 }
