@@ -10,11 +10,38 @@
     ./hardware-configuration.nix
     ../common/base.nix
     ../../audiofix.nix
-    ../roles/work.nix
+    ../features/virt-manager.nix
+    ../features/work/appimage.nix
+    ../features/work/cx.nix
     inputs.nixos-hardware.nixosModules.framework-amd-ai-300-series
   ];
 
-  users.users.luiz.extraGroups = [ "video" ];
+  networking.extraHosts = ''
+    127.0.0.1 siga-webshop.local siga-blog.local roi.local webauth.local
+  '';
+
+  # Teams on the web uses Chrome's Idle Detection API to keep presence
+  # accurate while another application is focused.
+  environment.etc."opt/chrome/policies/managed/teams.json".text = builtins.toJSON {
+    IdleDetectionAllowedForUrls = [ "https://teams.microsoft.com" ];
+  };
+
+  # common/base defines the personal `luix` account; Framework uses `luiz`.
+  users.users.luix.enable = lib.mkForce false;
+  users.users.luiz = {
+    isNormalUser = true;
+    description = "Luiz";
+    uid = 1000;
+    home = "/home/luiz";
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "docker"
+      "video"
+    ];
+  };
+
+  services.flatpak.enable = true;
 
   # The model-specific module supplies Framework EC, fingerprint, audio,
   # power, and the normal AMD graphics integration. Do not import the shared

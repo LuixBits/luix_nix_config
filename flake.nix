@@ -61,7 +61,6 @@
           hmUser,
           machine,
           networkHostName,
-          role,
         }:
         nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
@@ -70,7 +69,6 @@
               inputs
               machine
               networkHostName
-              role
               ;
           };
 
@@ -91,7 +89,6 @@
                   inputs
                   machine
                   networkHostName
-                  role
                   ;
               };
               home-manager.users = {
@@ -100,14 +97,6 @@
             }
           ];
         };
-      frameworkSystem = mkHost {
-        hostModule = ./hosts/framework;
-        homeHost = ./home/hosts/framework.nix;
-        hmUser = "luiz";
-        machine = "framework";
-        networkHostName = "framework";
-        role = "work";
-      };
     in
     {
       nixosConfigurations = {
@@ -117,7 +106,6 @@
           hmUser = "luix";
           machine = "pc";
           networkHostName = "pc";
-          role = "personal";
         };
         l = mkHost {
           hostModule = ./hosts/l;
@@ -125,18 +113,15 @@
           hmUser = "luix";
           machine = "l";
           networkHostName = "l";
-          role = "personal";
-        };
-        work = mkHost {
-          hostModule = ./hosts/work;
-          homeHost = ./home/hosts/work.nix;
-          hmUser = "luiz";
-          machine = "surface";
-          networkHostName = "work";
-          role = "work";
         };
 
-        framework = frameworkSystem;
+        framework = mkHost {
+          hostModule = ./hosts/framework;
+          homeHost = ./home/hosts/framework.nix;
+          hmUser = "luiz";
+          machine = "framework";
+          networkHostName = "framework";
+        };
       };
     };
 }

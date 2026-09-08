@@ -297,12 +297,12 @@ let
 
     if [[ $# -gt 0 ]]; then
       case "$1" in
-        framework|l|pc|work)
+        framework|l|pc)
           HOST="$1"
           shift
           ;;
         *)
-          error "Usage: flakeonly [framework|l|pc|work]"
+          error "Usage: flakeonly [framework|l|pc]"
           exit 2
           ;;
       esac
@@ -567,7 +567,7 @@ let
       FLAKE_REF="$FLAKE_RAW"
     fi
     usage() {
-      echo "Usage: buildall [--sync-noctalia] <framework|l|pc|work> [commit-message...]" >&2
+      echo "Usage: buildall [--sync-noctalia] <framework|l|pc> [commit-message...]" >&2
       exit 2
     }
 
@@ -580,7 +580,7 @@ let
           SYNC_NOCTALIA=1
           shift
           ;;
-        framework|l|pc|work)
+        framework|l|pc)
           HOST="$1"
           shift
           break

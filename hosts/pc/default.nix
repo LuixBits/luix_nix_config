@@ -16,7 +16,7 @@
 
   boot.initrd.availableKernelModules = [ "thunderbolt" ];
   boot.kernelParams = [
-    # Same firmware reboot workaround used on the work host.
+    # Work around firmware reboot behavior on this host.
     "reboot=efi"
   ];
 
