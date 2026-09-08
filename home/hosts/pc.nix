@@ -30,7 +30,6 @@
     ../modules/kdenlive
     ../modules/prismlauncher
     ../modules/nvfvim
-    ../modules/flatpak
   ];
 
   luix.godot.enable = true;

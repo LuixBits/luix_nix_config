@@ -1,13 +1,10 @@
-# modules/appimage.nix
-{ pkgs, lib, ... }:
-
+{ pkgs, ... }:
 {
   programs.appimage = {
     enable = true;
-    binfmt   = true;
-    package  = pkgs.appimage-run.override {
+    binfmt = true;
+    package = pkgs.appimage-run.override {
       extraPkgs = pkgs: [
-        # Add libraries commonly required by AppImages.
         pkgs.libdeflate
         pkgs.fuse
         pkgs.libGL

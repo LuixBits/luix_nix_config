@@ -1,6 +1,5 @@
 # home-manager module using NVF
 {
-  config,
   inputs,
   lib,
   pkgs,
@@ -333,14 +332,16 @@ in
 
         statusline.lualine = {
           enable = true;
-          theme = "auto";
-          sectionSeparator = {
-            left = "";
-            right = "";
-          };
-          componentSeparator = {
-            left = "";
-            right = "";
+          setupOpts.options = {
+            theme = "auto";
+            section_separators = {
+              left = "";
+              right = "";
+            };
+            component_separators = {
+              left = "";
+              right = "";
+            };
           };
         };
 

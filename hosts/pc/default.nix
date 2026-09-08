@@ -3,9 +3,8 @@
   imports = [
     ../common/base.nix
     ../features/hardware-amd.nix
-    ../../audiofix.nix
+    ../features/audio.nix
     ../features/pc-mass-storage.nix
-    ../features/media-tools.nix
     ../features/flatpak.nix
     ../features/gaming.nix
     ../features/spatial-input.nix

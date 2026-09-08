@@ -1,9 +1,9 @@
 { networkHostName, ... }:
 {
   # Keep common values as the source of truth for all hosts.
-  # This flake lives in /home/luix and /etc/nixos is a symlink to it. The
-  # root-owned auto-upgrade service cannot safely fetch that local Git repo, so
-  # keep upgrades explicit through buildall/flakeonly instead.
+  # /etc/nixos points to a user-owned local Git checkout. The root-owned
+  # auto-upgrade service cannot safely fetch it, so keep upgrades explicit
+  # through buildall/flakeonly instead.
   system.autoUpgrade = {
     enable = false;
     allowReboot = false;
