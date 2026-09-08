@@ -1,7 +1,8 @@
 {
-  config,
   inputs,
+  lib,
   pkgs,
+  primaryUser,
   ...
 }:
 let
@@ -27,14 +28,6 @@ in
     "vm.max_map_count" = 16777216;
     "fs.file-max" = 524288;
   };
-
-  nixpkgs.overlays = [
-    (final: prev: {
-      atopile = prev.writeShellScriptBin "atopile" ''
-        echo "Atopile placeholder; real package not available on this channel."
-      '';
-    })
-  ];
 
   virtualisation.docker = {
     enable = true;
@@ -85,9 +78,9 @@ in
     fish
   ];
 
-  users.users.luix = {
+  users.users.${primaryUser} = {
     isNormalUser = true;
-    description = "luix";
+    description = lib.mkDefault primaryUser;
     extraGroups = [
       "networkmanager"
       "wheel"

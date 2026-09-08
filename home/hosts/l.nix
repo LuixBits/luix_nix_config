@@ -26,7 +26,6 @@
     ../modules/teams
     ../modules/prismlauncher
     ../modules/nvfvim
-    ../modules/flatpak
   ];
 
   luix.godot.enable = true;

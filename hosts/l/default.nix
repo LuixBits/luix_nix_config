@@ -2,12 +2,14 @@
 {
   imports = [
     ../common/base.nix
-    ../../audiofix.nix
-    ../features/caldigit-ts5-plus.nix
+    ../features/audio.nix
     ../features/hardware-amd.nix
     ../features/flatpak.nix
     ./hardware-configuration.nix
   ];
+
+  # Do not add a CalDigit TS5 Plus recovery service here. The previous
+  # workaround made the dock worse; leave it to the kernel and firmware.
 
   programs.localsend = {
     enable = true;

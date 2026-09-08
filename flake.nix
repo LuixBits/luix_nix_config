@@ -70,6 +70,7 @@
               machine
               networkHostName
               ;
+            primaryUser = hmUser;
           };
 
           modules = [

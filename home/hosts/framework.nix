@@ -24,8 +24,7 @@
     ../modules/kdenlive
     ../modules/nvfvim
     ../modules/virt-manager
-    ../modules/teams
-    ../modules/work
+    ../../profiles/work/home.nix
   ];
 
   luix.godot.enable = true;
