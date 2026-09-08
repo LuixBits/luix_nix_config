@@ -4,7 +4,6 @@
   lib,
   machine ? null,
   pkgs,
-  role ? null,
   ...
 }:
 let
@@ -193,17 +192,6 @@ let
     };
   };
 
-  perRoleSettings = {
-    work = {
-      shell = {
-        animation.enabled = false;
-        launcher.pinned = [ "teams-web" ];
-        shadow.alpha = 0.0;
-      };
-      backdrop.enabled = false;
-    };
-  };
-
   perMachineSettings = {
     l = {
       dock.monitors = [ "eDP-1" ];
@@ -294,40 +282,22 @@ let
     };
 
     framework = {
+      backdrop.enabled = false;
+
       dock = {
         enabled = true;
         active_monitor_only = true;
         launcher_position = "start";
         pinned = [ "teams-web" ];
       };
-    };
 
-    surface = {
-      dock.monitors = [
-        "DP-2"
-        "DP-1"
-        "eDP-1"
-      ];
-      desktop_widgets = {
-        enabled = true;
-        schema_version = 2;
-        widget_order = [ "casio_deck_dashboard" ];
-
-        widget.casio_deck_dashboard = {
-          type = "luixbits/casio-deck:dashboard";
-          output = "eDP-1";
-          cx = 1192.0;
-          cy = 437.5;
-          box_width = 0.0;
-          box_height = 0.0;
-          rotation = 0.0;
-        };
+      shell = {
+        animation.enabled = false;
+        launcher.pinned = [ "teams-web" ];
+        shadow.alpha = 0.0;
       };
     };
   };
-
-  roleSettings =
-    if role != null && builtins.hasAttr role perRoleSettings then perRoleSettings.${role} else { };
 
   machineSettings =
     if machine != null && builtins.hasAttr machine perMachineSettings then
@@ -335,7 +305,7 @@ let
     else
       { };
 
-  noctaliaSettings = lib.recursiveUpdate (lib.recursiveUpdate sharedSettings roleSettings) machineSettings;
+  noctaliaSettings = lib.recursiveUpdate sharedSettings machineSettings;
 
   noctaliaIpc = pkgs.writeShellScriptBin "noctalia-ipc" ''
     set -eu

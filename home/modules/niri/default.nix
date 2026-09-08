@@ -3,13 +3,10 @@
   lib,
   machine ? null,
   pkgs,
-  role ? null,
   ...
 }:
 let
-  isWorkRole = role == "work";
   isFrameworkMachine = machine == "framework";
-  isSurfaceMachine = machine == "surface";
   isLaptopProfile = machine == "l";
   isPcProfile = machine == "pc";
   laptopInternalOutput = "eDP-1";
@@ -39,12 +36,7 @@ let
             position x=5086 y=0
         }
       ''
-    else if isWorkRole && isSurfaceMachine then
-      # Shikane owns all work-host output positions. Keeping a second set of
-      # positions here makes hot-plug events race and can leave Niri with a
-      # large, stale global coordinate offset.
-      ""
-    else if isWorkRole && isFrameworkMachine then
+    else if isFrameworkMachine then
       # Shikane owns the Framework panel and work-display layouts.
       ""
     else if isPcProfile then
@@ -77,17 +69,6 @@ let
             position x=3440 y=0
         }
       '';
-  workRenderConfig =
-    if isWorkRole && isSurfaceMachine then
-      ''
-        // Keep work on the Intel render node: this is the only path that
-        // consistently brings both DisplayLink outputs up.
-        debug {
-            render-drm-device "/dev/dri/by-path/pci-0000:00:02.0-render"
-        }
-      ''
-    else
-      "";
   baseConfig = builtins.readFile "${pkgs.niri.doc}/share/doc/niri/default-config.kdl";
   noWaybarConfig =
     lib.replaceStrings
@@ -171,8 +152,5 @@ in
     ./polkit
   ];
 
-  xdg.configFile."niri/config.kdl".text = noBrightnessConfig + ''
-    ${outputConfig}
-    ${workRenderConfig}
-  '';
+  xdg.configFile."niri/config.kdl".text = noBrightnessConfig + outputConfig;
 }

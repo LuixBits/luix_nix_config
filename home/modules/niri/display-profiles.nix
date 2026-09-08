@@ -4,19 +4,12 @@
   lib,
   machine ? null,
   pkgs,
-  role ? null,
   ...
 }:
 let
-  isSurfaceWorkMachine = role == "work" && machine == "surface";
-  isFrameworkWorkMachine = role == "work" && machine == "framework";
+  isFrameworkMachine = machine == "framework";
   unstablePkgs = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
 
-  surfaceInternalDisplay = [
-    "v=Sharp Corporation"
-    "m=LQ144P1JX01"
-    "s=0x340012A0"
-  ];
   frameworkInternalDisplay = [
     "v=China Star Optoelectronics Technology Co., Ltd"
     "m=MND508ZB1-1"
@@ -62,41 +55,6 @@ let
     }
     // extra;
 
-  surfaceProfiles = [
-    {
-      name = "undocked";
-      output = [
-        (mkOutput surfaceInternalDisplay "0,0" 1.5 { })
-      ];
-    }
-    {
-      name = "philips-office";
-      output = [
-        (mkOutput surfaceInternalDisplay "0,0" 1.5 { })
-        (mkOutput philipsLeft "1600,0" 1.5 { })
-        (mkOutput philipsRight "4160,0" 1.5 { })
-      ];
-    }
-    {
-      name = "dell-office-dock";
-      output = [
-        (mkOutput dellLeft "0,0" 1.0 { })
-        (mkOutput dellRight "1920,0" 1.0 { })
-        (mkOutput surfaceInternalDisplay "0,1080" 1.5 { })
-      ];
-    }
-    {
-      name = "benq-lg-desk";
-      output = [
-        (mkOutput surfaceInternalDisplay "0,0" 1.5 { })
-        (mkOutput benqMain "1600,0" 1.0 { })
-        (mkOutput lgPortrait "5040,0" 1.25 {
-          transform = "270";
-        })
-      ];
-    }
-  ];
-
   frameworkProfiles = [
     {
       name = "undocked";
@@ -132,7 +90,7 @@ let
     }
   ];
 in
-lib.mkIf (isSurfaceWorkMachine || isFrameworkWorkMachine) {
+lib.mkIf isFrameworkMachine {
   services.shikane = {
     enable = true;
     # 1.1.x uses deterministic, full-cardinality output searches. This avoids
@@ -143,7 +101,7 @@ lib.mkIf (isSurfaceWorkMachine || isFrameworkWorkMachine) {
       # settled so only the final profile is submitted to Niri.
       timeout = 1500;
 
-      profile = if isSurfaceWorkMachine then surfaceProfiles else frameworkProfiles;
+      profile = frameworkProfiles;
     };
   };
 }
