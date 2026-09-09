@@ -5,14 +5,14 @@
   ...
 }:
 let
-  codexVersion = "0.149.1";
+  codexVersion = "0.153.4";
   codexPackage = pkgs.stdenvNoCC.mkDerivation {
     pname = "codex";
     version = codexVersion;
 
     src = pkgs.fetchurl {
-      url = "https://github.com/openai/codex/releases/download/rust-v${codexVersion}/codex-package-x86_64-unknown-linux-musl.tar.gz";
-      hash = "sha256-HoUxrl9t6jxuEeU+dMxayBvxull/mylvsRLW6jD9r10=";
+      url = "https://releases.openai.com/codex/releases/${codexVersion}/codex-package-x86_64-unknown-linux-musl.tar.gz";
+      hash = "sha256-qCIYfhokIMYcWSZyG/vYeHAe2VVHybsNTeRJiha6GCE=";
     };
 
     sourceRoot = ".";
@@ -51,7 +51,7 @@ let
       BEGIN {
         print "approval_policy = \"on-request\""
         print "sandbox_mode = \"workspace-write\""
-        print "model = \"gpt-5.6-sol\""
+        print "model = \"gpt-6-astra\""
         print "model_reasoning_effort = \"xhigh\""
         print "personality = \"pragmatic\""
       }
