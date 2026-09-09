@@ -27,7 +27,7 @@
     nix-citizen.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
     # Herdr terminal workflow
-    herdr.url = "github:herdrdev/herdr/v0.8.2";
+    herdr.url = "github:herdrdev/herdr/v0.9.0";
     herdr.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
     # Neorg flashcards plugin and NVF module
