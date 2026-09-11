@@ -146,6 +146,7 @@ let
 in
 {
   imports = [
+    ./cursors.nix
     ./display-profiles.nix
     ./noctalia
     ./polkit

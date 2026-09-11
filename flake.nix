@@ -100,6 +100,10 @@
         };
     in
     {
+      packages = nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" ] (system: {
+        pia-setup = nixpkgs.legacyPackages.${system}.callPackage ./packages/pia-setup { };
+      });
+
       nixosConfigurations = {
         pc = mkHost {
           hostModule = ./hosts/pc;
