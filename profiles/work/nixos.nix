@@ -3,6 +3,7 @@
 {
   imports = [
     ../../hosts/features/appimage.nix
+    ../../hosts/features/pia.nix
   ];
 
   virtualisation.docker = {

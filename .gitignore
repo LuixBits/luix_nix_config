@@ -17,5 +17,12 @@ secrets/
 *.kdbx
 gitleaks-report.*
 
+# Accidental copies of PIA runtime secrets (the real files live outside this repo).
+credentials.json
+*.nmconnection
+pia.env
+pia.conf
+pia-noctalia/
+
 # Generated local Graphify knowledge graph.
 graphify-out/
