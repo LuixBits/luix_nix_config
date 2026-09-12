@@ -16,6 +16,7 @@
     ../modules/cli
     ../modules/programming
     ../modules/spatial-input-development
+    ../modules/simracing
     ../modules/herdr
     ../modules/kitty
     ../modules/buildandpush
@@ -34,6 +35,7 @@
 
   luix.godot.enable = true;
   luix.spatialInputDevelopment.enable = true;
+  luix.simracing.enable = true;
 
   # Native Wayland corrupts Firefox's chrome texture cache on this GPU,
   # hiding tab titles, URL text, and bookmark labels. XWayland renders it correctly.

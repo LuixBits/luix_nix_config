@@ -7,13 +7,14 @@
     ../features/pc-mass-storage.nix
     ../features/flatpak.nix
     ../features/gaming.nix
-    ../features/moza-racing.nix
+    ../../home/modules/simracing/nixos.nix
     ../features/corsair-cooling.nix
     ../features/spatial-input.nix
     ./hardware-configuration.nix
   ];
 
   hardware.spatial-input.enable = true;
+  luix.simracing.enable = true;
 
   boot.initrd.availableKernelModules = [ "thunderbolt" ];
   boot.kernelParams = [
