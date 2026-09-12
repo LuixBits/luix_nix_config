@@ -7,6 +7,8 @@
     ../features/pc-mass-storage.nix
     ../features/flatpak.nix
     ../features/gaming.nix
+    ../features/moza-racing.nix
+    ../features/corsair-cooling.nix
     ../features/spatial-input.nix
     ./hardware-configuration.nix
   ];
@@ -17,7 +19,17 @@
   boot.kernelParams = [
     # Work around firmware reboot behavior on this host.
     "reboot=efi"
+
+    # This desktop's X670 USB-C controller failed to resume from runtime
+    # suspend while attaching a dock. Keep dock peripherals active as well.
+    "usbcore.autosuspend=-1"
   ];
+
+  services.udev.extraRules = ''
+    # Keep every AMD xHCI controller awake. This covers both the motherboard
+    # rear USB-C port and the case USB-C port without relying on PCI addresses.
+    ACTION=="add|bind|change", SUBSYSTEM=="pci", ATTR{vendor}=="0x1022", ATTR{class}=="0x0c0330", TEST=="power/control", ATTR{power/control}="on"
+  '';
 
   services.ollama = {
     enable = true;
