@@ -4,11 +4,11 @@ This module combines MOZA wheel configuration through Boxflat with wired Quest
 streaming through WiVRn. The wheel and pedals connect to the PC; the headset
 supplies the VR view and head tracking. BeamNG runs on the PC.
 
-Home Manager manages the user environment, Boxflat's settings flag, the `boxflat`
-command and the `simracing-quest` launcher. The NixOS companion supplies Steam,
-the system Flatpak installation, udev permissions, kernel modules and WiVRn's
-user service. Both parts are needed because Home Manager cannot install system
-udev rules or capability wrappers.
+Home Manager manages Boxflat's settings flag and installs this guide. The NixOS
+companion supplies Steam, the system Flatpak installation, udev permissions,
+kernel modules, Android tools and WiVRn's user service. Both parts are needed
+because Home Manager cannot install system udev rules or capability wrappers.
+Use the normal Boxflat and WiVRn application menus for configuration and startup.
 
 **Enable it in this repository**
 
@@ -26,18 +26,32 @@ receives `osConfig`. Use the host's normal graphics and audio configuration.
 MOZA force feedback also needs a supporting kernel; this PC uses Linux 6.18.
 Steam and the Flatpak runtime need their usual graphics driver support.
 
-WiVRn starts on demand. Activation does not connect USB devices, pair a headset,
-start a VR game or wait for hardware. Wired streaming is the default. To enable
-LAN streaming later, set `luix.simracing.vr.wireless = true` in NixOS.
+WiVRn's standard user service starts at login, and the dashboard attaches to the
+running server. This applies the NixOS service's priority settings and server
+flags. Native Quest USB networking is the default. The module names the Meta
+CDC-NCM adapter `wivrn0`, gives it an automatic IPv6 link-local connection through
+NetworkManager, and permits WiVRn traffic on that interface. This supports one
+USB-networked Meta headset at a time, independently of the USB port or its MAC
+address. The USB profile supplies no default route or DNS servers.
 
-For wheel-only use, set `luix.simracing.vr.enable = false` in NixOS; the Home
-Manager default follows it. To choose among multiple USB Quests, set
-`luix.simracing.quest.serial = "YOUR_QUEST_SERIAL"` in Home Manager or pass
-`--serial` to the launcher.
+NetworkManager and IPv6 must already be enabled on the host. WiVRn publishes its
+discovery service through Avahi; streaming ports remain limited to the USB
+interface. To enable streaming on LAN interfaces too, set
+`luix.simracing.vr.wireless = true` in NixOS. To manage USB networking yourself or
+use only the ADB fallback, set `luix.simracing.vr.usbNetworking = false`.
+Runtime settings remain writable in WiVRn.
+
+`wivrn.nix` pins the official WiVRn 26.9 release and its matching Monado source.
+Both repository inputs still provide 26.6.2, which cannot connect to the Quest
+store's 26.9 client. The override retains the normal NixOS package integration;
+remove it when the pinned nixpkgs package matches the headset release.
+
+For wheel-only use, set `luix.simracing.vr.enable = false` in NixOS. This disables
+the module's WiVRn and Android tools configuration while keeping Boxflat enabled.
 
 **Boxflat and the wheel**
 
-Open Boxflat from the application menu or run `boxflat`. Its system Flatpak
+Open Boxflat from the application menu. Its system Flatpak
 installation is retained. Existing presets and calibration stay writable under
 `~/.var/app/io.github.lawstorant.boxflat/`.
 
@@ -55,26 +69,53 @@ bindings. These are physical setup steps, not values forcibly rewritten at login
 
 **First Quest connection after rebuilding**
 
-1. Fully log out and back in so Steam inherits the OpenXR environment variable.
-2. Install [WiVRn on the Quest](https://www.meta.com/experiences/7959676140827574/).
-   Match the headset app to the PC's version; the current flake provides 26.6.2.
-   `simracing-quest --list` also prints the PC version.
-3. Enable Developer Mode for the Quest in the Meta Horizon phone app. If it is
-   unavailable, complete Meta's developer account/team setup first. Connect a
-   USB data cable and accept the USB debugging prompt inside the headset.
-   [Meta device setup](https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/)
-4. Open **WiVRn Server** from the application menu and complete its setup wizard.
-5. Run `simracing-quest`, or open **Simracing — Connect Quest USB** from the menu.
-6. Complete any pairing prompt in WiVRn. Wait for the headset to report a working
-   connection before launching the game.
+Update the Quest's system software before using native USB networking. Older
+Horizon OS releases such as v69 and v74 predate this connection method. WiVRn
+26.9 checks for Horizon OS 2.6 or later when the newer OS version property is
+available, but its Quest 3 fallback can display the switch on older firmware.
+The switch alone therefore does not establish support. Install the available
+system update, restart, and check for further updates. The ADB method below
+remains available for older headset firmware.
+[WiVRn headset compatibility check](https://github.com/WiVRn/WiVRn/blob/v26.9/client/hmd_traits.cpp)
 
-The launcher identifies an authorized USB Meta/Oculus Quest, checks the installed
-WiVRn app version, starts the NixOS WiVRn user service, forwards USB TCP port 9757
-and opens the headset app using `wivrn+tcp://localhost`. It supports both the Meta
-store and matching stable GitHub APK. Every device-specific command includes the
-selected serial, so a tethered phone is not selected for streaming. Commands have
-timeouts and the launcher refuses ambiguous headset selection.
-[WiVRn USB setup](https://github.com/WiVRn/WiVRn/blob/v26.6.2/README.md#troubleshooting)
+1. Quit WiVRn on the PC before rebuilding. After the rebuild, fully log out and
+   back in so WiVRn runs the new server and Steam inherits the OpenXR environment
+   variable. An already running server keeps its old version until restarted.
+2. Install [WiVRn on the Quest](https://www.meta.com/experiences/7959676140827574/).
+   Match the headset app to the PC's version; this module provides 26.9.
+   WiVRn's About page shows the installed PC version.
+3. Open **WiVRn Server** on the PC. In the setup wizard, use **Skip**, then
+   **Finish** on the connection step. Its **Connect by USB** button belongs to
+   the older ADB method and may remain grey with Developer Mode disabled.
+   Confirm the server is running and pairing is enabled in the dashboard.
+4. Connect the Quest with a USB data cable and open **WiVRn inside the headset**.
+   Enable **Settings > USB networking** there. Developer Mode and the USB
+   debugging approval are not needed for this method. The headset OS must
+   support Meta's USB networking API; updating the WiVRn app alone does not
+   update Horizon OS.
+5. After the first rebuild, unplug and reconnect USB so the new interface naming
+   rule applies. Keep WiVRn open on the headset. The PC should show an active
+   **WiVRn Quest USB** network connection.
+6. In the headset's WiVRn server list, select the PC's USB connection and enter
+   the pairing PIN displayed by WiVRn on the PC. For the first wired test, turn
+   off the headset's Wi-Fi to verify the connection uses the cable.
+7. Wait for WiVRn to report a working connection before launching the game.
+
+The desktop wizard's grey ADB button does not determine whether native USB
+networking is ready. Native USB connection starts from the headset's server list.
+[WiVRn 26.9 release](https://github.com/WiVRn/WiVRn/releases/tag/v26.9)
+[USB networking requirements](https://github.com/WiVRn/WiVRn/blob/v26.9/client/scenes/gui_settings.cpp)
+
+**ADB fallback**
+
+For headsets without native USB networking, disable **USB networking** in the
+headset's WiVRn settings, enable Developer Mode through the Meta Horizon phone
+app, and authorize USB debugging in the headset. `adb devices -l` must report
+`device`, not `unauthorized`. Then use the PC dashboard's **Connect (wired)**
+button. The package supplies ADB and handles USB forwarding and app startup.
+WiVRn also offers **Auto connect from USB** for this method.
+[Meta device setup](https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/)
+[WiVRn USB interface](https://github.com/WiVRn/WiVRn/blob/v26.9/dashboard/qml/Main.qml)
 
 **BeamNG.drive**
 
@@ -86,7 +127,7 @@ The NixOS module sets `PRESSURE_VESSEL_IMPORT_OPENXR_1_RUNTIMES=1` for Steam.
 After a fresh login, a custom launch option is unnecessary. If you already use
 custom launch options, ensure they do not override the OpenXR runtime. WiVRn
 manages the active runtime when a headset connects.
-[Steam runtime integration](https://github.com/WiVRn/WiVRn/blob/v26.6.2/docs/steamvr.md)
+[Steam runtime integration](https://github.com/WiVRn/WiVRn/blob/v26.9/docs/steamvr.md)
 
 Load one vehicle, select the Driver camera, and enable Options > Display > VR >
 Toggle ON. Sit normally and center the view through that menu or Ctrl + Numpad 5.
@@ -103,25 +144,30 @@ or in-game performance.
 
 **Daily use and troubleshooting**
 
-Connect the wheel and Quest, run `simracing-quest`, confirm the connection inside
-the headset, then start BeamNG and center the VR view. Rerun the launcher after
-reconnecting USB. It re-establishes the selected headset's forwarding rule.
+Connect the wheel and Quest, open WiVRn Server on the PC, and open WiVRn on the
+headset with **USB networking** enabled. Connect from the headset's server list,
+then start BeamNG and center the VR view.
 
 | Symptom | Check |
 | --- | --- |
-| Quest missing or unauthorized | `simracing-quest --list`; data cable, Developer Mode, USB debugging prompt |
-| Several Quests connected | `simracing-quest --serial YOUR_QUEST_SERIAL` |
-| Version mismatch | Match the headset app to the version printed by the launcher; [official releases](https://github.com/WiVRn/WiVRn/releases) |
+| Grey USB button or Developer Mode warning in the PC wizard | This is the ADB connection method. For native USB, use Skip > Finish, then connect from WiVRn inside the headset |
+| No `wivrn0` interface | `ip -brief link`; keep WiVRn open on the Quest, toggle its USB networking setting, replug USB after rebuilding, and check Horizon OS support. `lsusb -t` should show `cdc_ncm` for the headset |
+| USB adapter exists but no server appears | `nmcli device status` should show WiVRn Quest USB connected; `ip -6 address show wivrn0` should include a `fe80::` address. Check that the managed WiVRn service has restarted after rebuilding |
+| ADB fallback reports unauthorized | Re-enable Developer Mode through the phone app and accept USB debugging in the headset; Linux cannot accept that approval on the headset's behalf |
+| Version mismatch | Both sides must show 26.9 with this module; quit the old PC dashboard/server and log out and back in after rebuilding; [official releases](https://github.com/WiVRn/WiVRn/releases) |
 | WiVRn does not start | `systemctl --user status wivrn` and `journalctl --user -u wivrn -n 60 --no-pager` |
 | Headset waiting to pair | Open WiVRn Server on the PC and follow its pairing flow |
 | BeamNG has no VR view | Connect WiVRn before starting BeamNG; check native Linux, fresh Steam login and the game's VR toggle |
 | Boxflat has no wheel | Check the base's USB connection and power; verify that the base, not only the stalk, appears in `lsusb -d 346e:` |
 
-The launcher reports that a USB connection was requested; successful pairing and
-headset rendering must be confirmed inside WiVRn. It does not claim to have tested
-the headset merely because ADB accepted a command.
+If you deliberately stop the server, restart the managed instance with
+`systemctl --user start wivrn` before reopening the dashboard. The dashboard can
+also start a server directly, but that bypasses the NixOS service's priority
+settings. Its **Troubleshoot > Open server logs** action covers dashboard-started
+instances.
 
-For a video demonstration, show the two module imports, the one-time USB
-authorization, Boxflat detecting the R3, the Quest launcher, and finally a seated
-BeamNG drive with head tracking and a wheel-button recenter. Describe the tested
-hardware and versions separately from what the reusable module configures.
+For a video demonstration, show the two module imports, Boxflat detecting the R3,
+the headset's USB networking setting, the WiVRn Quest USB connection on the PC,
+pairing from the headset, and a seated BeamNG drive with head tracking and a
+wheel-button recenter. Describe the tested hardware and versions separately from
+what the reusable module configures.
