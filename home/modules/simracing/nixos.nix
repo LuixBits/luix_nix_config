@@ -20,7 +20,10 @@ in
     vr.enable = lib.mkEnableOption "WiVRn and Steam OpenXR support" // {
       default = true;
     };
-    vr.wireless = lib.mkEnableOption "WiVRn LAN discovery and streaming ports";
+    vr.usbNetworking = lib.mkEnableOption "native Meta Quest USB networking without ADB" // {
+      default = true;
+    };
+    vr.wireless = lib.mkEnableOption "WiVRn streaming ports on LAN interfaces";
   };
 
   config = lib.mkIf cfg.enable (
@@ -55,12 +58,20 @@ in
       }
 
       (lib.mkIf cfg.vr.enable {
+        # WiVRn's packaged dashboard already includes adb in its PATH for USB
+        # connections. Expose the same tool for normal terminal diagnostics.
+        environment.systemPackages = [ pkgs.android-tools ];
+
         services.wivrn = {
           enable = true;
-          autoStart = false;
+          package = lib.mkDefault (pkgs.callPackage ./wivrn.nix { });
+          # Start the managed service at login so the dashboard attaches to it
+          # instead of spawning a server without the NixOS capability wrapper.
+          autoStart = true;
           highPriority = true;
           openFirewall = cfg.vr.wireless;
-          extraServerFlags = lib.optional (!cfg.vr.wireless) "--no-publish-service";
+          # Native USB networking also discovers the server through Avahi.
+          extraServerFlags = lib.optional (!cfg.vr.wireless && !cfg.vr.usbNetworking) "--no-publish-service";
           steam = {
             enable = true;
             importOXRRuntimes = true;
@@ -69,6 +80,63 @@ in
         };
 
         services.avahi.openFirewall = lib.mkIf cfg.vr.wireless true;
+      })
+
+      (lib.mkIf (cfg.vr.enable && cfg.vr.usbNetworking) {
+        assertions = [
+          {
+            assertion = config.networking.networkmanager.enable;
+            message = "Simracing USB networking needs NetworkManager. Set luix.simracing.vr.usbNetworking = false to use another connection method.";
+          }
+          {
+            assertion = config.networking.enableIPv6;
+            message = "Meta Quest USB networking needs IPv6 link-local support.";
+          }
+        ];
+
+        boot.kernelModules = [ "cdc_ncm" ];
+
+        # Match the Meta USB network adapter independently of its USB port or
+        # changing MAC address. .link files work with NetworkManager through
+        # udev; this does not enable systemd-networkd.
+        systemd.network.links."10-wivrn-usb" = {
+          matchConfig = {
+            Driver = "cdc_ncm";
+            Property = "ID_VENDOR_ID=2833";
+          };
+          linkConfig = {
+            NamePolicy = "";
+            Name = "wivrn0";
+          };
+        };
+
+        networking.networkmanager.ensureProfiles.profiles.wivrn-usb = {
+          connection = {
+            id = "WiVRn Quest USB";
+            uuid = "bbea47d1-4d43-493a-b5bb-52b868c06743";
+            type = "ethernet";
+            interface-name = "wivrn0";
+            autoconnect = true;
+            autoconnect-priority = 100;
+          };
+          # The headset supplies an IPv6 link-local connection, without DHCP
+          # or internet routing. Do not wait for an IPv4 lease.
+          ipv4.method = "disabled";
+          ipv6 = {
+            method = "link-local";
+            never-default = true;
+          };
+        };
+
+        # Keep streaming restricted to the headset's USB link by default.
+        networking.firewall.interfaces.wivrn0 = {
+          allowedTCPPorts = [ 9757 ];
+          allowedUDPPorts = [
+            5353
+            9757
+          ];
+        };
+        services.avahi.ipv6 = true;
       })
     ]
   );
