@@ -26,6 +26,11 @@
     package = pkgs.jdk;
   };
 
+  programs.fish.shellAliases = {
+    pia = "pia-setup --connect";
+    piaoff = "pia-setup --disconnect";
+  };
+
   home.sessionPath = [
     "${config.home.homeDirectory}/siga/roiguard/bin"
     "${config.home.homeDirectory}/siga/webshop/src/html/bin"
