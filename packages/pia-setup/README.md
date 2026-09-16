@@ -1,70 +1,93 @@
-# PIA dedicated IP in Noctalia
+# PIA dedicated IP with manual WireGuard
 
-Noctalia's Network panel controls saved NetworkManager VPN/WireGuard profiles.
-It does not have a PIA login or dedicated-token form. This package prepares that
-profile once, using the API flow from PIA's official manual-connection scripts.
+The work profile installs `pia-setup` and the fish aliases `pia` and `piaoff`.
+`pia` uses the API flow from PIA's official manual-connection scripts, registers
+fresh WireGuard keys on every connection, and starts the tunnel with `wg-quick`.
+Installing or rebuilding never connects the VPN.
 
-The work profile imports `hosts/features/pia.nix`, which installs the normal
-`pia-setup` command and a **PIA Setup** launcher entry during a NixOS rebuild.
-This installs the tool; it never connects the VPN or reruns credential setup.
+## Connect and disconnect
 
-For initial setup or an occasional connection refresh, press **Super+Space**,
-search **PIA Setup**, and open it. A terminal opens for private input and stays
-open until you press Enter. You can also run the normal command:
+After rebuilding, open a new fish terminal and run:
 
 ```console
-pia-setup
+pia
 ```
 
-Enter your laptop's sudo password if requested, then your PIA username, PIA
-password, and dedicated IP token. Password and token input is hidden. Enter
-credentials only at these prompts, not as command arguments or in the repository.
+The command:
 
-After successful setup:
+1. Disconnects any previous PIA connection managed by this helper.
+2. Reuses your saved login and dedicated IP token, prompting on first use.
+3. Registers fresh WireGuard keys with your dedicated server.
+4. Starts an IPv4 tunnel, letting `wg-quick` choose the MTU and manage routes.
+5. Checks the handshake, HTTPS through the tunnel, and normal DNS and routing.
+   Both public IP checks must match your dedicated IP.
+6. Removes the new tunnel if connection verification fails or is cancelled.
 
-1. Disconnect Cloudflare WARP for the first test if it is connected.
-2. Left-click the network icon beside the temperature widget. Alternatively,
-   press **Super+S**, then select **Network**, or run:
-   `noctalia msg panel-open control-center network`.
-3. Find **VPNs**, expand it if needed, and click the plug beside **PIA Dedicated**.
-4. Confirm your public IPv4 matches the address printed by setup. A connection
-   shown as active is not sufficient to prove the WireGuard handshake succeeded.
-5. Click the disconnect/plug-off button to return to your normal connection.
+Enter your laptop's sudo password if requested. On first use, the helper also
+asks for your PIA username, password, and dedicated IP token. Password and token
+input is hidden. To replace saved credentials, use `pia --new-credentials`.
+Enter secrets only at the prompts, never in command arguments or the repository.
 
-The saved profile survives reboot. Normally you reconnect from the same Noctalia
-panel without entering credentials. If PIA discards the server-side registration,
-disconnect the profile and rerun the setup command; it reuses the saved login and
-token and refreshes the profile. There is no automatic registration-refresh daemon.
-To replace your saved credentials, run `pia-setup --new-credentials`.
+To disconnect:
 
-The helper saves credentials in `/var/lib/pia-noctalia/credentials.json` and the
-generated profile in
-`/etc/NetworkManager/system-connections/pia-dedicated.nmconnection`, with root-only
-file permissions. These contain runtime secrets and must stay outside Git and the
-Nix store. The Nix package, helper, and pinned public CA are versioned in this repo.
+```console
+piaoff
+```
 
-The source is suitable for a public repository: it contains the API endpoints,
-public CA reference, and synthetic test data, not your login, token, or generated
-private key. Rebuilding keeps both the installed tool and existing local VPN
-state. A fresh installation still needs initial setup because credentials are
-machine-local. Ignore rules protect against accidentally committing copies, but
-keep secret files outside the repository entirely: a local `path:` flake can copy
-even Git-ignored files into the Nix store. Never copy the generated VPN profile
-or credential file here.
+These aliases expand to `pia-setup --connect` and `pia-setup --disconnect`.
+The manual interface is named `pia-manual` and excluded from NetworkManager
+management. Use these commands to control it; Noctalia still controls the
+separate saved NetworkManager profile.
 
-This is a full Internet IPv4 tunnel, retaining normal local-network routes. DNS
-uses PIA's supplied servers through NetworkManager/systemd-resolved. Public IPv6
-is routed into the tunnel and is unavailable while connected because PIA's manual
-WireGuard service does not forward it. Disconnecting removes the profile's routes
-and DNS settings. This does not install a persistent firewall kill switch, perform
-port forwarding, or coordinate simultaneous WARP/PIA routing. Autoconnect is off.
+## Routing and connection checks
 
-The offline tests exercise the API flow with synthetic replies, credential
-handling, rollback, and real NetworkManager keyfile parsing. A real dedicated IP,
-DNS/IPv6 behavior, suspend/resume, and reconnect still need live testing.
+Internet IPv4 traffic uses PIA, retaining normal local-network routes and the
+underlying network's DNS settings. The helper adds no PIA DNS servers or IPv6
+tunnel routes. IPv6 connectivity on other interfaces remains outside PIA.
+
+The tunnel check uses Cloudflare's numeric HTTPS endpoint
+`https://1.1.1.1/cdn-cgi/trace`, independently of DNS. A second check uses
+`https://api.ipify.org` through normal DNS and routing. These checks do not change
+your DNS servers. An outage of either check service can fail verification.
+
+Disconnect WARP or another full-tunnel VPN before using PIA. The helper does not
+coordinate other VPNs or install a persistent firewall kill switch, port
+forwarding, or a background daemon. Verification runs when you connect; it does
+not continuously monitor the connection. Run `pia` again to refresh it.
+
+## Optional saved NetworkManager profile
+
+Running `pia-setup` without flags, or opening the **PIA Setup** launcher, prepares
+the saved **PIA Dedicated** profile for Noctalia. Setup does not activate it.
+The profile uses IPv4, retains normal DNS, and disables IPv6 on its interface.
+
+The Noctalia button uses the saved keys; it does not refresh PIA registration or
+verify a working tunnel. Prefer `pia` for fresh registration and verified manual
+connection. `pia` disconnects this saved profile before starting the manual
+tunnel, and `piaoff` handles either PIA connection.
+
+## Credentials and validation
+
+Runtime files have root-only permissions:
+
+- `/var/lib/pia-noctalia/credentials.json`: saved PIA login and dedicated token.
+- `/var/lib/pia-noctalia/pia-manual.conf`: current manual WireGuard configuration.
+- `/etc/NetworkManager/system-connections/pia-dedicated.nmconnection`: optional
+  saved NetworkManager profile.
+
+These files contain secrets and must stay outside Git and the Nix store.
+Rebuilding preserves the saved credentials. A fresh installation needs initial
+credential input because these files are machine-local. Never copy them into
+this repository, even under a Git-ignored path.
+
+Offline tests cover the API flow with synthetic replies, credential handling,
+real NetworkManager keyfile parsing, manual configuration, verification errors,
+and failure cleanup. They never activate a VPN. A real dedicated IP connection,
+DNS behavior, suspend/resume, and reconnect still need live testing.
 
 Sources:
 
 - [PIA manual-connections, pinned revision](https://github.com/pia-foss/manual-connections/tree/a1412dbe2ca41edbb79c766bc475335cb6cb13ad)
+- [wg-quick configuration and routing](https://git.zx2c4.com/wireguard-tools/about/src/man/wg-quick.8)
+- [ipify public IP API](https://www.ipify.org/)
 - [NetworkManager WireGuard routing](https://networkmanager.dev/docs/api/latest/settings-wireguard.html)
-- [Noctalia Control Center](https://docs.noctalia.dev/noctalia/control-center/)

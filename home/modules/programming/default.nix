@@ -114,6 +114,7 @@ in
     whois
     dig
     nmap
+    claude-code
   ];
 
   home.activation.ensureCodexConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

@@ -21,8 +21,14 @@ let
   };
   helper = writeText "pia-setup.py" (
     builtins.replaceStrings
-      [ "@curl@" "@nmcli@" "@wg@" "@certificate@" ]
-      [ "${curl}/bin/curl" "${networkmanager}/bin/nmcli" "${wireguard-tools}/bin/wg" "${certificate}" ]
+      [ "@curl@" "@nmcli@" "@wg@" "@wg-quick@" "@certificate@" ]
+      [
+        "${curl}/bin/curl"
+        "${networkmanager}/bin/nmcli"
+        "${wireguard-tools}/bin/wg"
+        "${wireguard-tools}/bin/wg-quick"
+        "${certificate}"
+      ]
       (builtins.readFile ./pia_setup.py)
   );
   command = writeShellScriptBin "pia-setup" ''
@@ -61,7 +67,7 @@ symlinkJoin {
     desktopItem
   ];
   meta = {
-    description = "Prepare a PIA dedicated-IP connection for Noctalia and NetworkManager";
+    description = "Prepare PIA dedicated-IP profiles and connect with fresh manual WireGuard setup";
     mainProgram = "pia-setup";
     platforms = lib.platforms.linux;
   };

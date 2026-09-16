@@ -4,4 +4,7 @@
   environment.systemPackages = [
     (pkgs.callPackage ../../packages/pia-setup { })
   ];
+
+  # wg-quick owns the interface used by the manual `pia` command.
+  networking.networkmanager.unmanaged = [ "interface-name:pia-manual" ];
 }
