@@ -1,4 +1,4 @@
-{ config, inputs, ... }:
+{ config, ... }:
 {
   assertions = [
     {
@@ -7,46 +7,34 @@
     }
   ];
 
-  imports = [
-    inputs.nix-citizen.nixosModules.default
-  ];
-
   programs.steam.enable = true; # enables Steam and required 32-bit runtime
   programs.gamemode.enable = true;
-  programs.gamescope = {
-    enable = true;
-    capSysNice = true;
-  };
 
-  programs.rsi-launcher = {
-    enable = true;
-    patchXwayland = true;
-    # winewayland.drv makes the launcher's CEF die at startup with
-    # FATAL:hwnd_util.cc 1400 (ERROR_INVALID_WINDOW_HANDLE); run through
-    # gamescope's Xwayland instead (which patchXwayland is for anyway).
-    enforceWaylandDrv = false;
-    preCommands = ''
-      mkdir -p "$WINEPREFIX/drive_c/Program Files/Roberts Space Industries/StarCitizen/LIVE"
-      touch "$WINEPREFIX/drive_c/Program Files/Roberts Space Industries/StarCitizen/LIVE/Data.p4k.part"
-    '';
-    # gamescope 3.16.23 nested on niri aborts mid-session ("same buffer
-    # committed twice" then SIGABRT), taking the launcher down with it.
-    # Run directly on niri's Xwayland instead; patchXwayland covers the
-    # cursor issues gamescope was working around.
-    gamescope.enable = false;
+  # Star Citizen via the LUG-maintained flatpak launcher. Declarative through
+  # nix-flatpak, whose NixOS module this host imports via the simracing module.
+  # The launcher is not on Flathub; it ships from its own repo. Declaring
+  # `remotes` replaces nix-flatpak's default list, so flathub (used by
+  # Boxflat) must be listed here too.
+  # Star Citizen's kernel limits (vm.max_map_count, fs.file-max) are set for
+  # all hosts in hosts/common/base.nix.
+  services.flatpak = {
+    remotes = [
+      {
+        name = "flathub";
+        location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
+      }
+      {
+        name = "RSILauncher";
+        location = "https://mactan-sc.github.io/rsilauncher/RSILauncher.flatpakrepo";
+      }
+    ];
+    packages = [
+      {
+        appId = "io.github.mactan_sc.RSILauncher";
+        origin = "RSILauncher";
+      }
+    ];
   };
 
   hardware.graphics.enable32Bit = true;
-
-  nix.settings = {
-    # Caches from nix-citizen + nix-gaming READMEs
-    substituters = [
-      "https://nix-citizen.cachix.org"
-      "https://nix-gaming.cachix.org"
-    ];
-    trusted-public-keys = [
-      "nix-citizen.cachix.org-1:lPMkWc2X8XD4/7YPEEwXKKBg+SVbYTVrAaLA2wQTKCo="
-      "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="
-    ];
-  };
 }
