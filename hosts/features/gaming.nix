@@ -29,16 +29,11 @@
       mkdir -p "$WINEPREFIX/drive_c/Program Files/Roberts Space Industries/StarCitizen/LIVE"
       touch "$WINEPREFIX/drive_c/Program Files/Roberts Space Industries/StarCitizen/LIVE/Data.p4k.part"
     '';
-    gamescope = {
-      enable = true;
-      args = [
-        "-W"
-        "3440"
-        "-H"
-        "1440"
-        "--force-grab-cursor"
-      ];
-    };
+    # gamescope 3.16.23 nested on niri aborts mid-session ("same buffer
+    # committed twice" then SIGABRT), taking the launcher down with it.
+    # Run directly on niri's Xwayland instead; patchXwayland covers the
+    # cursor issues gamescope was working around.
+    gamescope.enable = false;
   };
 
   hardware.graphics.enable32Bit = true;
