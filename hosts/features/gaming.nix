@@ -21,6 +21,10 @@
   programs.rsi-launcher = {
     enable = true;
     patchXwayland = true;
+    # winewayland.drv makes the launcher's CEF die at startup with
+    # FATAL:hwnd_util.cc 1400 (ERROR_INVALID_WINDOW_HANDLE); run through
+    # gamescope's Xwayland instead (which patchXwayland is for anyway).
+    enforceWaylandDrv = false;
     preCommands = ''
       mkdir -p "$WINEPREFIX/drive_c/Program Files/Roberts Space Industries/StarCitizen/LIVE"
       touch "$WINEPREFIX/drive_c/Program Files/Roberts Space Industries/StarCitizen/LIVE/Data.p4k.part"
