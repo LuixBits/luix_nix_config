@@ -81,7 +81,7 @@ in
   assertions = [
     {
       assertion = config.networking.hostName == "pc";
-      message = "hosts/features/corsair-cooling.nix configures the pc's Corsair cooling controllers and must only be imported by the pc host.";
+      message = "hosts/features/corsair-cooling configures the pc's Corsair cooling controllers and must only be imported by the pc host.";
     }
   ];
 

@@ -7,8 +7,8 @@
     ../features/pc-mass-storage.nix
     ../features/flatpak.nix
     ../features/gaming.nix
-    ../../home/modules/simracing/nixos.nix
-    ../features/corsair-cooling.nix
+    ../features/simracing
+    ../features/corsair-cooling
     ../features/spatial-input.nix
     ./hardware-configuration.nix
   ];

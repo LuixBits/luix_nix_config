@@ -12,9 +12,9 @@ Use the normal Boxflat and WiVRn application menus for configuration and startup
 
 **Enable it in this repository**
 
-The PC already imports and enables both parts. For reuse, import `nixos.nix`
-from your NixOS configuration and this directory from your Home Manager
-configuration. Set this option in each:
+The PC already imports and enables both parts. For reuse, import
+`hosts/features/simracing` from your NixOS configuration and this directory
+from your Home Manager configuration. Set this option in each:
 
 ```nix
 luix.simracing.enable = true;
@@ -41,7 +41,7 @@ interface. To enable streaming on LAN interfaces too, set
 use only the ADB fallback, set `luix.simracing.vr.usbNetworking = false`.
 Runtime settings remain writable in WiVRn.
 
-`wivrn.nix` pins the official WiVRn 26.9 release and its matching Monado source.
+`hosts/features/simracing/wivrn.nix` pins the official WiVRn 26.9 release and its matching Monado source.
 Both repository inputs still provide 26.6.2, which cannot connect to the Quest
 store's 26.9 client. The override retains the normal NixOS package integration;
 remove it when the pinned nixpkgs package matches the headset release.
