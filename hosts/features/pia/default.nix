@@ -2,7 +2,7 @@
 { pkgs, ... }:
 {
   environment.systemPackages = [
-    (pkgs.callPackage ../../packages/pia-setup { })
+    (pkgs.callPackage ./package.nix { })
   ];
 
   # wg-quick owns the interface used by the manual `pia` command.

@@ -12,7 +12,7 @@
     ../features/audio.nix
     ../features/flatpak.nix
     ../features/virt-manager.nix
-    ../../profiles/work/nixos.nix
+    ../features/work.nix
     inputs.nixos-hardware.nixosModules.framework-amd-ai-300-series
   ];
 

@@ -2,7 +2,7 @@
 { config, pkgs, ... }:
 {
   imports = [
-    ../../home/modules/teams
+    ../teams
   ];
 
   programs.git = {

@@ -16,7 +16,7 @@ in
     assertions = [
       {
         assertion = osConfig.luix.simracing.enable or false;
-        message = "Home Manager simracing requires the simracing/nixos.nix companion with luix.simracing.enable = true for device permissions and system packages.";
+        message = "Home Manager simracing requires the hosts/features/simracing companion with luix.simracing.enable = true for device permissions and system packages.";
       }
     ];
 

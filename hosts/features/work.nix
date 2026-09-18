@@ -2,12 +2,13 @@
 { ... }:
 {
   imports = [
-    ../../hosts/features/appimage.nix
-    ../../hosts/features/pia.nix
+    ./appimage.nix
+    ./pia
   ];
 
+  # Docker itself is enabled for every host in hosts/common/base.nix;
+  # the work environment only adds boot-time startup and journald logs.
   virtualisation.docker = {
-    enable = true;
     enableOnBoot = true;
     daemon.settings.log-driver = "journald";
   };
