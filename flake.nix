@@ -128,6 +128,16 @@
           networkHostName = "l";
         };
 
+        # Bootable LuixBits capture VM: the l config on virtual hardware,
+        # rebuildable from inside the VM for on-camera nixos-rebuild demos.
+        l-capture = mkHost {
+          hostModule = ./hosts/l/capture.nix;
+          homeHost = ./home/hosts/l.nix;
+          hmUser = "luix";
+          machine = "l";
+          networkHostName = "l";
+        };
+
         framework = mkHost {
           hostModule = ./hosts/framework;
           homeHost = ./home/hosts/framework.nix;

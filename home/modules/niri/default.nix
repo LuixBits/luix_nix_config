@@ -34,6 +34,13 @@ let
             transform "270"
             position x=5086 y=0
         }
+
+        // The build-vm capture rig exposes the panel as Virtual-1. Real
+        // hardware never has this output, so niri ignores the block there.
+        output "Virtual-1" {
+            scale 1.75
+            position x=0 y=0
+        }
       ''
     else if isFrameworkMachine then
       # Shikane owns the Framework panel and work-display layouts.
