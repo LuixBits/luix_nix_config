@@ -63,8 +63,8 @@
   {
     mode = "n";
     key = "<leader>njo";
-    action = "<cmd>Neorg journal toc update<CR>";
-    desc = "Journal: index of entries";
+    action = "<cmd>lua LuixJournalOverview.update_and_open()<CR>";
+    desc = "Journal: overview page";
   }
   {
     mode = "n";
