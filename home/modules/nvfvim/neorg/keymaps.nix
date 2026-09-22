@@ -38,6 +38,36 @@
   }
   {
     mode = "n";
+    key = "<leader>njj";
+    action = "<cmd>Neorg journal today<CR>";
+    desc = "Journal: today";
+  }
+  {
+    mode = "n";
+    key = "<leader>njy";
+    action = "<cmd>Neorg journal yesterday<CR>";
+    desc = "Journal: yesterday";
+  }
+  {
+    mode = "n";
+    key = "<leader>njt";
+    action = "<cmd>Neorg journal tomorrow<CR>";
+    desc = "Journal: tomorrow";
+  }
+  {
+    mode = "n";
+    key = "<leader>njc";
+    action = "<cmd>Neorg journal custom<CR>";
+    desc = "Journal: pick date (calendar)";
+  }
+  {
+    mode = "n";
+    key = "<leader>njo";
+    action = "<cmd>Neorg journal toc update<CR>";
+    desc = "Journal: index of entries";
+  }
+  {
+    mode = "n";
     key = "<leader>nt";
     action = "<Plug>(neorg-template-engine.insert-template)";
     desc = "Insert note template";

@@ -46,6 +46,7 @@ in
 
     binds.whichKey.register."<leader>n" = "+Notes";
     binds.whichKey.register."<leader>ng" = "+Notes Git";
+    binds.whichKey.register."<leader>nj" = "+Journal";
 
     notes.neorg = {
       enable = true;
@@ -53,6 +54,7 @@ in
       setupOpts.load = {
         "core.defaults" = { };
         "core.concealer" = { };
+        "core.ui.calendar" = { };
         "core.integrations.telescope" = { };
         "core.dirman" = {
           config = {
