@@ -18,8 +18,7 @@ window_title = "{workspace}: {tab}"
 [ui.sidebar.agents]
 row_gap = 0
 rows = [
-  ["state_icon", "workspace", "tab"],
-  ["agent", "state_text"],
+  ["state_icon", "workspace", "agent"],
 ]
 
 [ui.sidebar.spaces]
@@ -69,9 +68,3 @@ command = "lazygit"
 width = "90%"
 height = "90%"
 description = "project git workspace"
-
-[[keys.command]]
-key = "prefix+alt+b"
-type = "shell"
-command = '"${HERDR_BIN_PATH}" plugin pane open --plugin official.browser --entrypoint browser --placement overlay --focus'
-description = "open browser overlay"

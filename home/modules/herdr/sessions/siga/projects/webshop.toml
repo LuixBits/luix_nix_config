@@ -13,7 +13,3 @@ command = "codex"
 
 [[tabs]]
 name = "Webshop CLI"
-
-[[tabs]]
-name = "Webshop Browser"
-command = "herdr-browser-tab https://siga-webshop.local/ch-de"

@@ -8,17 +8,15 @@
       "public_pane_numbers": {
         "1": 1,
         "2": 2,
-        "3": 3,
-        "4": 4
+        "3": 3
       },
-      "next_public_pane_number": 5,
+      "next_public_pane_number": 4,
       "public_tab_numbers": [
         1,
         2,
-        3,
-        4
+        3
       ],
-      "next_public_tab_number": 5,
+      "next_public_tab_number": 4,
       "tabs": [
         {
           "custom_name": "Roiguard Nvim",
@@ -61,20 +59,6 @@
           "zoomed": false,
           "focused": 3,
           "root_pane": 3
-        },
-        {
-          "custom_name": "Roiguard Browser",
-          "layout": {
-            "Pane": 4
-          },
-          "panes": {
-            "4": {
-              "cwd": "@HOME@/siga/roiguard"
-            }
-          },
-          "zoomed": false,
-          "focused": 4,
-          "root_pane": 4
         }
       ],
       "active_tab": 0
@@ -86,17 +70,15 @@
       "public_pane_numbers": {
         "5": 1,
         "6": 2,
-        "7": 3,
-        "8": 4
+        "7": 3
       },
-      "next_public_pane_number": 5,
+      "next_public_pane_number": 4,
       "public_tab_numbers": [
         1,
         2,
-        3,
-        4
+        3
       ],
-      "next_public_tab_number": 5,
+      "next_public_tab_number": 4,
       "tabs": [
         {
           "custom_name": "Webshop Nvim",
@@ -139,20 +121,6 @@
           "zoomed": false,
           "focused": 7,
           "root_pane": 7
-        },
-        {
-          "custom_name": "Webshop Browser",
-          "layout": {
-            "Pane": 8
-          },
-          "panes": {
-            "8": {
-              "cwd": "@HOME@/siga/webshop"
-            }
-          },
-          "zoomed": false,
-          "focused": 8,
-          "root_pane": 8
         }
       ],
       "active_tab": 0

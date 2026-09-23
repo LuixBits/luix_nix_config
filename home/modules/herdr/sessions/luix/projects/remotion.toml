@@ -12,12 +12,8 @@ name = "Remotion Codex"
 command = "codex"
 
 [[tabs]]
-name = "Remotion Kimi"
-command = "kimi"
+name = "Remotion Claude"
+command = "claude"
 
 [[tabs]]
 name = "Remotion CLI"
-
-[[tabs]]
-name = "Remotion Browser"
-command = "herdr-browser-tab http://localhost:3000"

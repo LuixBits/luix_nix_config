@@ -12,8 +12,8 @@ name = "Notes Codex"
 command = "codex"
 
 [[tabs]]
-name = "Notes Kimi"
-command = "kimi"
+name = "Notes Claude"
+command = "claude"
 
 [[tabs]]
 name = "Notes CLI"

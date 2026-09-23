@@ -9,18 +9,16 @@
         "1": 1,
         "2": 2,
         "3": 3,
-        "4": 4,
-        "21": 5
+        "4": 4
       },
-      "next_public_pane_number": 6,
+      "next_public_pane_number": 5,
       "public_tab_numbers": [
         1,
         2,
         3,
-        4,
-        5
+        4
       ],
-      "next_public_tab_number": 6,
+      "next_public_tab_number": 5,
       "tabs": [
         {
           "custom_name": "Projects Nvim",
@@ -51,7 +49,7 @@
           "root_pane": 2
         },
         {
-          "custom_name": "Projects Kimi",
+          "custom_name": "Projects Claude",
           "layout": {
             "Pane": 3
           },
@@ -77,20 +75,6 @@
           "zoomed": false,
           "focused": 4,
           "root_pane": 4
-        },
-        {
-          "custom_name": "Projects Browser",
-          "layout": {
-            "Pane": 21
-          },
-          "panes": {
-            "21": {
-              "cwd": "@HOME@/projects"
-            }
-          },
-          "zoomed": false,
-          "focused": 21,
-          "root_pane": 21
         }
       ],
       "active_tab": 0
@@ -143,7 +127,7 @@
           "root_pane": 6
         },
         {
-          "custom_name": "Luix Config Kimi",
+          "custom_name": "Luix Config Claude",
           "layout": {
             "Pane": 7
           },
@@ -221,7 +205,7 @@
           "root_pane": 10
         },
         {
-          "custom_name": "Notes Kimi",
+          "custom_name": "Notes Claude",
           "layout": {
             "Pane": 11
           },
@@ -259,18 +243,16 @@
         "13": 1,
         "14": 2,
         "15": 3,
-        "16": 4,
-        "22": 5
+        "16": 4
       },
-      "next_public_pane_number": 6,
+      "next_public_pane_number": 5,
       "public_tab_numbers": [
         1,
         2,
         3,
-        4,
-        5
+        4
       ],
-      "next_public_tab_number": 6,
+      "next_public_tab_number": 5,
       "tabs": [
         {
           "custom_name": "Utils Nvim",
@@ -301,7 +283,7 @@
           "root_pane": 14
         },
         {
-          "custom_name": "Utils Kimi",
+          "custom_name": "Utils Claude",
           "layout": {
             "Pane": 15
           },
@@ -327,20 +309,6 @@
           "zoomed": false,
           "focused": 16,
           "root_pane": 16
-        },
-        {
-          "custom_name": "Utils Browser",
-          "layout": {
-            "Pane": 22
-          },
-          "panes": {
-            "22": {
-              "cwd": "@HOME@"
-            }
-          },
-          "zoomed": false,
-          "focused": 22,
-          "root_pane": 22
         }
       ],
       "active_tab": 0
@@ -353,18 +321,16 @@
         "17": 1,
         "18": 2,
         "19": 3,
-        "20": 4,
-        "23": 5
+        "20": 4
       },
-      "next_public_pane_number": 6,
+      "next_public_pane_number": 5,
       "public_tab_numbers": [
         1,
         2,
         3,
-        4,
-        5
+        4
       ],
-      "next_public_tab_number": 6,
+      "next_public_tab_number": 5,
       "tabs": [
         {
           "custom_name": "Remotion Nvim",
@@ -395,7 +361,7 @@
           "root_pane": 18
         },
         {
-          "custom_name": "Remotion Kimi",
+          "custom_name": "Remotion Claude",
           "layout": {
             "Pane": 19
           },
@@ -421,20 +387,6 @@
           "zoomed": false,
           "focused": 20,
           "root_pane": 20
-        },
-        {
-          "custom_name": "Remotion Browser",
-          "layout": {
-            "Pane": 23
-          },
-          "panes": {
-            "23": {
-              "cwd": "@HOME@/projects/LuixBitsRemotion"
-            }
-          },
-          "zoomed": false,
-          "focused": 23,
-          "root_pane": 23
         }
       ],
       "active_tab": 0

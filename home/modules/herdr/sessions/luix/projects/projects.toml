@@ -12,12 +12,8 @@ name = "Projects Codex"
 command = "codex"
 
 [[tabs]]
-name = "Projects Kimi"
-command = "kimi"
+name = "Projects Claude"
+command = "claude"
 
 [[tabs]]
 name = "Projects CLI"
-
-[[tabs]]
-name = "Projects Browser"
-command = "herdr-browser-tab"
