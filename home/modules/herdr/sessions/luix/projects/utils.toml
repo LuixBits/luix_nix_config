@@ -12,12 +12,8 @@ name = "Utils Codex"
 command = "codex"
 
 [[tabs]]
-name = "Utils Kimi"
-command = "kimi"
+name = "Utils Claude"
+command = "claude"
 
 [[tabs]]
 name = "Utils CLI"
-
-[[tabs]]
-name = "Utils Browser"
-command = "herdr-browser-tab"

@@ -12,8 +12,8 @@ name = "Luix Config Codex"
 command = "codex"
 
 [[tabs]]
-name = "Luix Config Kimi"
-command = "kimi"
+name = "Luix Config Claude"
+command = "claude"
 
 [[tabs]]
 name = "Luix Config CLI"
