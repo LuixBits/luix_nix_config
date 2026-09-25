@@ -82,6 +82,8 @@ in
     package = codexPackage;
   };
 
+  programs.claude-code.enable = true;
+
   programs.vscode = {
     enable = true;
     package = pkgs.vscode;
@@ -114,7 +116,6 @@ in
     whois
     dig
     nmap
-    claude-code
   ];
 
   home.activation.ensureCodexConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

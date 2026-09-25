@@ -12,4 +12,8 @@ name = "Roiguard Codex"
 command = "codex"
 
 [[tabs]]
+name = "Roiguard Claude"
+command = "claude"
+
+[[tabs]]
 name = "Roiguard CLI"

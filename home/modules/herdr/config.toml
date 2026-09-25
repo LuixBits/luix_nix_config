@@ -62,6 +62,12 @@ command = "herdr-bar.open"
 description = "herdr-bar: fuzzy jump"
 
 [[keys.command]]
+key = "prefix+alt+r"
+type = "plugin_action"
+command = "persiyanov.reviewr.toggle"
+description = "reviewr: toggle diff review"
+
+[[keys.command]]
 key = "prefix+alt+g"
 type = "popup"
 command = "lazygit"
