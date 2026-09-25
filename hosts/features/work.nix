@@ -22,7 +22,7 @@
   networking.networkmanager.dns = "systemd-resolved";
 
   networking.extraHosts = ''
-    127.0.0.1 siga-webshop.local siga-blog.local roi.local webauth.local
+    127.0.0.1 siga-webshop.local siga-blog.local roi.local webauth.local siga-webauth.local
   '';
 
   # Teams on the web uses Chrome's Idle Detection API to keep presence

@@ -8,15 +8,17 @@
       "public_pane_numbers": {
         "1": 1,
         "2": 2,
-        "3": 3
+        "4": 3,
+        "3": 4
       },
-      "next_public_pane_number": 4,
+      "next_public_pane_number": 5,
       "public_tab_numbers": [
         1,
         2,
-        3
+        3,
+        4
       ],
-      "next_public_tab_number": 4,
+      "next_public_tab_number": 5,
       "tabs": [
         {
           "custom_name": "Roiguard Nvim",
@@ -47,6 +49,20 @@
           "root_pane": 2
         },
         {
+          "custom_name": "Roiguard Claude",
+          "layout": {
+            "Pane": 4
+          },
+          "panes": {
+            "4": {
+              "cwd": "@HOME@/siga/roiguard"
+            }
+          },
+          "zoomed": false,
+          "focused": 4,
+          "root_pane": 4
+        },
+        {
           "custom_name": "Roiguard CLI",
           "layout": {
             "Pane": 3
@@ -70,15 +86,17 @@
       "public_pane_numbers": {
         "5": 1,
         "6": 2,
-        "7": 3
+        "8": 3,
+        "7": 4
       },
-      "next_public_pane_number": 4,
+      "next_public_pane_number": 5,
       "public_tab_numbers": [
         1,
         2,
-        3
+        3,
+        4
       ],
-      "next_public_tab_number": 4,
+      "next_public_tab_number": 5,
       "tabs": [
         {
           "custom_name": "Webshop Nvim",
@@ -109,6 +127,20 @@
           "root_pane": 6
         },
         {
+          "custom_name": "Webshop Claude",
+          "layout": {
+            "Pane": 8
+          },
+          "panes": {
+            "8": {
+              "cwd": "@HOME@/siga/webshop"
+            }
+          },
+          "zoomed": false,
+          "focused": 8,
+          "root_pane": 8
+        },
+        {
           "custom_name": "Webshop CLI",
           "layout": {
             "Pane": 7
@@ -132,15 +164,17 @@
       "public_pane_numbers": {
         "9": 1,
         "10": 2,
-        "11": 3
+        "15": 3,
+        "11": 4
       },
-      "next_public_pane_number": 4,
+      "next_public_pane_number": 5,
       "public_tab_numbers": [
         1,
         2,
-        3
+        3,
+        4
       ],
-      "next_public_tab_number": 4,
+      "next_public_tab_number": 5,
       "tabs": [
         {
           "custom_name": "Nix Config Nvim",
@@ -171,6 +205,20 @@
           "root_pane": 10
         },
         {
+          "custom_name": "Nix Config Claude",
+          "layout": {
+            "Pane": 15
+          },
+          "panes": {
+            "15": {
+              "cwd": "@HOME@/luix_nix_config"
+            }
+          },
+          "zoomed": false,
+          "focused": 15,
+          "root_pane": 15
+        },
+        {
           "custom_name": "Nix Config CLI",
           "layout": {
             "Pane": 11
@@ -194,15 +242,17 @@
       "public_pane_numbers": {
         "12": 1,
         "13": 2,
-        "14": 3
+        "16": 3,
+        "14": 4
       },
-      "next_public_pane_number": 4,
+      "next_public_pane_number": 5,
       "public_tab_numbers": [
         1,
         2,
-        3
+        3,
+        4
       ],
-      "next_public_tab_number": 4,
+      "next_public_tab_number": 5,
       "tabs": [
         {
           "custom_name": "Notes Nvim",
@@ -231,6 +281,20 @@
           "zoomed": false,
           "focused": 13,
           "root_pane": 13
+        },
+        {
+          "custom_name": "Notes Claude",
+          "layout": {
+            "Pane": 16
+          },
+          "panes": {
+            "16": {
+              "cwd": "@HOME@/notes"
+            }
+          },
+          "zoomed": false,
+          "focused": 16,
+          "root_pane": 16
         },
         {
           "custom_name": "Notes CLI",

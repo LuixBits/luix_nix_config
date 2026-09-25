@@ -12,4 +12,8 @@ name = "Webshop Codex"
 command = "codex"
 
 [[tabs]]
+name = "Webshop Claude"
+command = "claude"
+
+[[tabs]]
 name = "Webshop CLI"

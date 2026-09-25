@@ -2,7 +2,7 @@
 let
   herdrPackage = inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default;
   codexCommand = "${config.programs.codex.package}/bin/codex";
-  claudeCommand = "${pkgs.claude-code}/bin/claude";
+  claudeCommand = "${config.programs.claude-code.finalPackage}/bin/claude";
   herdrConfig = ./config.toml;
   herdrPlusPluginId = "cloudmanic.herdr-plus";
   herdrPlusVersion = "0.1.10";
@@ -38,6 +38,54 @@ let
         'command = ["python3", "run.py"]' \
         'command = ["${pkgs.python3}/bin/python3", "run.py"]'
   '';
+  herdrReviewrPluginId = "persiyanov.reviewr";
+  herdrReviewrVersion = "0.39.0";
+  herdrReviewrSrc = pkgs.fetchFromGitHub {
+    owner = "persiyanov";
+    repo = "herdr-reviewr";
+    rev = "v${herdrReviewrVersion}";
+    hash = "sha256-QD+hqFt1zpzGiJELJwwyJy4s6ASbIdOYnsw2S1qIaHs=";
+  };
+  herdrReviewr = pkgs.stdenvNoCC.mkDerivation {
+    pname = "herdr-reviewr";
+    version = herdrReviewrVersion;
+    src = pkgs.fetchurl {
+      url = "https://github.com/persiyanov/herdr-reviewr/releases/download/v${herdrReviewrVersion}/herdr-reviewr-x86_64-unknown-linux-musl.tar.gz";
+      hash = "sha256-lGPrpBz5YvaAUR24CQnX5GojZARbLHbL/+gDfINXKPQ=";
+    };
+    sourceRoot = ".";
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    dontStrip = true;
+    installPhase = ''
+      runHook preInstall
+      install -D -m 0755 herdr-reviewr "$out/libexec/herdr-reviewr"
+      makeWrapper "$out/libexec/herdr-reviewr" "$out/bin/herdr-reviewr" \
+        --prefix PATH : ${lib.makeBinPath [ pkgs.git pkgs.gh pkgs.xdg-utils ]}
+      runHook postInstall
+    '';
+    meta = {
+      description = "Herdr diff review pane with inline feedback for coding agents";
+      homepage = "https://github.com/persiyanov/herdr-reviewr";
+      license = lib.licenses.mit;
+      mainProgram = "herdr-reviewr";
+      platforms = [ "x86_64-linux" ];
+    };
+  };
+  herdrReviewrPlugin = pkgs.runCommand "herdr-reviewr-plugin-${herdrReviewrVersion}" { } ''
+    mkdir -p "$out/bin"
+    cp -R ${herdrReviewrSrc}/. "$out/"
+    ln -s ${herdrReviewr}/bin/herdr-reviewr "$out/bin/herdr-reviewr"
+    substituteInPlace "$out/herdr-plugin.toml" \
+      --replace-fail \
+        $'[[build]]\ncommand = ["bash", "herdr/install.sh"]' \
+        '# The release binary is fetched and pinned by Nix.' \
+      --replace-fail 'command = ["bash",' 'command = ["${pkgs.bash}/bin/bash",' \
+      --replace-fail 'command = ["sh",' 'command = ["${pkgs.bash}/bin/sh",'
+    substituteInPlace "$out/herdr/pane.sh" \
+      --replace-fail \
+        'export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:''${PATH:-}"' \
+        'export PATH="${lib.makeBinPath [ pkgs.coreutils pkgs.gnused pkgs.git pkgs.jq ]}:''${PATH:-}"'
+  '';
   spaceUsagePluginId = "ez-corp.space-usage";
   spaceUsageVersion = "1.11.1";
   spaceUsageSrc = pkgs.fetchFromGitHub {
@@ -66,6 +114,7 @@ let
   herdrPlugins = [
     herdrPlusPlugin
     herdrBarPlugin
+    herdrReviewrPlugin
     spaceUsagePlugin
   ];
   linkHerdrPluginsShell = lib.concatMapStringsSep "\n      "
@@ -323,6 +372,8 @@ let
         stop_session
       else
         link_plugins
+        # Apply the shared sidebar and shortcuts to already-running sessions.
+        herdr_session server reload-config >/dev/null
         bootstrap_commands
         exec "$herdr_bin" --session "$session_name"
       fi
@@ -349,20 +400,21 @@ let
       sessionTemplate = ./sessions/siga/session.template.json;
       layoutRevision = builtins.hashString "sha256" (
         (builtins.readFile ./sessions/siga/session.template.json)
-        + "\nbootstrap-agent-command=codex\n"
+        + "\nbootstrap-agent-commands=codex,claude\n"
       );
       projectDirs = [ ./sessions/siga/projects ];
       requiredTabs = lib.concatMap
-        (workspace: map (tab: { inherit workspace tab; }) [ 1 2 3 ])
+        (workspace: map (tab: { inherit workspace tab; }) [ 1 2 3 4 ])
         [ "w1" "w3" "w4" "w5" ];
       requiredPanes = lib.concatMap
-        (workspace: map (pane: { inherit workspace pane; }) [ 1 2 3 ])
+        (workspace: map (pane: { inherit workspace pane; }) [ 1 2 3 4 ])
         [ "w1" "w3" "w4" "w5" ];
       bootstrapCommands =
         lib.concatMap
           (workspace: [
             { pane = "${workspace}:p1"; command = "nvim ."; }
             { pane = "${workspace}:p2"; command = codexCommand; }
+            { pane = "${workspace}:p3"; command = claudeCommand; }
           ])
           [ "w1" "w3" "w4" "w5" ];
       # Select every workspace's Neovim tab and finish on Roiguard.
@@ -448,6 +500,13 @@ in
   xdg.configFile = {
     "herdr/config.toml".source = herdrConfig;
     "herdr/plugins/config/${spaceUsagePluginId}/config.toml".source = ./plugins/space-usage.toml;
+    "herdr/plugins/config/${herdrReviewrPluginId}/config.toml".text = ''
+      theme = "dracula"
+      editor = "nvim +{line} {file}"
+      auto_open = false
+      toggle_placement = "split"
+      toggle_direction = "right"
+    '';
   } // herdrPlusProjectConfigFiles;
 
   home.activation.cleanupLegacyHerdrConfig = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
@@ -475,20 +534,20 @@ in
   # Keep the lifecycle/session hooks in sync with the pinned Herdr release.
   # Without this, an older hook can survive a Herdr upgrade indefinitely.
   home.activation.ensureHerdrAgentIntegrations = lib.hm.dag.entryAfter [ "ensureCodexConfig" ] ''
-    claude_config_dir="${config.home.homeDirectory}/.claude"
+    claude_config_dir="${config.programs.claude-code.configDir}"
     run mkdir -p "$claude_config_dir"
 
     run ${pkgs.coreutils}/bin/env \
-      CODEX_HOME="${config.home.homeDirectory}/.codex" \
-      ${herdrPackage}/bin/herdr integration install codex
-    run ${pkgs.coreutils}/bin/env \
       CLAUDE_CONFIG_DIR="$claude_config_dir" \
       ${herdrPackage}/bin/herdr integration install claude
+    run ${pkgs.coreutils}/bin/env \
+      CODEX_HOME="${config.home.homeDirectory}/.codex" \
+      ${herdrPackage}/bin/herdr integration install codex
     run ${pkgs.coreutils}/bin/env \
       KIMI_CODE_HOME="${config.home.homeDirectory}/.kimi-code" \
       ${herdrPackage}/bin/herdr integration uninstall kimi
   '';
 
-  home.packages = [ herdrPackage ] ++ herdrSessionPackages;
+  home.packages = [ herdrPackage herdrReviewr ] ++ herdrSessionPackages;
 
 }

@@ -12,4 +12,8 @@ name = "Nix Config Codex"
 command = "codex"
 
 [[tabs]]
+name = "Nix Config Claude"
+command = "claude"
+
+[[tabs]]
 name = "Nix Config CLI"
