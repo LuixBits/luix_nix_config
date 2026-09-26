@@ -14,14 +14,15 @@ in
 
   programs.nvf.neorg-flashcards = {
     enable = true;
-    # v0.2 is the newest published, portable release. The former named
-    # Computer Science collection used an unpublished local v0.3 checkout;
-    # restore it only together with that source and an explicit card migration.
-    schemaPresets = [ "japanese" ];
+    schemaPresets.japanese = [ "japanese" ];
     setupOpts = {
-      flashcards_dir = flashcardsDir;
-      default_file = "${flashcardsDir}/cards.norg";
-      default_kind = "japanese";
+      default_collection = "japanese";
+      collections.japanese = {
+        label = "Japanese";
+        path = flashcardsDir;
+        default_file = "cards.norg";
+        default_card_type = "japanese";
+      };
       ui.show_shortcuts = true;
     };
     keymaps = {

@@ -92,10 +92,10 @@ in
     | --- | --- |
     | `<leader>nc` | Open the Flashcards hub: Overview, Cards, and Stats |
 
-    The portable v0.2 release currently manages the Japanese flashcards
-    directory as one collection. The former Computer Science collection
-    depends on the unpublished local v0.3 checkout and must be restored with
-    its source and card-data migration before it can be enabled again.
+    The Japanese collection uses the existing cards and review history in
+    `~/notes/japanese/flashcards`. Add subjects through matching
+    `setupOpts.collections.<id>` and `schemaPresets.<id>` entries in the
+    flashcards module. Press `C` to switch between configured collections.
 
     In the hub, use `1`/`2`/`3` or `Tab` to change page and `Ctrl-W W` to
     switch panes. `j`/`k` move the main selection or scroll the focused pane;

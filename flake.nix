@@ -30,7 +30,7 @@
     herdr.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
     # Neorg flashcards plugin and NVF module
-    luixbits-neorg-flashcards.url = "github:LuixBits/luixbits-neorg-flashcards.nvim?ref=v0.2.0";
+    luixbits-neorg-flashcards.url = "github:LuixBits/luixbits-neorg-flashcards.nvim";
     luixbits-neorg-flashcards.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
     # Sentry plugin and NVF module
