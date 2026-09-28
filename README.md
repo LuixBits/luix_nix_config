@@ -32,6 +32,40 @@ sudo nixos-rebuild switch --flake .#<host>
 Home Manager runs as a NixOS module, so this is the only command — no separate
 `home-manager switch`.
 
+## Codex and Claude Code
+
+Both CLIs are pinned in `home/modules/programming/default.nix`, shared by all
+machines. Codex uses the official release bundle; Claude Code uses the official
+binary with Nixpkgs' runtime dependencies and binary patching. `codex-new` is an
+alias for the same pinned Codex package.
+
+To update either CLI, change its version and download hash in that module,
+validate the package, then rebuild normally and restart the CLI. Updating
+`flake.lock` alone does not change these version pins. Claude's package disables
+its self-updater; manage these installations through Nix.
+
+Get each download's hash with the desired release version substituted below:
+
+```sh
+nix store prefetch-file --json 'https://releases.openai.com/codex/releases/<version>/codex-package-x86_64-unknown-linux-musl.tar.gz'
+nix store prefetch-file --json 'https://downloads.claude.ai/claude-code-releases/<version>/linux-x64/claude'
+```
+
+Use the returned `hash` in the corresponding `fetchurl`. Check current versions
+against the [Codex changelog](https://learn.chatgpt.com/docs/changelog) and
+[Claude Code changelog](https://code.claude.com/docs/en/changelog).
+
+Model choice is separate from the installed CLI version. For example, start
+Codex with `codex --model gpt-6-sol`, or Claude with `claude --model opus` or
+`claude --model fable`. `/model` opens each CLI's model picker. Availability also
+depends on the signed-in account and organization policies.
+
+The Codex activation defaults in the programming module currently set
+`gpt-6-astra` with `xhigh` reasoning on every rebuild. Change those defaults in
+Nix if you want a different persistent model; a local picker choice can be
+overwritten by the next rebuild. Claude's model choice stays in its user
+settings.
+
 ## Adding something new
 
 - Needs root, a service, udev, kernel, firewall? → `hosts/features/`, import it from the host.
