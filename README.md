@@ -40,7 +40,7 @@ updates daily and provides a signed binary cache. We keep its own tested
 `nixpkgs` revision so its cached packages can be reused. The cache is configured
 both for the flake's first rebuild and in the system Nix settings.
 
-`codex-new` runs the same package as `codex`. Herdr's separately packaged
+Use the standard `codex` and `claude` commands. Herdr's separately packaged
 plugins retain their own versions in `home/modules/herdr/default.nix`.
 
 The package maintainers update CLI versions and download hashes. There are no

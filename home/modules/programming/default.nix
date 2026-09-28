@@ -7,12 +7,6 @@
 }:
 let
   aiPackages = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
-  codexPackage = aiPackages.codex;
-  # Preserve the historical command while both names use the same package.
-  codexNew = pkgs.writeShellScriptBin "codex-new" ''
-    exec ${codexPackage}/bin/codex "$@"
-  '';
-  claudeCodePackage = aiPackages.claude-code;
   writeCodexDefaults = pkgs.writeShellScript "write-codex-defaults" ''
     set -eu
 
@@ -52,12 +46,12 @@ in
 
   programs.codex = {
     enable = true;
-    package = codexPackage;
+    package = aiPackages.codex;
   };
 
   programs.claude-code = {
     enable = true;
-    package = claudeCodePackage;
+    package = aiPackages.claude-code;
   };
 
   programs.vscode = {
@@ -70,8 +64,6 @@ in
   };
 
   home.packages = with pkgs; [
-    bubblewrap
-    codexNew
     dbeaver-bin
     gcc
     gnumake
