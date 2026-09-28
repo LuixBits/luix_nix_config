@@ -32,28 +32,33 @@ sudo nixos-rebuild switch --flake .#<host>
 Home Manager runs as a NixOS module, so this is the only command — no separate
 `home-manager switch`.
 
-## Codex and Claude Code
+## Codex, Claude Code, and Herdr updates
 
-Both CLIs are pinned in `home/modules/programming/default.nix`, shared by all
-machines. Codex uses the official release bundle; Claude Code uses the official
-binary with Nixpkgs' runtime dependencies and binary patching. `codex-new` is an
-alias for the same pinned Codex package.
+All three applications come from the shared `llm-agents` flake input:
+[numtide/llm-agents.nix](https://github.com/numtide/llm-agents.nix). It checks for
+updates daily and provides a signed binary cache. We keep its own tested
+`nixpkgs` revision so its cached packages can be reused. The cache is configured
+both for the flake's first rebuild and in the system Nix settings.
 
-To update either CLI, change its version and download hash in that module,
-validate the package, then rebuild normally and restart the CLI. Updating
-`flake.lock` alone does not change these version pins. Claude's package disables
-its self-updater; manage these installations through Nix.
+`codex-new` runs the same package as `codex`. Herdr's separately packaged
+plugins retain their own versions in `home/modules/herdr/default.nix`.
 
-Get each download's hash with the desired release version substituted below:
+The package maintainers update CLI versions and download hashes. There are no
+manual version pins for these three applications in this repository. The
+existing `flakeonly` and `buildall` helpers already run `nix flake update`, so
+they refresh this input along with the rest of the configuration.
+
+To refresh just these three applications, run this from the repository:
 
 ```sh
-nix store prefetch-file --json 'https://releases.openai.com/codex/releases/<version>/codex-package-x86_64-unknown-linux-musl.tar.gz'
-nix store prefetch-file --json 'https://downloads.claude.ai/claude-code-releases/<version>/linux-x64/claude'
+nix flake update llm-agents
 ```
 
-Use the returned `hash` in the corresponding `fetchurl`. Check current versions
-against the [Codex changelog](https://learn.chatgpt.com/docs/changelog) and
-[Claude Code changelog](https://code.claude.com/docs/en/changelog).
+Then rebuild normally and restart the applications. Nix still records the
+resolved revisions in `flake.lock`; updating that file is what advances the
+versions. Applications do not update themselves between rebuilds, and a new
+CLI release can take time to reach `llm-agents`; daily updates do not guarantee
+that it always has the newest upstream release immediately.
 
 Model choice is separate from the installed CLI version. For example, start
 Codex with `codex --model gpt-6-sol`, or Claude with `claude --model opus` or

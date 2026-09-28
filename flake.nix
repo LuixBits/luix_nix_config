@@ -1,6 +1,14 @@
 {
   description = "Multi-host NixOS and Home Manager configuration";
 
+  # Make the AI package cache available during the first rebuild as well.
+  nixConfig = {
+    extra-substituters = [ "https://cache.numtide.com" ];
+    extra-trusted-public-keys = [
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+    ];
+  };
+
   inputs = {
     # primary channels
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
@@ -25,9 +33,9 @@
     noctalia.url = "github:noctalia-dev/noctalia-shell";
     noctalia.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
-    # Herdr terminal workflow
-    herdr.url = "github:herdrdev/herdr/v0.9.0";
-    herdr.inputs.nixpkgs.follows = "nixpkgs-unstable";
+    # Daily updates for Codex, Claude Code, and Herdr. Keep the provider's own
+    # nixpkgs so packages match its tested builds and binary cache.
+    llm-agents.url = "github:numtide/llm-agents.nix";
 
     # Neorg flashcards plugin and NVF module
     luixbits-neorg-flashcards.url = "github:LuixBits/luixbits-neorg-flashcards.nvim";

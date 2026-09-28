@@ -1,6 +1,6 @@
 { config, inputs, lib, pkgs, ... }:
 let
-  herdrPackage = inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  herdrPackage = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr;
   codexCommand = "${config.programs.codex.package}/bin/codex";
   claudeCommand = "${config.programs.claude-code.finalPackage}/bin/claude";
   herdrConfig = ./config.toml;
@@ -531,7 +531,7 @@ in
       "${config.home.homeDirectory}/projects/LuixBitsRemotion"
   '';
 
-  # Keep the lifecycle/session hooks in sync with the pinned Herdr release.
+  # Keep the lifecycle/session hooks in sync with the selected Herdr package.
   # Without this, an older hook can survive a Herdr upgrade indefinitely.
   home.activation.ensureHerdrAgentIntegrations = lib.hm.dag.entryAfter [ "ensureCodexConfig" ] ''
     claude_config_dir="${config.programs.claude-code.configDir}"

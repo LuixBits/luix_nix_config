@@ -1,59 +1,18 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
 }:
 let
-  # Track AI CLI releases independently of the NixOS channel. Updating these
-  # pins requires both the version and its upstream download hash (see README).
-  codexVersion = "0.158.0";
-  codexPackage = pkgs.stdenvNoCC.mkDerivation {
-    pname = "codex";
-    version = codexVersion;
-
-    src = pkgs.fetchurl {
-      url = "https://releases.openai.com/codex/releases/${codexVersion}/codex-package-x86_64-unknown-linux-musl.tar.gz";
-      hash = "sha256-szzUJsmsq5s0xakyALpP6DyOYUwYzl71KyvzZAi44Yw=";
-    };
-
-    sourceRoot = ".";
-    dontStrip = true;
-
-    installPhase = ''
-      runHook preInstall
-
-      mkdir -p "$out"
-      cp -R bin codex-path codex-resources codex-package.json "$out/"
-
-      runHook postInstall
-    '';
-
-    meta = {
-      description = "OpenAI Codex CLI official release bundle";
-      homepage = "https://github.com/openai/codex";
-      license = lib.licenses.asl20;
-      mainProgram = "codex";
-      platforms = [ "x86_64-linux" ];
-    };
-  };
-  # Preserve the historical command while both names use the same current,
-  # declaratively pinned release.
+  aiPackages = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
+  codexPackage = aiPackages.codex;
+  # Preserve the historical command while both names use the same package.
   codexNew = pkgs.writeShellScriptBin "codex-new" ''
     exec ${codexPackage}/bin/codex "$@"
   '';
-  claudeCodeVersion = "2.1.283";
-  # Retain Nixpkgs' binary patching, runtime dependencies, and disabled updater.
-  claudeCodePackage = pkgs.claude-code.overrideAttrs (old: {
-    version = claudeCodeVersion;
-    src = pkgs.fetchurl {
-      url = "https://downloads.claude.ai/claude-code-releases/${claudeCodeVersion}/linux-x64/claude";
-      hash = "sha256-GFlYPOMpIFlcYe+Gi+5S4bFZT3SG2yCZNeAfHl6ASuI=";
-    };
-    meta = old.meta // {
-      platforms = [ "x86_64-linux" ];
-    };
-  });
+  claudeCodePackage = aiPackages.claude-code;
   writeCodexDefaults = pkgs.writeShellScript "write-codex-defaults" ''
     set -eu
 

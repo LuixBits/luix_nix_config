@@ -137,6 +137,12 @@ in
     ];
     warn-dirty = false;
 
+    # Cached builds for the shared llm-agents flake input.
+    extra-substituters = [ "https://cache.numtide.com" ];
+    extra-trusted-public-keys = [
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+    ];
+
     # Only local admins should be able to submit builds to the daemon.
     allowed-users = [ "@wheel" ];
   };
