@@ -8,8 +8,8 @@ in
 {
   home.packages = [ claudeStatusline ];
 
-  # Both CLIs and Herdr modify their settings. Merge only the statusline
-  # fields instead of replacing these files with read-only store symlinks.
+  # Both CLIs and Herdr modify their settings. Merge the managed statusline
+  # and question shortcut fields instead of using read-only store symlinks.
   home.activation.ensureAgentStatuslines = lib.hm.dag.entryAfter [
     "ensureCodexConfig"
     "ensureHerdrAgentIntegrations"

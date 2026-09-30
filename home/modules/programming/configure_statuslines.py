@@ -1,4 +1,4 @@
-"""Merge managed statusline preferences while preserving CLI and Herdr settings."""
+"""Merge managed UI preferences while preserving CLI and Herdr settings."""
 
 import json
 import os
@@ -54,6 +54,11 @@ def configure(claude_path, codex_path, command):
     if "tui" not in codex:
         codex["tui"] = tomlkit.table()
     codex["tui"]["status_line"] = CODEX_ITEMS
+    # Put a readable, terminal-friendly shortcut first so question prompts
+    # advertise it. Keep Codex's built-in alternatives available as well.
+    keymap = codex["tui"].setdefault("keymap", tomlkit.table())
+    chat = keymap.setdefault("chat", tomlkit.table())
+    chat["edit_queued_message"] = ["alt-q", "shift-left", "alt-up"]
     claude_text = json.dumps(claude, indent=2, ensure_ascii=False) + "\n"
     codex_text = tomlkit.dumps(codex)
     write_atomic(claude_path, claude_text)

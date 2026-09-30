@@ -49,6 +49,11 @@ status_line = [
 status_line_use_colors = true
 [tui.model_availability_nux]
 "keep-me" = 2
+[tui.keymap.chat]
+edit_queued_message = "f8"
+interrupt_turn = "f12"
+[tui.keymap.global]
+open_transcript = "ctrl-t"
 [mcp_servers.example]
 command = "example-server"
 ''')
@@ -61,6 +66,7 @@ command = "example-server"
             self.assertEqual(after_claude["statusLine"]["command"], "'/path with spaces/statusline'")
             after_codex = tomlkit.parse(codex_path.read_text()).unwrap()
             before["tui"]["status_line"] = CODEX_ITEMS
+            before["tui"]["keymap"]["chat"]["edit_queued_message"] = ["alt-q", "shift-left", "alt-up"]
             self.assertEqual(after_codex, before)
             self.assertIn("# Keep this comment", codex_path.read_text())
             self.assertEqual(codex_path.stat().st_mode & 0o777, 0o600)
@@ -80,6 +86,8 @@ command = "example-server"
             self.assertFalse(claude_path.is_symlink())
             self.assertEqual(original.read_text(), '{"model":"keep-me"}')
             self.assertEqual(tomlkit.parse(codex_path.read_text())["tui"]["status_line"], CODEX_ITEMS)
+            self.assertEqual(tomlkit.parse(codex_path.read_text())["tui"]["keymap"]["chat"]["edit_queued_message"],
+                             ["alt-q", "shift-left", "alt-up"])
 
     def test_invalid_config_leaves_both_files_untouched(self):
         with tempfile.TemporaryDirectory() as directory:
