@@ -68,6 +68,7 @@ let
 in
 {
   imports = [
+    ./statuslines.nix
     ../graphify
     ../kimi-code
     ../sentry-cli

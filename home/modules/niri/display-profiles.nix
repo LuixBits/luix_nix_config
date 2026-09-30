@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   lib,
   machine ? null,
@@ -121,4 +122,11 @@ lib.mkIf isFrameworkMachine {
       profile = frameworkProfiles;
     };
   };
+
+  # Put the generated config in the unit so Home Manager restarts Shikane
+  # when profiles change; it does not watch the config symlink for updates.
+  systemd.user.services.shikane.Service.ExecStart = lib.mkForce (
+    "${lib.getExe config.services.shikane.package}"
+    + " --config ${config.xdg.configFile."shikane/config.toml".source}"
+  );
 }
