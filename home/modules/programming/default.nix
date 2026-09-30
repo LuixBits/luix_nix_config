@@ -7,6 +7,39 @@
 }:
 let
   aiPackages = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
+  # llm-agents' Codex lacks the release bundle files (codex-package.json,
+  # codex-path, codex-resources) that the Codex background server needs, so
+  # `codex` and `codex resume` fail. Package the official release instead.
+  codexVersion = "0.158.0";
+  codexPackage = pkgs.stdenvNoCC.mkDerivation {
+    pname = "codex";
+    version = codexVersion;
+
+    src = pkgs.fetchurl {
+      url = "https://releases.openai.com/codex/releases/${codexVersion}/codex-package-x86_64-unknown-linux-musl.tar.gz";
+      hash = "sha256-szzUJsmsq5s0xakyALpP6DyOYUwYzl71KyvzZAi44Yw=";
+    };
+
+    sourceRoot = ".";
+    dontStrip = true;
+
+    installPhase = ''
+      runHook preInstall
+
+      mkdir -p "$out"
+      cp -R bin codex-path codex-resources codex-package.json "$out/"
+
+      runHook postInstall
+    '';
+
+    meta = {
+      description = "OpenAI Codex CLI official release bundle";
+      homepage = "https://github.com/openai/codex";
+      license = lib.licenses.asl20;
+      mainProgram = "codex";
+      platforms = [ "x86_64-linux" ];
+    };
+  };
   writeCodexDefaults = pkgs.writeShellScript "write-codex-defaults" ''
     set -eu
 
@@ -46,7 +79,7 @@ in
 
   programs.codex = {
     enable = true;
-    package = aiPackages.codex;
+    package = codexPackage;
   };
 
   programs.claude-code = {
@@ -64,6 +97,7 @@ in
   };
 
   home.packages = with pkgs; [
+    bubblewrap
     dbeaver-bin
     gcc
     gnumake

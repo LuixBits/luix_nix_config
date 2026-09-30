@@ -23,6 +23,16 @@ let
     "m=PHL 288E2"
     "s=UK52128001862"
   ];
+  philipsDockMiddle = [
+    "v=Philips Consumer Electronics Company"
+    "m=PHL 288E2"
+    "s=UK52118002011"
+  ];
+  philipsDockRight = [
+    "v=Philips Consumer Electronics Company"
+    "m=PHL 288E2"
+    "s=UK52118001995"
+  ];
   dellLeft = [
     "v=Dell Inc."
     "m=DELL P2419H"
@@ -67,6 +77,14 @@ let
         (mkOutput frameworkInternalDisplay "0,0" 2.0 { })
         (mkOutput philipsLeft "1440,0" 1.5 { })
         (mkOutput philipsRight "4000,0" 1.5 { })
+      ];
+    }
+    {
+      name = "philips-dell-dock";
+      output = [
+        (mkOutput frameworkInternalDisplay "0,0" 2.0 { })
+        (mkOutput philipsDockMiddle "1440,0" 1.5 { })
+        (mkOutput philipsDockRight "4000,0" 1.5 { })
       ];
     }
     {

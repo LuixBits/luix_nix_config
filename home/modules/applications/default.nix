@@ -81,6 +81,7 @@ in
     bottles
     chromium
     discord
+    fido2-manage
     firefoxX11
     herdrAdminFirefox
     herdrNormalChromium
