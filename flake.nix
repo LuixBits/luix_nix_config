@@ -50,8 +50,8 @@
     roomplan.inputs.nixpkgs.follows = "nixpkgs";
 
     # Spatial Input: SpaceMouse daemon, udev rules, Niri/Herdr registration.
-    # Local checkout until the repository is published.
-    spatial-input.url = "git+file:///home/luix/projects/spatial-input";
+    # Fetch the private repository over SSH; no local project checkout required.
+    spatial-input.url = "git+ssh://git@github.com/LuixBits/luixbits-spacenavigation.git?ref=main";
     spatial-input.inputs.nixpkgs.follows = "nixpkgs";
 
     # Neotest adapter for Node's built-in test runner. This is kept as a raw

@@ -357,15 +357,16 @@
       "locked": {
         "lastModified": 1791029314,
         "narHash": "sha256-JTwsQo1M1IWmsJgCqQId7dWneP6jwPq4GiFwEljRwb8=",
-        "ref": "refs/heads/main",
+        "ref": "main",
         "rev": "7fffbe70512ff23b9afc3dd50c039af0f4719300",
         "revCount": 103,
         "type": "git",
-        "url": "file:///home/luix/projects/spatial-input"
+        "url": "ssh://git@github.com/LuixBits/luixbits-spacenavigation.git"
       },
       "original": {
+        "ref": "main",
         "type": "git",
-        "url": "file:///home/luix/projects/spatial-input"
+        "url": "ssh://git@github.com/LuixBits/luixbits-spacenavigation.git"
       }
     },
     "systems": {

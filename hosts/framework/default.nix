@@ -14,7 +14,13 @@
     ../features/virt-manager.nix
     ../features/work.nix
     inputs.nixos-hardware.nixosModules.framework-amd-ai-300-series
+    inputs.spatial-input.nixosModules.default
   ];
+
+  hardware.spatial-input = {
+    enable = true;
+    wheel.enable = true;
+  };
 
   users.users.luiz = {
     description = "Luiz";
