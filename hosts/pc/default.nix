@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 {
   imports = [
     ../common/base.nix
@@ -9,11 +9,12 @@
     ../features/gaming.nix
     ../features/simracing
     ../features/corsair-cooling
-    ../features/spatial-input.nix
+    inputs.spatial-input.nixosModules.default
     ./hardware-configuration.nix
   ];
 
   hardware.spatial-input.enable = true;
+  hardware.spatial-input.wheel.enable = true;
   luix.simracing.enable = true;
 
   boot.initrd.availableKernelModules = [ "thunderbolt" ];

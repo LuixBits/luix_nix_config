@@ -49,6 +49,11 @@
     roomplan.url = "github:LuixBits/luixbits-roomplanner.nvim";
     roomplan.inputs.nixpkgs.follows = "nixpkgs";
 
+    # Spatial Input: SpaceMouse daemon, udev rules, Niri/Herdr registration.
+    # Local checkout until the repository is published.
+    spatial-input.url = "git+file:///home/luix/projects/spatial-input";
+    spatial-input.inputs.nixpkgs.follows = "nixpkgs";
+
     # Neotest adapter for Node's built-in test runner. This is kept as a raw
     # source input because it is not packaged in our pinned nixpkgs yet.
     neotest-nodejs = {
