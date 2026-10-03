@@ -101,11 +101,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1791061662,
-        "narHash": "sha256-7NrbyeCugkaZEYy+oCcYA4p+l+2TPrhu0qS3qrcWJZE=",
+        "lastModified": 1791070902,
+        "narHash": "sha256-SJySHTvQ//2Q9iep1hqz6fkq9CkVeVInzyXw26cjgDw=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "cd88eedb193fde4dc405e02763f56f8f4f8d343d",
+        "rev": "89ee81bece5ad3cebe99bc9c39c5674df4399375",
         "type": "github"
       },
       "original": {
@@ -318,11 +318,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789285035,
-        "narHash": "sha256-HNx2KwoNguIQVATnGFYZVll8DI5WByFzENDqZPCiCMk=",
+        "lastModified": 1791064882,
+        "narHash": "sha256-BiTchsygYXPSyObbkCxKQEGbpXx7Wa+xXcLbt566fe8=",
         "owner": "LuixBits",
         "repo": "luixbits-roomplanner.nvim",
-        "rev": "2864e853a50ec7a36063269f4a14af517161f43b",
+        "rev": "845bb4792b3ffd0694bd6555a04d584ed29f1639",
         "type": "github"
       },
       "original": {
