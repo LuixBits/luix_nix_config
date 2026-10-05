@@ -5,6 +5,7 @@
 
   imports = [
     ../common.nix
+    ../modules/creality-print
     ../modules/japanese-input
     ../modules/teams
     ../modules/prismlauncher
