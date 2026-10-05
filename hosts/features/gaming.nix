@@ -10,6 +10,11 @@
   programs.steam.enable = true; # enables Steam and required 32-bit runtime
   programs.gamemode.enable = true;
 
+  # LACT: GPU monitoring (temps, clocks, VRAM, power) plus fan-curve and
+  # undervolt/overclock control for the 7900 XTX. GUI talks to the lactd
+  # root daemon this option starts.
+  services.lact.enable = true;
+
   # Star Citizen via the LUG-maintained flatpak launcher. Declarative through
   # nix-flatpak, whose NixOS module this host imports via the simracing module.
   # The launcher is not on Flathub; it ships from its own repo. Declaring
