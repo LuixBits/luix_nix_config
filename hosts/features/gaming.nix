@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 {
   assertions = [
     {
@@ -14,6 +14,14 @@
   # undervolt/overclock control for the 7900 XTX. GUI talks to the lactd
   # root daemon this option starts.
   services.lact.enable = true;
+
+  # Gamescope: forces a game into an exact-resolution window, e.g. as a
+  # Steam launch option `gamescope -W 2560 -H 1440 -- %command%` for
+  # 16:9 recording on the ultrawide.
+  programs.gamescope.enable = true;
+
+  # vulkaninfo for checking which GPU the Vulkan drivers see.
+  environment.systemPackages = [ pkgs.vulkan-tools ];
 
   # Star Citizen via the LUG-maintained flatpak launcher. Declarative through
   # nix-flatpak, whose NixOS module this host imports via the simracing module.
