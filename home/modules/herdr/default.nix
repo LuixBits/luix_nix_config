@@ -1,6 +1,13 @@
 { config, inputs, lib, pkgs, ... }:
 let
-  herdrPackage = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr;
+  # Upstream 0.9.3 only fills active spaces. Keep a separate, optional fill for
+  # inactive space boxes so the sidebar background remains visible in the gaps.
+  herdrPackage = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ./inactive-space-background.patch ];
+    # These rendering/config tests do not need a terminal or a running server.
+    doCheck = true;
+    cargoTestFlags = [ "--bin" "herdr" "inactive_space" ];
+  });
   codexCommand = "${config.programs.codex.package}/bin/codex";
   claudeCommand = "${config.programs.claude-code.finalPackage}/bin/claude";
   herdrConfig = ./config.toml;

@@ -1,15 +1,44 @@
 onboarding = false
 
 [theme]
-# Use Herdr's built-in palette so every Herdr surface follows the same theme.
+# LuixBits Pastel Field Night, adapted from LuixBitsRemotion's
+# src/design-system/pastel-field/tokens.ts and illustrations/palette.ts.
+# Herdr requires a built-in base; the custom palette below overrides it.
 name = "dracula"
 auto_switch = false
+
+[theme.custom]
+accent = "#B8A9D9"
+panel_bg = "#2D2942"
+sidebar_bg = "#211D38"
+# Local Herdr patch: fill inactive space boxes, leaving lighter sidebar gaps.
+inactive_space_bg = "#100D1C"
+active_row_bg = "#453D61"
+# Darken the night palette's near hill for readable text on green highlights.
+selection_bg = "#334838"
+surface0 = "#453D61"
+surface1 = "#334838"
+surface_dim = "#B8A9D9"
+overlay0 = "#C9BEE4"
+overlay1 = "#EDE8D2"
+text = "#F5F1E0"
+subtext0 = "#EDE8D2"
+mauve = "#C9BEE4"
+green = "#B9D6BA"
+yellow = "#E6C65F"
+red = "#E4AB91"
+blue = "#C9BEE4"
+teal = "#B9D6BA"
+peach = "#E4AB91"
 
 [experimental]
 kitty_graphics = true
 
 [ui]
 agent_panel_sort = "spaces"
+pane_borders = "always"
+pane_outer_borders = true
+pane_gaps = true
 pane_scrollbars = false
 show_agent_labels_on_pane_borders = true
 status_indicators = "dots"
@@ -18,14 +47,15 @@ window_title = "{workspace}: {tab}"
 [ui.sidebar.agents]
 row_gap = 0
 rows = [
-  ["state_icon", "workspace", "agent"],
+  ["state_icon", { token = "workspace", bold = true, dim = false }, { token = "agent", fg = "#B9D6BA", dim = false }],
 ]
 
 [ui.sidebar.spaces]
-row_gap = 0
+# Separate project groups without adding blank lines inside a worktree group.
+row_gap = 1
 rows = [
-  ["state_icon", "workspace"],
-  ["branch", "git_status", "$usage"],
+  ["state_icon", { token = "workspace", fg = "#F5F1E0", bold = true, dim = false }],
+  [{ token = "branch", fg = "#B9D6BA", dim = false }, "git_status", "$usage"],
 ]
 
 [ui.toast]

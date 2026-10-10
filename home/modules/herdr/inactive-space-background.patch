@@ -1,0 +1,383 @@
+Add an optional theme.custom.inactive_space_bg for desktop space boxes.
+
+Based on Herdr v0.9.3. Unset preserves upstream rendering. Active, navigation,
+and drag highlights keep precedence; sidebar gaps keep sidebar_bg.
+
+--- a/src/app/state.rs
++++ b/src/app/state.rs
+@@ -39,6 +39,8 @@
+     pub panel_bg: Color,
+     /// Optional desktop sidebar background. Reset preserves the terminal background.
+     pub sidebar_bg: Color,
++    /// Optional fill for inactive space boxes; unset inherits the sidebar background.
++    pub inactive_space_bg: Option<Color>,
+     /// Background for the active workspace and focused agent rows.
+     pub active_row_bg: Color,
+     /// Background for the Navigate-mode cursor row in the sidebar.
+@@ -80,6 +82,7 @@
+             accent: Color::Rgb(137, 180, 250), // blue
+             panel_bg: Color::Rgb(24, 24, 37),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(30, 30, 46),
+             selection_bg: Color::Rgb(49, 50, 68),
+             surface0: Color::Rgb(49, 50, 68),
+@@ -105,6 +108,7 @@
+             accent: Color::Rgb(30, 102, 245),
+             panel_bg: Color::Rgb(239, 241, 245),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(230, 233, 239),
+             selection_bg: Color::Rgb(189, 208, 245),
+             surface0: Color::Rgb(204, 208, 218),
+@@ -130,6 +134,7 @@
+             accent: Color::Blue,
+             panel_bg: Color::Reset,
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::DarkGray,
+             selection_bg: Color::Reset,
+             surface0: Color::Reset,
+@@ -155,6 +160,7 @@
+             accent: Color::Rgb(122, 162, 247), // blue
+             panel_bg: Color::Rgb(26, 27, 38),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(35, 38, 54),
+             selection_bg: Color::Rgb(45, 54, 80),
+             surface0: Color::Rgb(36, 40, 59),
+@@ -180,6 +186,7 @@
+             accent: Color::Rgb(46, 125, 233),
+             panel_bg: Color::Rgb(225, 226, 231),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(210, 211, 218),
+             selection_bg: Color::Rgb(182, 202, 231),
+             surface0: Color::Rgb(196, 200, 218),
+@@ -205,6 +212,7 @@
+             accent: Color::Rgb(189, 147, 249), // purple
+             panel_bg: Color::Rgb(40, 42, 54),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(55, 60, 82),
+             selection_bg: Color::Rgb(70, 63, 93),
+             surface0: Color::Rgb(68, 71, 90),
+@@ -230,6 +238,7 @@
+             accent: Color::Rgb(136, 192, 208), // frost
+             panel_bg: Color::Rgb(46, 52, 64),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(67, 76, 94),
+             selection_bg: Color::Rgb(64, 80, 93),
+             surface0: Color::Rgb(59, 66, 82),
+@@ -255,6 +264,7 @@
+             accent: Color::Rgb(215, 153, 33), // yellow
+             panel_bg: Color::Rgb(40, 40, 40),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(50, 49, 48),
+             selection_bg: Color::Rgb(75, 63, 39),
+             surface0: Color::Rgb(60, 56, 54),
+@@ -280,6 +290,7 @@
+             accent: Color::Rgb(7, 102, 120),
+             panel_bg: Color::Rgb(251, 241, 199),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(242, 229, 188),
+             selection_bg: Color::Rgb(235, 219, 178),
+             surface0: Color::Rgb(235, 219, 178),
+@@ -305,6 +316,7 @@
+             accent: Color::Rgb(97, 175, 239), // blue
+             panel_bg: Color::Rgb(40, 44, 52),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(49, 54, 64),
+             selection_bg: Color::Rgb(51, 70, 89),
+             surface0: Color::Rgb(44, 49, 58),
+@@ -330,6 +342,7 @@
+             accent: Color::Rgb(64, 120, 242),
+             panel_bg: Color::Rgb(250, 250, 250),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(216, 219, 226),
+             selection_bg: Color::Rgb(205, 219, 248),
+             surface0: Color::Rgb(240, 240, 241),
+@@ -355,6 +368,7 @@
+             accent: Color::Rgb(38, 139, 210), // blue
+             panel_bg: Color::Rgb(0, 43, 54),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(22, 75, 87),
+             selection_bg: Color::Rgb(8, 62, 85),
+             surface0: Color::Rgb(7, 54, 66),
+@@ -380,6 +394,7 @@
+             accent: Color::Rgb(38, 139, 210),
+             panel_bg: Color::Rgb(253, 246, 227),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(238, 232, 213),
+             selection_bg: Color::Rgb(201, 220, 223),
+             surface0: Color::Rgb(238, 232, 213),
+@@ -405,6 +420,7 @@
+             accent: Color::Rgb(126, 156, 216), // blue
+             panel_bg: Color::Rgb(31, 31, 40),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(54, 54, 70),
+             selection_bg: Color::Rgb(50, 56, 75),
+             surface0: Color::Rgb(42, 42, 55),
+@@ -430,6 +446,7 @@
+             accent: Color::Rgb(77, 105, 155),
+             panel_bg: Color::Rgb(242, 236, 188),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(213, 206, 163),
+             selection_bg: Color::Rgb(220, 213, 172),
+             surface0: Color::Rgb(220, 213, 172),
+@@ -455,6 +472,7 @@
+             accent: Color::Rgb(196, 167, 231), // iris
+             panel_bg: Color::Rgb(25, 23, 36),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(38, 35, 58),
+             selection_bg: Color::Rgb(59, 52, 75),
+             surface0: Color::Rgb(31, 29, 46),
+@@ -480,6 +498,7 @@
+             accent: Color::Rgb(144, 122, 169),
+             panel_bg: Color::Rgb(250, 244, 237),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(227, 217, 207),
+             selection_bg: Color::Rgb(242, 233, 225),
+             surface0: Color::Rgb(242, 233, 225),
+@@ -505,6 +524,7 @@
+             accent: Color::Rgb(255, 199, 153),
+             panel_bg: Color::Rgb(26, 26, 26),
+             sidebar_bg: Color::Reset,
++            inactive_space_bg: None,
+             active_row_bg: Color::Rgb(16, 16, 16),
+             selection_bg: Color::Rgb(35, 35, 35),
+             surface0: Color::Rgb(35, 35, 35),
+@@ -561,6 +581,9 @@
+         if let Some(c) = &custom.sidebar_bg {
+             self.sidebar_bg = parse_color(c);
+         }
++        if let Some(c) = &custom.inactive_space_bg {
++            self.inactive_space_bg = Some(parse_color(c));
++        }
+         if let Some(c) = &custom.active_row_bg {
+             self.active_row_bg = parse_color(c);
+         }
+@@ -622,6 +645,9 @@
+         }
+         if let Some(c) = &custom.sidebar_bg {
+             self.sidebar_bg = parse_color(c);
++        }
++        if let Some(c) = &custom.inactive_space_bg {
++            self.inactive_space_bg = Some(parse_color(c));
+         }
+         if let Some(c) = &custom.active_row_bg {
+             self.active_row_bg = parse_color(c);
+--- a/src/client/shell/endpoint_sidebar.rs
++++ b/src/client/shell/endpoint_sidebar.rs
+@@ -149,6 +149,11 @@
+                         state.selected_workspace_id.is_some(),
+                     )),
+                 );
++            }
++            if !selected && !focused {
++                if let Some(background) = palette.inactive_space_bg {
++                    buffer.set_style(rect, Style::default().bg(background));
++                }
+             }
+             let stale = endpoint.status != ClientEndpointStatus::Online;
+             let number = format!(" {}", workspace.number);
+--- a/src/client/shell/sidebar.rs
++++ b/src/client/shell/sidebar.rs
+@@ -74,6 +74,8 @@
+             buffer.set_style(rect, Style::default().bg(selection_background));
+         } else if workspace.focused {
+             buffer.set_style(rect, Style::default().bg(active_background));
++        } else if let Some(background) = palette.inactive_space_bg {
++            buffer.set_style(rect, Style::default().bg(background));
+         }
+         let number_style = if selected {
+             Style::default()
+@@ -739,7 +741,7 @@
+     } else if focused {
+         Some(workspace_active_background(palette, navigating))
+     } else {
+-        None
++        palette.inactive_space_bg
+     };
+     if let Some(background) = background {
+         for y in area.y..area.bottom() {
+--- a/src/client/shell/tests/workspace_navigation.rs
++++ b/src/client/shell/tests/workspace_navigation.rs
+@@ -968,3 +968,96 @@
+         }
+     }
+ }
++
++#[test]
++fn inactive_space_background_fills_boxes_and_preserves_gaps_and_highlights() {
++    use ratatui::style::Color;
++
++    let sidebar = Color::Rgb(33, 29, 56);
++    let inactive = Color::Rgb(16, 13, 28);
++    let active = Color::Rgb(69, 61, 97);
++    let selected = Color::Rgb(51, 72, 56);
++    for compact in [false, true] {
++        for custom_background in [false, true] {
++            let parsed: Config = toml::from_str(
++                r##"
++[theme.custom]
++sidebar_bg = "#211D38"
++inactive_space_bg = "#100D1C"
++active_row_bg = "#453D61"
++selection_bg = "#334838"
++[ui.sidebar.spaces]
++row_gap = 1
++"##,
++            )
++            .unwrap();
++            let mut config = ClientShellConfig::from_config(&parsed);
++            if !custom_background {
++                config.palette.inactive_space_bg = None;
++            }
++            let inactive = if custom_background { inactive } else { sidebar };
++            let mut state = ClientShellState::new(config);
++            state.set_snapshot(Box::new(workspaces(3)));
++            state.set_pane_surface(surface());
++            state.sidebar_collapsed = compact;
++            let buffer = state.compose(100, 36).unwrap().to_ratatui_buffer().unwrap();
++            let check_box = |buffer: &Buffer, rect: Rect, color: Color| {
++                for y in rect.y..rect.bottom() {
++                    for x in rect.x..rect.right() {
++                        assert_eq!(buffer[(x, y)].bg, color, "box cell ({x}, {y})");
++                    }
++                }
++            };
++            for (id, color) in [("ws_1", active), ("ws_2", inactive), ("ws_3", inactive)] {
++                check_box(
++                    &buffer,
++                    workspace_rect(&state, &ClientEndpointId::Local, id),
++                    color,
++                );
++            }
++            if !compact {
++                let first = workspace_rect(&state, &ClientEndpointId::Local, "ws_1");
++                let second = workspace_rect(&state, &ClientEndpointId::Local, "ws_2");
++                assert_eq!(second.y, first.bottom() + 1);
++                check_box(
++                    &buffer,
++                    Rect::new(first.x, first.bottom(), first.width, 1),
++                    sidebar,
++                );
++            }
++            enter_navigation(&mut state);
++            preview_key(&mut state, b"\x1b[B");
++            let buffer = state.compose(100, 36).unwrap().to_ratatui_buffer().unwrap();
++            for (id, color) in [("ws_1", active), ("ws_2", selected), ("ws_3", inactive)] {
++                check_box(
++                    &buffer,
++                    workspace_rect(&state, &ClientEndpointId::Local, id),
++                    color,
++                );
++            }
++        }
++    }
++}
++
++#[test]
++fn inactive_space_background_applies_in_multi_endpoint_sidebars() {
++    use ratatui::style::Color;
++
++    let inactive = Color::Rgb(16, 13, 28);
++    for compact in [false, true] {
++        let (mut state, remote) = navigation_state(workspaces(3));
++        state.config.palette.inactive_space_bg = Some(inactive);
++        state.sidebar_collapsed = compact;
++        let buffer = state.compose(100, 44).unwrap().to_ratatui_buffer().unwrap();
++        for endpoint in [&ClientEndpointId::Local, &remote] {
++            let rect = workspace_rect(&state, endpoint, "ws_2");
++            // Expanded endpoint lists indent their workspace boxes by two columns.
++            let left = rect.x + if compact { 0 } else { 2 };
++            for y in rect.y..rect.bottom() {
++                for x in left..rect.right() {
++                    assert_eq!(buffer[(x, y)].bg, inactive, "endpoint box cell ({x}, {y})");
++                }
++            }
++        }
++    }
++}
+--- a/src/config/theme.rs
++++ b/src/config/theme.rs
+@@ -103,6 +103,7 @@
+     pub accent: Option<String>,
+     pub panel_bg: Option<String>,
+     pub sidebar_bg: Option<String>,
++    pub inactive_space_bg: Option<String>,
+     pub active_row_bg: Option<String>,
+     pub selection_bg: Option<String>,
+     pub surface0: Option<String>,
+@@ -132,6 +133,7 @@
+     pub accent: Option<String>,
+     pub panel_bg: Option<String>,
+     pub sidebar_bg: Option<String>,
++    pub inactive_space_bg: Option<String>,
+     pub active_row_bg: Option<String>,
+     pub selection_bg: Option<String>,
+     pub surface0: Option<String>,
+@@ -351,3 +353,41 @@
+         assert!(config.theme.custom.is_none());
+     }
+ }
++
++#[cfg(test)]
++mod inactive_space_tests {
++    use crate::{app::state::Palette, config::Config};
++    use ratatui::style::Color;
++
++    #[test]
++    fn inactive_space_background_is_optional_and_supports_mode_overrides() {
++        assert_eq!(Palette::dracula().inactive_space_bg, None);
++        let config: Config = toml::from_str(
++            r##"
++[theme.custom]
++inactive_space_bg = "#100D1C"
++[theme.custom.light]
++inactive_space_bg = "#EFE9DF"
++[theme.custom.dark]
++inactive_space_bg = "#171122"
++"##,
++        )
++        .unwrap();
++        let custom = config.theme.custom.unwrap();
++        let palette = Palette::dracula().with_overrides(&custom);
++        assert_eq!(palette.inactive_space_bg, Some(Color::Rgb(16, 13, 28)));
++        assert_eq!(
++            palette
++                .clone()
++                .with_mode_overrides(custom.light.as_ref().unwrap())
++                .inactive_space_bg,
++            Some(Color::Rgb(239, 233, 223))
++        );
++        assert_eq!(
++            palette
++                .with_mode_overrides(custom.dark.as_ref().unwrap())
++                .inactive_space_bg,
++            Some(Color::Rgb(23, 17, 34))
++        );
++    }
++}
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -85,6 +85,7 @@
+ # Accepts: hex (#rrggbb), named colors, rgb(r,g,b), or panel_bg = "reset"
+ # [theme.custom]
+ # sidebar_bg = "#181825"
++# inactive_space_bg = "#11111b" # Unset: space boxes inherit the sidebar background.
+ # active_row_bg = "#1e1e2e"
+ # selection_bg = "#313244"
+ # panel_bg = "reset"
