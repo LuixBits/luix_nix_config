@@ -1,12 +1,16 @@
 { config, inputs, lib, pkgs, ... }:
 let
-  # Upstream 0.9.3 only fills active spaces. Keep a separate, optional fill for
-  # inactive space boxes so the sidebar background remains visible in the gaps.
+  # Local improvements for Herdr 0.9.3: separate inactive space backgrounds
+  # and a readable unknown-status marker when using symbol indicators.
   herdrPackage = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ./inactive-space-background.patch ];
+    patches = (old.patches or [ ]) ++ [
+      ./inactive-space-background.patch
+      ./status-symbols.patch
+    ];
     # These rendering/config tests do not need a terminal or a running server.
     doCheck = true;
-    cargoTestFlags = [ "--bin" "herdr" "inactive_space" ];
+    cargoTestFlags = [ "--bin" "herdr" ];
+    checkFlags = [ "inactive_space" "status_color" ];
   });
   codexCommand = "${config.programs.codex.package}/bin/codex";
   claudeCommand = "${config.programs.claude-code.finalPackage}/bin/claude";

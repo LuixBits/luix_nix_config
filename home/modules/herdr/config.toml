@@ -12,7 +12,7 @@ accent = "#B8A9D9"
 panel_bg = "#2D2942"
 sidebar_bg = "#211D38"
 # Local Herdr patch: fill inactive space boxes, leaving lighter sidebar gaps.
-inactive_space_bg = "#100D1C"
+inactive_space_bg = "#1B172F"
 active_row_bg = "#453D61"
 # Darken the night palette's near hill for readable text on green highlights.
 selection_bg = "#334838"
@@ -41,7 +41,7 @@ pane_outer_borders = true
 pane_gaps = true
 pane_scrollbars = false
 show_agent_labels_on_pane_borders = true
-status_indicators = "dots"
+status_indicators = "symbols"
 window_title = "{workspace}: {tab}"
 
 [ui.sidebar.agents]
@@ -51,8 +51,7 @@ rows = [
 ]
 
 [ui.sidebar.spaces]
-# Separate project groups without adding blank lines inside a worktree group.
-row_gap = 1
+row_gap = 0
 rows = [
   ["state_icon", { token = "workspace", fg = "#F5F1E0", bold = true, dim = false }],
   [{ token = "branch", fg = "#B9D6BA", dim = false }, "git_status", "$usage"],

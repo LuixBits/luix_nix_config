@@ -1,0 +1,10 @@
+diff --git a/src/client/shell.rs b/src/client/shell.rs
+--- a/src/client/shell.rs
++++ b/src/client/shell.rs
+@@ -193,5 +193,5 @@ fn status_icon(
+         (StatusIndicatorStyle::Symbols, AgentStatus::Done) => "✓",
+         (StatusIndicatorStyle::Symbols, AgentStatus::Idle) => "○",
+-        (StatusIndicatorStyle::Symbols, AgentStatus::Unknown) => "·",
++        (StatusIndicatorStyle::Symbols, AgentStatus::Unknown) => "◇",
+     }
+ }
