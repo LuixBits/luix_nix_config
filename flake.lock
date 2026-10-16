@@ -121,11 +121,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789292002,
-        "narHash": "sha256-J9D856XxnnjmkrSYzR/hRysxvrNzHxqLNR14acjPZ2I=",
+        "lastModified": 1792147107,
+        "narHash": "sha256-WWdd9Nn+dy5XBzVsmJ1QVzt2okVFaFibRh40V+LNWXU=",
         "owner": "LuixBits",
         "repo": "luixbits-neorg-flashcards.nvim",
-        "rev": "ebd73b1467dca56d380369e85d3c704c82130d0d",
+        "rev": "1be582802056d17d53fdc8fd4abdf316b47d5ab4",
         "type": "github"
       },
       "original": {
