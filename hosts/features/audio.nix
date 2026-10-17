@@ -12,6 +12,25 @@
       jack.enable = true;
       pulse.enable = true;
 
+      wireplumber.extraConfig."51-samson-q9u-recording" = {
+        "monitor.alsa.rules" = [
+          {
+            matches = [
+              { "node.name" = "~alsa_input.usb-Samson_Technologies_Samson_Q9U_.*"; }
+            ];
+            actions.update-props = {
+              # Give USB capture extra timing margin without disabling ALSA's
+              # batch-device handling. 2048 frames add about 43 ms at 48 kHz.
+              "api.alsa.headroom" = 2048;
+
+              # Keep the microphone and its effects at 1024-frame blocks even
+              # when a game or call requests a smaller processing quantum.
+              "node.force-quantum" = 1024;
+            };
+          }
+        ];
+      };
+
       wireplumber.extraConfig."99-keep-alsa-devices-awake" = {
         "monitor.alsa.rules" = [
           {
