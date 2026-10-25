@@ -1,4 +1,19 @@
 { inputs, pkgs, ... }:
+let
+  # The pinned Blender/ROCm packages otherwise collide through LLVM 19/22.
+  # Keep the verified workaround local to Blender, never in the session env.
+  # https://github.com/NixOS/nixpkgs/issues/530702
+  blenderForVideo = pkgs.symlinkJoin {
+    name = "blender-hip-video";
+    paths = [ pkgs.pkgsRocm.blender ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram "$out/bin/blender" \
+        --prefix LD_PRELOAD : "${pkgs.rocmPackages.rocm-comgr}/lib/libamd_comgr.so.3"
+    '';
+    meta = pkgs.pkgsRocm.blender.meta;
+  };
+in
 {
   home.username = "luix";
   home.homeDirectory = "/home/luix";
@@ -30,5 +45,8 @@
 
   home.packages = with pkgs; [
     protonup-qt
+    # Star Citizen production: HIP rendering and the licensed Fusion/Fairlight suite.
+    blenderForVideo
+    davinci-resolve-studio
   ];
 }

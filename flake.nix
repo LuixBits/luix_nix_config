@@ -33,8 +33,8 @@
     noctalia.url = "github:noctalia-dev/noctalia-shell";
     noctalia.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
-    # Daily updates for Codex, Claude Code, and Herdr. Keep the provider's own
-    # nixpkgs so packages match its tested builds and binary cache.
+    # Daily updates for Codex, Claude Code, Kimi Code, and Herdr. Keep the
+    # provider's own nixpkgs so packages match its tested builds and binary cache.
     llm-agents.url = "github:numtide/llm-agents.nix";
 
     # Neorg flashcards plugin and NVF module

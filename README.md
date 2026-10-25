@@ -32,23 +32,23 @@ sudo nixos-rebuild switch --flake .#<host>
 Home Manager runs as a NixOS module, so this is the only command — no separate
 `home-manager switch`.
 
-## Codex, Claude Code, and Herdr updates
+## Codex, Claude Code, Kimi Code, and Herdr updates
 
-All three applications come from the shared `llm-agents` flake input:
+All four applications come from the shared `llm-agents` flake input:
 [numtide/llm-agents.nix](https://github.com/numtide/llm-agents.nix). It checks for
 updates daily and provides a signed binary cache. We keep its own tested
 `nixpkgs` revision so its cached packages can be reused. The cache is configured
 both for the flake's first rebuild and in the system Nix settings.
 
-Use the standard `codex` and `claude` commands. Herdr's separately packaged
-plugins retain their own versions in `home/modules/herdr/default.nix`.
+Use the standard `codex`, `claude`, and `kimi` commands. Herdr's separately
+packaged plugins retain their own versions in `home/modules/herdr/default.nix`.
 
 The package maintainers update CLI versions and download hashes. There are no
-manual version pins for these three applications in this repository. The
+manual version pins for these four applications in this repository. The
 existing `flakeonly` and `buildall` helpers already run `nix flake update`, so
 they refresh this input along with the rest of the configuration.
 
-To refresh just these three applications, run this from the repository:
+To refresh just these four applications, run this from the repository:
 
 ```sh
 nix flake update llm-agents

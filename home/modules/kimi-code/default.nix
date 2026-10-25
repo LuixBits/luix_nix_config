@@ -1,44 +1,19 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  inputs,
+  lib,
+  pkgs,
+  ...
+}:
 let
   inherit (lib)
-    getExe
     mkEnableOption
     mkIf
     mkOption
     types
     ;
 
-  kimiCode = pkgs.stdenvNoCC.mkDerivation rec {
-    pname = "kimi-code";
-    version = "0.27.0";
-
-    src = pkgs.fetchurl {
-      url = "https://registry.npmjs.org/@moonshot-ai/kimi-code/-/kimi-code-${version}.tgz";
-      hash = "sha256-qc9kB7RTrGm609YSuqaDim5dq2gMoui8fCTbFAV5qqA=";
-    };
-
-    nativeBuildInputs = [ pkgs.makeWrapper ];
-
-    installPhase = ''
-      runHook preInstall
-
-      mkdir -p "$out/lib/kimi-code" "$out/bin"
-      cp -R . "$out/lib/kimi-code/"
-
-      makeWrapper ${getExe pkgs.nodejs} "$out/bin/kimi" \
-        --add-flags "$out/lib/kimi-code/dist/main.mjs"
-
-      runHook postInstall
-    '';
-
-    meta = {
-      description = "Agentic coding CLI from Moonshot AI";
-      homepage = "https://code.kimi.com/";
-      license = lib.licenses.mit;
-      mainProgram = "kimi";
-      platforms = pkgs.nodejs.meta.platforms;
-    };
-  };
+  kimiCode = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.kimi-code;
 in
 {
   options.programs.kimiCode = {
@@ -47,7 +22,7 @@ in
     package = mkOption {
       type = types.package;
       default = kimiCode;
-      defaultText = "Kimi Code packaged from the pinned upstream npm release";
+      defaultText = "Kimi Code from the shared llm-agents flake input";
       description = "Package providing the `kimi` executable.";
     };
   };
