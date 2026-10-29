@@ -48,6 +48,18 @@ in
   programs.codex = {
     enable = true;
     package = aiPackages.codex;
+    context = ''
+      # Personal agent guidance
+
+      ## Commit messages
+
+      - Format commit subjects as `[App] Plain text description`.
+      - Use the affected application's name with its normal capitalization, such as
+        `[Roiguard]`, even when it is a module inside another application's repository.
+      - Follow the closing bracket with a concise plain-text description. Do not use
+        Conventional Commit prefixes such as `feat:`, `fix:`, or `test(roiguard):`.
+      - Example: `[Roiguard] Fix PDF skip handling and record parity audit`.
+    '';
   };
 
   programs.claude-code = {

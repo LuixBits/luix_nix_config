@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   networkHostName ? "pc",
   pkgs,
@@ -7,6 +8,9 @@
 let
   defaultFlake = "/etc/nixos";
   defaultHost = networkHostName;
+  defaultNixArgs = lib.escapeShellArgs (
+    lib.optional config.programs.buildandpush.impure "--impure"
+  );
   scriptPath = lib.makeBinPath [
     pkgs.bash
     pkgs.coreutils
@@ -27,7 +31,7 @@ let
     set -euo pipefail
     export PATH=${scriptPath}:$PATH
 
-    COMMIT_MSG="''${1:-update: $(date -Iseconds)}"
+    COMMIT_MSG="''${1:-[NixOS] Update configuration $(date -Iseconds)}"
 
     info()  { printf "\033[1;34m[INFO]\033[0m %s\n"  "$*"; }
     warn()  { printf "\033[1;33m[WARN]\033[0m %s\n"  "$*"; }
@@ -174,6 +178,7 @@ let
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
     export PATH=${scriptPath}:$PATH
+    NIX_ARGS=(${defaultNixArgs})
 
     info()  { printf "\033[1;34m[INFO]\033[0m %s\n"  "$*"; }
     warn()  { printf "\033[1;33m[WARN]\033[0m %s\n"  "$*"; }
@@ -211,7 +216,7 @@ let
       fi
 
       host_attr="''${FLAKE_REF}#nixosConfigurations.''${target}.config.networking.hostName"
-      if ! configured_host="$(nix eval --raw "$host_attr" 2>/dev/null)"; then
+      if ! configured_host="$(nix eval "''${NIX_ARGS[@]}" --raw "$host_attr" 2>/dev/null)"; then
         error "Preflight failed: nixosConfigurations.$target is not defined."
         return 1
       fi
@@ -270,12 +275,12 @@ let
       root_attr="''${FLAKE_REF}#nixosConfigurations.''${host}.config.fileSystems.\"/\".device"
       boot_attr="''${FLAKE_REF}#nixosConfigurations.''${host}.config.fileSystems.\"/boot\".device"
 
-      if ! root_dev="$(nix eval --raw "$root_attr" 2>/dev/null)"; then
+      if ! root_dev="$(nix eval "''${NIX_ARGS[@]}" --raw "$root_attr" 2>/dev/null)"; then
         error "Preflight failed: missing fileSystems.\"/\".device for host '$host'."
         return 1
       fi
 
-      if ! boot_dev="$(nix eval --raw "$boot_attr" 2>/dev/null)"; then
+      if ! boot_dev="$(nix eval "''${NIX_ARGS[@]}" --raw "$boot_attr" 2>/dev/null)"; then
         error "Preflight failed: missing fileSystems.\"/boot\".device for host '$host'."
         return 1
       fi
@@ -311,7 +316,7 @@ let
     nix flake update --flake "$FLAKE_REF"
     preflight_host_identity "$HOST"
     preflight_fs_guard "$HOST"
-    sudo nixos-rebuild switch --flake "''${FLAKE_REF}#''${HOST}"
+    sudo nixos-rebuild switch "''${NIX_ARGS[@]}" --flake "''${FLAKE_REF}#''${HOST}"
   '';
 
   syncNoctalia = pkgs.writeShellScriptBin "syncnoctalia" ''
@@ -328,6 +333,7 @@ let
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
     export PATH=${scriptPath}:$PATH
+    NIX_ARGS=(${defaultNixArgs})
 
     info()  { printf "\033[1;34m[INFO]\033[0m %s\n"  "$*"; }
     warn()  { printf "\033[1;33m[WARN]\033[0m %s\n"  "$*"; }
@@ -365,8 +371,8 @@ let
       fi
 
       host_attr="''${FLAKE_REF}#nixosConfigurations.''${target}.config.networking.hostName"
-      if ! configured_host="$(nix eval --raw "$host_attr" 2>/dev/null)"; then
-        error "Preflight failed: nixosConfigurations.$target is not defined."
+      if ! configured_host="$(nix eval "''${NIX_ARGS[@]}" --raw "$host_attr")"; then
+        error "Preflight failed: could not evaluate nixosConfigurations.$target (see Nix error above)."
         return 1
       fi
       if [[ "$configured_host" != "$live_host" ]]; then
@@ -377,124 +383,7 @@ let
       info "Preflight OK: live and configured hostname both match ($live_host)."
     }
 
-    git_repo() {
-      local dir="$1"
-      shift
-      if [[ -w "$dir/.git" || -w "$dir/.git/config" ]]; then
-        git -C "$dir" "$@"
-      elif [[ -n "''${SSH_AUTH_SOCK:-}" ]]; then
-        sudo env SSH_AUTH_SOCK="''${SSH_AUTH_SOCK}" git -C "$dir" "$@"
-      else
-        sudo git -C "$dir" "$@"
-      fi
-    }
-
-    sync_flake_repo() {
-      local dir="$1"
-
-      if [[ ! -d "$dir" ]]; then
-        warn "Flake path is not a local directory; skipping git pull for $dir."
-        return 0
-      fi
-
-      if ! git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-        warn "Flake path is not a git repo; skipping git pull for $dir."
-        return 0
-      fi
-
-      if ! git_repo "$dir" remote get-url origin >/dev/null 2>&1; then
-        warn "No 'origin' remote in $dir; skipping git pull."
-        return 0
-      fi
-
-      if ! git_repo "$dir" symbolic-ref -q HEAD >/dev/null 2>&1; then
-        warn "Detached HEAD in $dir; skipping git pull."
-        return 0
-      fi
-
-      local git_dir
-      git_dir="$(git_repo "$dir" rev-parse --absolute-git-dir)"
-      if [[ -f "$git_dir/MERGE_HEAD" \
-        || -d "$git_dir/rebase-merge" \
-        || -d "$git_dir/rebase-apply" \
-        || -f "$git_dir/CHERRY_PICK_HEAD" \
-        || -f "$git_dir/REVERT_HEAD" ]]; then
-        error "Repo $dir has an in-progress Git operation. Finish or abort it before running buildall."
-        return 1
-      fi
-
-      if [[ -n "$(git_repo "$dir" diff --name-only --diff-filter=U)" ]]; then
-        error "Repo $dir already has unresolved merge conflicts. Resolve them before running buildall."
-        return 1
-      fi
-
-      local branch upstream original_head stash_ref restore_ref pull_out pop_out
-      branch="$(git_repo "$dir" rev-parse --abbrev-ref HEAD)"
-
-      if ! upstream="$(git_repo "$dir" rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null)"; then
-        warn "Branch '$branch' in $dir has no upstream; skipping git pull."
-        return 0
-      fi
-
-      original_head="$(git_repo "$dir" rev-parse HEAD)"
-      stash_ref=""
-      restore_ref="$original_head"
-
-      if [[ -n "$(git_repo "$dir" status --porcelain=v1 --untracked-files=all)" ]]; then
-        info "Stashing local changes in $dir before pulling $upstream..."
-        git_repo "$dir" stash push --include-untracked --message "buildall-pre-pull $(date -Iseconds)" >/dev/null
-        stash_ref="stash@{0}"
-      fi
-
-      info "Pulling latest changes for '$branch' from '$upstream'..."
-      if ! pull_out="$(git_repo "$dir" pull --rebase 2>&1)"; then
-        printf '%s\n' "$pull_out" >&2
-        if git_repo "$dir" rev-parse -q --verify REBASE_HEAD >/dev/null 2>&1; then
-          warn "Pull hit a rebase conflict; aborting pull."
-          git_repo "$dir" rebase --abort >/dev/null
-        fi
-        if [[ -n "$stash_ref" ]]; then
-          info "Restoring stashed local changes after failed pull..."
-          git_repo "$dir" stash apply --index "$stash_ref" >/dev/null
-          git_repo "$dir" stash drop "$stash_ref" >/dev/null || true
-        fi
-        error "Git pull failed for $dir. Build cancelled."
-        return 1
-      fi
-
-      if [[ -n "$pull_out" ]]; then
-        printf '%s\n' "$pull_out"
-      fi
-
-      if [[ -n "$(git_repo "$dir" diff --name-only --diff-filter=U)" ]]; then
-        error "Pull left unresolved conflicts in $dir. Cancelling pull."
-        git_repo "$dir" reset --merge "$restore_ref" >/dev/null
-        if [[ -n "$stash_ref" ]]; then
-          info "Restoring stashed local changes after cancelling pull..."
-          git_repo "$dir" stash apply --index "$stash_ref" >/dev/null
-          git_repo "$dir" stash drop "$stash_ref" >/dev/null || true
-        fi
-        return 1
-      fi
-
-      if [[ -n "$stash_ref" ]]; then
-        info "Restoring stashed local changes after pull..."
-        if ! pop_out="$(git_repo "$dir" stash pop --index "$stash_ref" 2>&1)"; then
-          printf '%s\n' "$pop_out" >&2
-          warn "Local changes conflict with the pulled state; cancelling pull."
-          git_repo "$dir" reset --merge "$restore_ref" >/dev/null
-          if git_repo "$dir" rev-parse -q --verify "$stash_ref" >/dev/null 2>&1; then
-            git_repo "$dir" stash apply --index "$stash_ref" >/dev/null
-            git_repo "$dir" stash drop "$stash_ref" >/dev/null || true
-          fi
-          error "Git pull would conflict with local changes in $dir. Build cancelled."
-          return 1
-        fi
-        if [[ -n "$pop_out" ]]; then
-          printf '%s\n' "$pop_out"
-        fi
-      fi
-    }
+    ${builtins.readFile ./sync-repo.sh}
 
     check_fs_match() {
       local mountpoint="$1"
@@ -543,12 +432,12 @@ let
       root_attr="''${FLAKE_REF}#nixosConfigurations.''${host}.config.fileSystems.\"/\".device"
       boot_attr="''${FLAKE_REF}#nixosConfigurations.''${host}.config.fileSystems.\"/boot\".device"
 
-      if ! root_dev="$(nix eval --raw "$root_attr" 2>/dev/null)"; then
+      if ! root_dev="$(nix eval "''${NIX_ARGS[@]}" --raw "$root_attr" 2>/dev/null)"; then
         error "Preflight failed: missing fileSystems.\"/\".device for host '$host'."
         return 1
       fi
 
-      if ! boot_dev="$(nix eval --raw "$boot_attr" 2>/dev/null)"; then
+      if ! boot_dev="$(nix eval "''${NIX_ARGS[@]}" --raw "$boot_attr" 2>/dev/null)"; then
         error "Preflight failed: missing fileSystems.\"/boot\".device for host '$host'."
         return 1
       fi
@@ -567,15 +456,37 @@ let
       FLAKE_REF="$FLAKE_RAW"
     fi
     usage() {
-      echo "Usage: buildall [--sync-noctalia] <framework|l|pc> [commit-message...]" >&2
-      exit 2
+      echo "Usage: buildall [--no-pull] [--no-update] [--no-push] [--impure] [--sync-noctalia] <framework|l|pc> [commit-message...]" >&2
+      exit "''${1:-2}"
     }
 
     SYNC_NOCTALIA=0
+    PULL=1
+    UPDATE=1
+    PUSH=1
     HOST=""
 
     while [[ $# -gt 0 ]]; do
       case "$1" in
+        --help|-h)
+          usage 0
+          ;;
+        --no-pull)
+          PULL=0
+          shift
+          ;;
+        --no-update)
+          UPDATE=0
+          shift
+          ;;
+        --no-push)
+          PUSH=0
+          shift
+          ;;
+        --impure)
+          NIX_ARGS=(--impure)
+          shift
+          ;;
         --sync-noctalia)
           SYNC_NOCTALIA=1
           shift
@@ -595,19 +506,34 @@ let
       usage
     fi
 
-    sync_flake_repo "$FLAKE_RAW"
+    LIVE_HOST="$(read_live_hostname)"
+    if [[ "$HOST" != "$LIVE_HOST" ]]; then
+      error "Target '$HOST' is not this machine's live hostname '$LIVE_HOST'."
+      exit 1
+    fi
 
-    MSG="''${*:-update: $(date -Iseconds)}"
+    if [[ "$PULL" -eq 1 ]]; then
+      sync_flake_repo "$FLAKE_RAW"
+    else
+      check_repo_ready "$FLAKE_RAW"
+      info "Using local configuration without Git sync."
+    fi
+
+    MSG="''${*:-[NixOS] Update configuration $(date -Iseconds)}"
 
     if [[ "$SYNC_NOCTALIA" -eq 1 ]]; then
       syncnoctalia "$HOST"
     fi
 
-    nix flake update --flake "$FLAKE_REF"
+    if [[ "$UPDATE" -eq 1 ]]; then
+      nix flake update --flake "$FLAKE_REF"
+    fi
     preflight_host_identity "$HOST"
     preflight_fs_guard "$HOST"
-    sudo nixos-rebuild switch --flake "''${FLAKE_REF}#''${HOST}"
-    pushconfigs "$MSG"
+    sudo nixos-rebuild switch "''${NIX_ARGS[@]}" --flake "''${FLAKE_REF}#''${HOST}"
+    if [[ "$PUSH" -eq 1 ]]; then
+      pushconfigs "$MSG"
+    fi
   '';
 
   pushonly = pkgs.writeShellScriptBin "pushonly" ''
@@ -618,21 +544,33 @@ let
   '';
 in
 {
-  home.file.".agents/skills/verify-nixos-host" = {
-    source = ./skill;
-    force = true;
+  options.programs.buildandpush.impure = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+    description = ''
+      Enable impure evaluation in buildall and flakeonly when this user's
+      system configuration imports local files outside the flake, such as a
+      company CA certificate. Applies to preflight checks and rebuilding.
+    '';
   };
 
-  home.file.".codex/skills/verify-nixos-host" = {
-    source = ./skill;
-    force = true;
-  };
+  config = {
+    home.file.".agents/skills/verify-nixos-host" = {
+      source = ./skill;
+      force = true;
+    };
 
-  home.packages = [
-    buildall
-    flakeonly
-    pushonly
-    pushConfigs
-    syncNoctalia
-  ];
+    home.file.".codex/skills/verify-nixos-host" = {
+      source = ./skill;
+      force = true;
+    };
+
+    home.packages = [
+      buildall
+      flakeonly
+      pushonly
+      pushConfigs
+      syncNoctalia
+    ];
+  };
 }

@@ -10,6 +10,11 @@
     ../modules/work
   ];
 
+  programs.graphify.projectRoots = [
+    "${config.home.homeDirectory}/siga/webshop"
+    "${config.home.homeDirectory}/luix_nix_config"
+  ];
+
   services.spatial-input = {
     enable = true;
     # Ship the profiles and their relative icons with the pinned remote source.

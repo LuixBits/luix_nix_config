@@ -272,6 +272,32 @@ in
       graphifyAll
     ];
 
+    programs.codex = {
+      # Codex loads global AGENTS.md at session start; a skill alone is optional.
+      context = lib.mkAfter ''
+        ## Graphify
+
+        - At the start of repository code tasks, resolve the repository root and
+          check for `graphify-out/graph.json`. If present and the task concerns
+          indexed code, make at least one task-relevant Graphify query before
+          broad source searches or edits. A stats-only call is not sufficient.
+        - Prefer Graphify MCP tools with the absolute root as `project_path`.
+          Use the default global graph only for intentional cross-project queries.
+          Read the cited source files before relying on graph relationships.
+        - Read the Graphify skill for the query and refresh workflow. If MCP is
+          unavailable, try the CLI. If no usable graph exists, or the task only
+          concerns unsupported files (including Nix in Graphify 0.9.48), explain
+          that briefly and continue with source inspection. Do not silently skip it.
+        - After changing indexed source, refresh the existing graph with
+          `graphify-project update <repository-root>` before handoff.
+        - Briefly report the query's useful finding or the reason Graphify was
+          skipped. Graph results never replace source verification or tests.
+      '';
+      # A skill directory symlink is discoverable by Codex; a SKILL.md symlink
+      # alone is not supported by all versions (see Home Manager's Codex module).
+      skills.graphify = ./skill;
+    };
+
     home.file.".agents/skills/graphify/SKILL.md" = {
       source = ./skill/SKILL.md;
       force = true;

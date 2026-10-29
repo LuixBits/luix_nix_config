@@ -137,12 +137,89 @@
         end)
       end
 
+      local function fit_presenter_image(placement)
+        if not is_presenter_buffer(placement.buf) then
+          return
+        end
+
+        local win = placement:wins()[1]
+        if not win then
+          return
+        end
+        local width = vim.api.nvim_win_get_width(win)
+        local height = vim.api.nvim_win_get_height(win)
+        local text_rows = 0
+        for _, line in ipairs(vim.api.nvim_buf_get_lines(placement.buf, 0, -1, false)) do
+          if not line:match("^%s*%.image%s+") then
+            text_rows = text_rows + math.max(1, math.ceil(vim.fn.strdisplaywidth(line) / width))
+          end
+        end
+        placement.opts.max_width = math.max(1, width - 4)
+        placement.opts.max_height = math.max(1, height - text_rows - 2)
+        placement.presenter_image_left = math.max(0, math.floor((width - placement:state().loc.width) / 2))
+
+        if placement.presenter_image_centered then
+          return
+        end
+        placement.presenter_image_centered = true
+        -- Keep the source range intact; center only the rendered image placeholders.
+        local render = placement._render
+        placement._render = function(self, marks)
+          local padding = string.rep(" ", self.presenter_image_left)
+          for _, mark in ipairs(marks) do
+            if mark.virt_text_pos == "overlay" then
+              mark.virt_text_win_col = self.presenter_image_left
+            end
+            for _, line in ipairs(mark.virt_lines or {}) do
+              if not line[1][2] then
+                line[1][1] = padding
+              else
+                table.insert(line, 1, { padding })
+              end
+            end
+          end
+          return render(self, marks)
+        end
+        vim.api.nvim_create_autocmd({ "VimResized", "WinResized" }, {
+          group = placement.augroup,
+          callback = function()
+            if not placement.closed then
+              placement:update()
+            end
+          end,
+        })
+      end
+
       local function presenter_images(buf)
         vim.b[buf].snacks_image_conceal = true
 
         local ok, snacks_image = pcall(require, "snacks.image")
-        if ok and snacks_image.doc and snacks_image.doc.attach then
-          snacks_image.doc.attach(buf)
+        if not ok or not snacks_image.doc or not snacks_image.doc.attach then
+          return
+        end
+        if not snacks_image.presenter_layout_installed then
+          snacks_image.presenter_layout_installed = true
+          local previous = snacks_image.config.doc.on_update_pre
+          snacks_image.config.doc.on_update_pre = function(placement)
+            if previous then
+              previous(placement)
+            end
+            fit_presenter_image(placement)
+          end
+        end
+        snacks_image.doc.attach(buf)
+        -- Also update images already attached before the presenter window was ready.
+        for _, line in ipairs(vim.api.nvim_buf_get_lines(buf, 0, -1, false)) do
+          local src = line:match("^%s*%.image%s+(.+)$")
+          if src then
+            local img = snacks_image.image.new(snacks_image.doc.resolve(buf, src))
+            for _, placement in pairs(img.placements) do
+              if placement.buf == buf then
+                placement.opts.on_update_pre = snacks_image.config.doc.on_update_pre
+                placement:update()
+              end
+            end
+          end
         end
       end
 

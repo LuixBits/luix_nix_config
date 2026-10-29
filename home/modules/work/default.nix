@@ -37,6 +37,14 @@
     "${config.home.homeDirectory}/siga/bincommands/bin"
   ];
 
+  # Azure CLI/Python requests must use the system bundle, which includes the
+  # SIGA Gateway CA alongside the normal public certificate authorities.
+  home.sessionVariables.REQUESTS_CA_BUNDLE = "/etc/ssl/certs/ca-certificates.crt";
+
+  # The paired system work module imports the company CA from a local file.
+  # Plain rebuild-helper invocations must allow that read automatically.
+  programs.buildandpush.impure = true;
+
   xdg.configFile."fish/completions/siga.fish".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/siga/bincommands/completions/siga.fish";
 

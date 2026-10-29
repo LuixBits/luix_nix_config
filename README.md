@@ -32,6 +32,56 @@ sudo nixos-rebuild switch --flake .#<host>
 Home Manager runs as a NixOS module, so this is the only command — no separate
 `home-manager switch`.
 
+The installed `buildall [options] <host> [commit-message...]` helper fetches and
+integrates the current branch's upstream, updates flake inputs, verifies the
+local hostname and disks, rebuilds, then commits and pushes. Options go before
+the host:
+
+| Option | Effect |
+| --- | --- |
+| `--no-update` | Keep the versions already recorded in `flake.lock` |
+| `--no-pull` | Use the current checkout without fetching or integrating Git changes |
+| `--no-push` | Leave changes local after rebuilding, without committing or pushing |
+| `--impure` | Explicitly allow configuration to read local files outside the flake |
+
+The work module enables `programs.buildandpush.impure`, so `buildall` and
+`flakeonly` automatically pass `--impure` for the work configuration, including
+their preflight checks. This is needed because the system work module imports
+the company CA from `~/.local/share/cloudflare-warp/siga-cloudflare-root.pem`,
+which is deliberately kept outside this public repository. Other configurations
+use pure evaluation by default. Direct `nixos-rebuild` invocations still need
+`--impure` when the configuration reads that local certificate.
+
+Combine the three `--no-*` options to rebuild the current checkout and locked
+versions without Git sync, dependency updates, or publishing.
+
+Before integrating remote changes, `buildall` saves the original commit under
+`refs/buildall-backups/<timestamp-id>/head`. Staged, unstaged, and non-ignored
+untracked files are saved in `/worktree` under the same prefix and in
+`git stash list`. These local backups are retained after success and are not
+pushed by the helper. On a changed upstream, edits are restored with Git's
+three-way content merge; the exact original staging state stays in the backup.
+
+If edits conflict, the helper stops before rebuilding or pushing and keeps the
+remote commits and conflict markers. Resolve the files, `git add` them, and
+retry. If a new upstream path would overwrite an untracked or ignored local
+file, the helper stops before stashing or changing the checkout. Reconcile or
+move that local path before retrying; ignored files are never added to backups.
+For conflicts between committed changes, the rebase is aborted and the original
+checkout is restored.
+
+To inspect or recover the original files without disturbing the working checkout:
+
+```sh
+git for-each-ref --format='%(refname)' refs/buildall-backups/
+# Use the exact prefix printed by the failed run (without /head or /worktree).
+backup='refs/buildall-backups/<timestamp-id>'
+recovery_dir="$(mktemp -d)"
+git worktree add --detach "$recovery_dir" "$backup/head"
+# Only needed when the snapshot includes local edits:
+git -C "$recovery_dir" stash apply --index "$backup/worktree"
+```
+
 ## Codex, Claude Code, Kimi Code, and Herdr updates
 
 All four applications come from the shared `llm-agents` flake input:
@@ -70,6 +120,37 @@ The Codex activation defaults in the programming module currently set
 Nix if you want a different persistent model; a local picker choice can be
 overwritten by the next rebuild. Claude's model choice stays in its user
 settings.
+
+## Graphify code indexes
+
+The programming module installs Graphify 0.9.48, `graphify-project` and
+`graphify-all`, plus the Graphify skill and MCP connections for Codex and Kimi.
+Set `programs.graphify.projectRoots` in `home/hosts/<host>.nix` to select the
+repositories refreshed by `graphify-all`; missing directories are skipped.
+
+The module also adds mandatory Graphify guidance to Codex's global `AGENTS.md`
+and installs the skill through `programs.codex.skills`. The programming module
+owns the base global instructions, including commit-message conventions.
+For indexed code tasks, Codex must make a relevant query before broad source
+exploration or edits and report a useful finding or a concrete reason for
+skipping Graphify. This is an instruction, not a runtime enforcement hook.
+After activating configuration changes, start a new Codex session so the updated
+global instructions load. Repository `AGENTS.md` files can add local requirements.
+
+```sh
+graphify-project build /path/to/project   # First code-only build and registration
+graphify-project update /path/to/project  # Refresh code and global graph
+graphify-project status /path/to/project
+graphify-project global                   # List registered projects
+graphify-all                              # Refresh this host's configured roots
+```
+
+Extraction is local and code-only. Each repository keeps its generated index
+in the ignored `graphify-out/` directory; use `.graphifyignore` to exclude
+runtime data and generated or vendored code. MCP queries should pass the
+absolute repository root as `project_path`; the default graph merges registered
+projects. Graphify 0.9.48 does not parse Nix, so this repository's graph covers
+supported scripts and configuration formats only. Always verify results in source.
 
 ## Adding something new
 
