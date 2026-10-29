@@ -49,7 +49,7 @@
           "root_pane": 2
         },
         {
-          "custom_name": "Projects Claude",
+          "custom_name": "Projects Kimi",
           "layout": {
             "Pane": 3
           },
@@ -127,7 +127,7 @@
           "root_pane": 6
         },
         {
-          "custom_name": "Luix Config Claude",
+          "custom_name": "Luix Config Kimi",
           "layout": {
             "Pane": 7
           },
@@ -205,7 +205,7 @@
           "root_pane": 10
         },
         {
-          "custom_name": "Notes Claude",
+          "custom_name": "Notes Kimi",
           "layout": {
             "Pane": 11
           },
@@ -243,16 +243,18 @@
         "13": 1,
         "14": 2,
         "15": 3,
-        "16": 4
+        "16": 4,
+        "21": 5
       },
-      "next_public_pane_number": 5,
+      "next_public_pane_number": 6,
       "public_tab_numbers": [
         1,
         2,
         3,
-        4
+        4,
+        5
       ],
-      "next_public_tab_number": 5,
+      "next_public_tab_number": 6,
       "tabs": [
         {
           "custom_name": "Utils Nvim",
@@ -283,7 +285,7 @@
           "root_pane": 14
         },
         {
-          "custom_name": "Utils Claude",
+          "custom_name": "Utils Kimi",
           "layout": {
             "Pane": 15
           },
@@ -309,6 +311,20 @@
           "zoomed": false,
           "focused": 16,
           "root_pane": 16
+        },
+        {
+          "custom_name": "Utils SSH",
+          "layout": {
+            "Pane": 21
+          },
+          "panes": {
+            "21": {
+              "cwd": "@HOME@"
+            }
+          },
+          "zoomed": false,
+          "focused": 21,
+          "root_pane": 21
         }
       ],
       "active_tab": 0
@@ -361,7 +377,7 @@
           "root_pane": 18
         },
         {
-          "custom_name": "Remotion Claude",
+          "custom_name": "Remotion Kimi",
           "layout": {
             "Pane": 19
           },

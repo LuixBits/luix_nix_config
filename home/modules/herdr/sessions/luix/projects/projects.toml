@@ -12,8 +12,8 @@ name = "Projects Codex"
 command = "codex"
 
 [[tabs]]
-name = "Projects Claude"
-command = "claude"
+name = "Projects Kimi"
+command = "kimi"
 
 [[tabs]]
 name = "Projects CLI"

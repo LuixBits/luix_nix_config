@@ -9,6 +9,7 @@
   imports = [
     ./modules/applications
     ./modules/cli
+    ./modules/ssh
     ./modules/programming
     ./modules/herdr
     ./modules/kitty

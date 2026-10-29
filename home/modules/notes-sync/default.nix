@@ -13,6 +13,16 @@ let
     pkgs.util-linux
   ];
 
+  # These are local editor state, unlike shared flashcard review history.
+  notesLocalIgnoreText = ''
+    # Local flashcard workspace and disposable note backups
+    .flashcards-workspace.json
+    *.flashcards-backup
+    *.norg.*.tmp
+  '';
+
+  notesLocalIgnores = pkgs.writeText "notes-local-gitignore" notesLocalIgnoreText;
+
   notesGitignore = pkgs.writeText "notes-gitignore" ''
     *.swp
     *.swo
@@ -25,6 +35,7 @@ let
     .sync-conflict-*
     *.sync-conflict-*
     nvim.log
+    ${notesLocalIgnoreText}
   '';
 
   common = ''
@@ -40,14 +51,73 @@ let
     NOTES_REMOTE="''${NOTES_REMOTE:-${notesRemote}}"
     NOTES_BRANCH="''${NOTES_BRANCH:-${notesBranch}}"
     LOCK_FILE="''${NOTES_LOCK_FILE:-''${XDG_RUNTIME_DIR:-/tmp}/notes-sync-''${USER:-user}.lock}"
-    NOTE_PATHS=(
-      ".gitignore"
-      ":(top,glob)**/*.norg"
-    )
-    NON_NOTE_EXCLUDES=(
-      ":(exclude,top).gitignore"
-      ":(exclude,top,glob)**/*.norg"
-    )
+    NON_NOTE_EXCLUDES=()
+
+    is_directory_alias() {
+      local relative="$1" name
+      case "$relative" in
+        youtube/shorts) return 0 ;;
+        youtube/videos/*)
+          name="''${relative#youtube/videos/}"
+          [[ "$name" =~ ^[a-z0-9][a-z0-9-]*$ ]]
+          ;;
+        *) return 1 ;;
+      esac
+    }
+
+    validate_note_link() {
+      local relative="$1" target resolved root
+      target="$(readlink -- "$relative")"
+      root="$(pwd -P)"
+      if [[ "$target" == /* ]] || ! resolved="$(realpath -e -- "$relative" 2>/dev/null)"; then
+        error "Notes link must have an existing relative target: $relative"
+        return 1
+      fi
+      if [[ "$resolved" != "$root/"* ]]; then
+        error "Notes link escapes the notes repository: $relative"
+        return 1
+      fi
+      if [[ "$relative" == *.norg ]]; then
+        if [[ ! -f "$resolved" || "$resolved" != *.norg ]]; then
+          error "Norg link must resolve to a note file: $relative"
+          return 1
+        fi
+      elif [[ ! -d "$resolved" || "$resolved" != "$root/youtube/"* ]]; then
+        error "Compatibility link must resolve to a YouTube notes directory: $relative"
+        return 1
+      fi
+    }
+
+    refresh_note_policy() {
+      NON_NOTE_EXCLUDES=(
+        ":(exclude,top).gitignore"
+        ":(exclude,top,glob)**/*.norg"
+        ":(exclude,top,glob)**/flashcards/reviews.jsonl"
+      )
+      local relative mode
+      local -A seen=()
+      while IFS= read -r -d $'\0' relative; do
+        if [[ -n "''${seen[$relative]:-}" ]]; then continue; fi
+        seen["$relative"]=1
+        if [[ "$relative" == *.norg ]]; then
+          if [[ -L "$relative" ]]; then validate_note_link "$relative"; fi
+          continue
+        fi
+        if ! is_directory_alias "$relative"; then continue; fi
+        if [[ -L "$relative" ]]; then
+          validate_note_link "$relative"
+        elif [[ ! -e "$relative" ]]; then
+          # A tracked alias may have been deliberately removed.
+          mode="$(git ls-files --stage -- "$relative")"
+          mode="''${mode%% *}"
+          if [[ "$mode" != 120000 ]]; then continue; fi
+        else
+          # A regular file/directory at an alias-shaped path is not allowlisted.
+          continue
+        fi
+        NON_NOTE_EXCLUDES+=(":(exclude,top,literal)$relative")
+      done < <(git ls-files --cached --others --exclude-standard -z)
+    }
 
     with_lock() {
       exec 9>"$LOCK_FILE"
@@ -70,12 +140,17 @@ let
     }
 
     ensure_gitignore() {
-      local gitignore="$NOTES_DIR/.gitignore"
-      if [[ -e "$gitignore" ]]; then
-        return 0
+      local gitignore="$NOTES_DIR/.gitignore" rule
+      if [[ ! -e "$gitignore" ]]; then
+        install -m 0644 "${notesGitignore}" "$gitignore"
       fi
-
-      install -m 0644 "${notesGitignore}" "$gitignore"
+      # Apply the same narrow rules to existing clones without replacing
+      # their personal ignore entries or untracking shared review history.
+      while IFS= read -r rule; do
+        if ! grep -Fqx -- "$rule" "$gitignore"; then
+          printf '\n%s\n' "$rule" >> "$gitignore"
+        fi
+      done < "${notesLocalIgnores}"
     }
 
     ensure_origin() {
@@ -146,10 +221,11 @@ let
     }
 
     assert_note_only_worktree() {
+      refresh_note_policy
       local unexpected
       unexpected="$(git status --porcelain=v1 --untracked-files=all -- . "''${NON_NOTE_EXCLUDES[@]}")"
       if [[ -n "$unexpected" ]]; then
-        error "Refusing notes sync because non-note changes exist in $NOTES_DIR:"
+        error "Refusing notes sync because unsupported files exist in $NOTES_DIR:"
         printf '%s\n' "$unexpected" >&2
         exit 1
       fi
@@ -158,20 +234,23 @@ let
     commit_local_changes() {
       assert_note_only_worktree
 
-      git add -A -- "''${NOTE_PATHS[@]}"
+      # The whole-worktree guard above and staged guard below keep this
+      # limited to notes. Staging from the root also handles a tracked
+      # directory being replaced by a compatibility symlink.
+      git add -A -- .
       if ! git diff --cached --quiet -- . "''${NON_NOTE_EXCLUDES[@]}"; then
-        error "Refusing notes sync because non-note paths are staged:"
+        error "Refusing notes sync because unsupported paths are staged:"
         git diff --cached --name-status -- . "''${NON_NOTE_EXCLUDES[@]}" >&2
         exit 1
       fi
-      if git diff --cached --quiet -- "''${NOTE_PATHS[@]}"; then
+      if git diff --cached --quiet; then
         return 0
       fi
 
       local host timestamp
       host="$(cat /proc/sys/kernel/hostname 2>/dev/null || printf 'unknown')"
       timestamp="$(date -Iseconds)"
-      git commit --only -m "notes: sync $host $timestamp" -- "''${NOTE_PATHS[@]}"
+      git commit -m "notes: sync $host $timestamp"
     }
 
     fetch_origin() {
@@ -214,6 +293,9 @@ let
     ${common}
     with_lock
     ensure_repo
+    # Preserve this device's pending notes and ignore-rule migration before
+    # integrating changes from another device. Pull does not push them.
+    commit_local_changes
     if ! fetch_origin; then
       network_fail "Could not fetch origin. Will retry on the next sync."
     fi

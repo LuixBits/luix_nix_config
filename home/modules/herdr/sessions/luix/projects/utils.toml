@@ -12,8 +12,12 @@ name = "Utils Codex"
 command = "codex"
 
 [[tabs]]
-name = "Utils Claude"
-command = "claude"
+name = "Utils Kimi"
+command = "kimi"
 
 [[tabs]]
 name = "Utils CLI"
+
+[[tabs]]
+name = "Utils SSH"
+command = "sshs"

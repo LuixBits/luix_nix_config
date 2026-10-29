@@ -12,8 +12,8 @@ name = "Remotion Codex"
 command = "codex"
 
 [[tabs]]
-name = "Remotion Claude"
-command = "claude"
+name = "Remotion Kimi"
+command = "kimi"
 
 [[tabs]]
 name = "Remotion CLI"

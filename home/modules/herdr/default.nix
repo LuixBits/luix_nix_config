@@ -14,6 +14,7 @@ let
   });
   codexCommand = "${config.programs.codex.package}/bin/codex";
   claudeCommand = "${config.programs.claude-code.finalPackage}/bin/claude";
+  kimiCommand = "${config.programs.kimiCode.package}/bin/kimi";
   herdrConfig = ./config.toml;
   herdrPlusPluginId = "cloudmanic.herdr-plus";
   herdrPlusVersion = "0.1.10";
@@ -438,23 +439,26 @@ let
       sessionTemplate = ./sessions/luix/session.template.json;
       layoutRevision = builtins.hashString "sha256" (
         (builtins.readFile ./sessions/luix/session.template.json)
-        + "\nbootstrap-agent-commands=codex,claude\n"
+        + "\nbootstrap-agent-commands=codex,kimi\n"
       );
       projectDirs = [ ./sessions/luix/projects ];
-      requiredTabs = lib.concatMap
+      requiredTabs = (lib.concatMap
         (workspace: map (tab: { inherit workspace tab; }) [ 1 2 3 4 ])
-        [ "w1" "w2" "w3" "w4" "w5" ];
-      requiredPanes = lib.concatMap
+        [ "w1" "w2" "w3" "w4" "w5" ])
+        ++ [ { workspace = "w4"; tab = 5; } ];
+      requiredPanes = (lib.concatMap
         (workspace: map (pane: { inherit workspace pane; }) [ 1 2 3 4 ])
-        [ "w1" "w2" "w3" "w4" "w5" ];
+        [ "w1" "w2" "w3" "w4" "w5" ])
+        ++ [ { workspace = "w4"; pane = 5; } ];
       bootstrapCommands =
         lib.concatMap
           (workspace: [
             { pane = "${workspace}:p1"; command = "nvim ."; }
             { pane = "${workspace}:p2"; command = codexCommand; }
-            { pane = "${workspace}:p3"; command = claudeCommand; }
+            { pane = "${workspace}:p3"; command = kimiCommand; }
           ])
-          [ "w1" "w2" "w3" "w4" "w5" ];
+          [ "w1" "w2" "w3" "w4" "w5" ]
+        ++ [ { pane = "w4:p5"; command = "${pkgs.sshs}/bin/sshs"; } ];
       # Select every workspace's Neovim tab and finish on Projects.
       focusTabs = [ "w5:t1" "w4:t1" "w3:t1" "w2:t1" "w1:t1" ];
     }
@@ -559,6 +563,6 @@ in
       ${herdrPackage}/bin/herdr integration uninstall kimi
   '';
 
-  home.packages = [ herdrPackage herdrReviewr ] ++ herdrSessionPackages;
+  home.packages = [ herdrPackage herdrReviewr pkgs.sshs ] ++ herdrSessionPackages;
 
 }
