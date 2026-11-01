@@ -7,7 +7,7 @@ import time
 import unittest
 from unittest.mock import patch
 
-from kimi_statusline import plan_quotas, render, session_usage
+from kimi_statusline import fetch_quotas, read_cached_quotas, refresh_quotas, render, session_usage
 
 
 class UsageHandler(BaseHTTPRequestHandler):
@@ -30,14 +30,14 @@ class UsageHandler(BaseHTTPRequestHandler):
 class KimiStatuslineTests(unittest.TestCase):
     def test_render_only_requested_fields(self):
         self.assertEqual(
-            render({"input": 22_223, "output": 351}, {"5h": 0.126, "month": 0.08}),
-            "in 22.2k · out 351 · 5h 13% · month 8%",
+            render({"model": "k3"}, {"input": 22_223, "output": 351}, {"5h": 0.126, "month": 0.08}),
+            "k3 · in 22.2k · out 351 · 5h 13% · month 8%",
         )
         self.assertEqual(
-            render({"input": 0, "output": 0}, {"5h": 0, "week": 0.34, "month": 0.08}),
+            render({}, {"input": 0, "output": 0}, {"5h": 0, "week": 0.34, "month": 0.08}),
             "in 0 · out 0 · 5h 0% · week 34% · month 8%",
         )
-        self.assertEqual(render(None, {}), "in — · out — · 5h — · month —")
+        self.assertEqual(render(None, None, {}), "in — · out — · 5h — · month —")
 
     def test_session_usage_aggregates_agents_and_only_new_records(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -66,7 +66,7 @@ class KimiStatuslineTests(unittest.TestCase):
             self.assertEqual(session_usage(home, "abc"), {"input": 1765, "output": 31})
             self.assertIsNone(session_usage(home, "missing"))
 
-    def test_plan_quotas_uses_real_http_and_caches_without_token(self):
+    def test_refresh_quotas_uses_real_http_and_caches(self):
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)
             UsageHandler.payload = {
@@ -92,8 +92,8 @@ key = "oauth/kimi-code"
                 credentials.parent.mkdir()
                 credentials.write_text(json.dumps({"access_token": "fake-token", "expires_at": time.time() + 3600}))
                 expected = {"5h": 0.126, "week": 0.34, "month": 0.08}
-                self.assertEqual(plan_quotas(home), expected)
-                self.assertEqual(plan_quotas(home), expected)
+                self.assertEqual(refresh_quotas(home), expected)
+                self.assertEqual(read_cached_quotas(home), expected)
                 self.assertEqual(
                     UsageHandler.requests,
                     [("/coding/v1/usages", "Bearer fake-token")],
@@ -112,7 +112,8 @@ key = "oauth/kimi-code"
             cache.parent.mkdir(parents=True)
             cache.write_text('{"checked_at":0,"quotas":{"5h":0.25,"month":0.5}}')
             with patch("kimi_statusline.fetch_quotas", return_value=None):
-                self.assertEqual(plan_quotas(home), {"5h": 0.25, "month": 0.5})
+                self.assertEqual(refresh_quotas(home), {"5h": 0.25, "month": 0.5})
+            self.assertEqual(read_cached_quotas(home), {"5h": 0.25, "month": 0.5})
 
 
 if __name__ == "__main__":

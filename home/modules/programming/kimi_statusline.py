@@ -1,5 +1,11 @@
-"""Render Kimi session tokens and managed plan quotas in one status line."""
+"""Render Kimi session tokens and cached plan quotas in one status line.
 
+Quota data is kept fresh by a background fetcher (run with --fetch-quotas);
+the synchronous render path only reads the local cache so it finishes well
+within Kimi Code's 300 ms footer-command budget.
+"""
+
+import argparse
 import json
 import math
 import os
@@ -12,7 +18,7 @@ import urllib.request
 
 
 QUOTA_CACHE_SECONDS = 30
-QUOTA_TIMEOUT_SECONDS = 0.2
+QUOTA_TIMEOUT_SECONDS = 2
 
 
 def number(value):
@@ -40,14 +46,20 @@ def percent(value):
     return f"{math.floor(min(value, 1) * 100 + 0.5)}%"
 
 
-def render(usage, quotas):
+def render(data, usage, quotas):
     usage = usage or {}
     quotas = quotas or {}
-    parts = [
+    model = ""
+    if isinstance(data, dict):
+        model = "".join(c for c in str(data.get("model") or "") if c.isprintable())
+    parts = []
+    if model:
+        parts.append(model)
+    parts.extend([
         f"in {tokens(usage.get('input'))}",
         f"out {tokens(usage.get('output'))}",
         f"5h {percent(quotas.get('5h'))}",
-    ]
+    ])
     if "week" in quotas:
         parts.append(f"week {percent(quotas.get('week'))}")
     parts.append(f"month {percent(quotas.get('month'))}")
@@ -214,16 +226,7 @@ def provider_settings(home):
     return base_url.rstrip("/") + "/usages", token
 
 
-def fetch_quotas(home):
-    url, token = provider_settings(home)
-    if url is None:
-        return None
-    request = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}", "Accept": "application/json"})
-    try:
-        with urllib.request.urlopen(request, timeout=QUOTA_TIMEOUT_SECONDS) as response:
-            payload = json.loads(response.read(1_000_000))
-    except (OSError, ValueError):
-        return None
+def parse_quotas(payload):
     raw = payload.get("usages") if isinstance(payload, dict) else None
     if not isinstance(raw, dict):
         return None
@@ -244,37 +247,66 @@ def fetch_quotas(home):
     return quotas
 
 
-def plan_quotas(home):
-    path = home / "cache" / "statusline" / "quotas.json"
-    cache = read_json(path) or {}
+def fetch_quotas(home):
+    url, token = provider_settings(home)
+    if url is None:
+        return None
+    request = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}", "Accept": "application/json"})
+    try:
+        with urllib.request.urlopen(request, timeout=QUOTA_TIMEOUT_SECONDS) as response:
+            payload = json.loads(response.read(1_000_000))
+    except (OSError, ValueError):
+        return None
+    return parse_quotas(payload)
+
+
+def quota_cache_path(home):
+    return home / "cache" / "statusline" / "quotas.json"
+
+
+def read_cached_quotas(home):
+    cache = read_json(quota_cache_path(home)) or {}
     quotas = cache.get("quotas") if isinstance(cache.get("quotas"), dict) else {}
-    now = time.time()
-    checked_at = number(cache.get("checked_at")) or 0
-    if now >= checked_at and now - checked_at < QUOTA_CACHE_SECONDS:
-        return quotas
+    return quotas
+
+
+def refresh_quotas(home):
+    """Fetch quotas and update the cache. Returns the fetched quotas."""
+    quotas = read_cached_quotas(home)
     fresh = fetch_quotas(home)
     if fresh is not None:
         quotas = fresh
     try:
-        write_atomic(path, {"checked_at": now, "quotas": quotas})
+        write_atomic(quota_cache_path(home), {"checked_at": time.time(), "quotas": quotas})
     except OSError:
         pass
     return quotas
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--fetch-quotas", action="store_true", help="Refresh the cached quota data and exit.")
+    args = parser.parse_args()
+
+    home = Path(os.environ.get("KIMI_CODE_HOME") or Path.home() / ".kimi-code")
+
+    if args.fetch_quotas:
+        refresh_quotas(home)
+        return
+
     try:
         data = json.load(sys.stdin)
         if not isinstance(data, dict):
             return
     except (ValueError, OSError):
         return
-    home = Path(os.environ.get("KIMI_CODE_HOME") or Path.home() / ".kimi-code")
+
     try:
         usage = session_usage(home, data.get("sessionId"))
     except OSError:
         usage = None
-    print(render(usage, plan_quotas(home)))
+    quotas = read_cached_quotas(home)
+    print(render(data, usage, quotas))
 
 
 if __name__ == "__main__":
