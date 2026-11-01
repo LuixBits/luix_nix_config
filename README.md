@@ -82,6 +82,18 @@ git worktree add --detach "$recovery_dir" "$backup/head"
 git -C "$recovery_dir" stash apply --index "$backup/worktree"
 ```
 
+## Notes on every machine
+
+The shared Neorg module installs the reading/table plugin, YouTube dashboard
+and its Node backend on pc, l and framework. Sources are versioned in this
+configuration; the runtime does not depend on local project checkouts or
+manually created plugin links. See [the module guide](home/modules/nvfvim/neorg/portable/README.md).
+
+After rebuilding, restart Neovim and sync notes with `<leader>ngs`. The notes
+repository carries the journal, video content and shared workflow metadata.
+Use `<leader>nyd` for the dashboard and the usual `<leader>njj` / `<leader>njc`
+for today's journal and calendar. Star Citizen uses those same journal days.
+
 ## Codex, Claude Code, Kimi Code, and Herdr updates
 
 All four applications come from the shared `llm-agents` flake input:

@@ -1,0 +1,60 @@
+*neorg-view.txt*   A small reading layer for Neorg
+
+CONTROLS                                               *neorg-view-controls*
+    hjkl               Normal Vim motion; rows/columns inside rendered tables.
+    <CR>               Open the selected cell or current line's single link.
+    <BS>               Previous jump (the YouTube bridge provides its history).
+    ]l / [l            Next / previous parsed link. Counts are supported.
+    i                  Edit the selected table cell's source.
+    <leader>nr          Toggle reading/source in the current Norg buffer.
+    :NeorgViewToggle    The same toggle.
+    :NeorgViewSync      Run the configured existing sync helper asynchronously.
+    :NeorgViewInfo      Inspect state and any unsupported-table warnings.
+
+SETUP                                                  *neorg-view-setup*
+    Add the checkout to runtimepath and call require('neorg_view').setup().
+    integration/nvf.lua can be symlinked into stdpath('config')/plugin/.
+    No rebuild is needed for that local shim. Restart the editor to load it.
+    setup({ mappings = false }) disables the normal-mode mappings.
+    setup({ keys = { open = 'gf', back = false } }) changes individual keys.
+    Keys: left/down/up/right/edit/open/back/next_link/previous_link/toggle.
+    NeorgViewLink controls link color and underline. It follows ColorScheme.
+    stop() restores previous buffer-local mappings and window options.
+
+SOURCE                                                 *neorg-view-source*
+    Tables use Neorg named cells (: A1 : value) and ranged cells (:: A1).
+    Reading decorations never rewrite the file. Insert mode exposes source.
+    Undo, save and normal Neorg navigation continue to operate on the source.
+    Unsupported cells remain visible. See README.md for syntax and boundaries.
+
+SYNC                                                   *neorg-view-sync*
+    Status lives in the window winbar, outside the buffer and cursor path.
+    Reading-mode j/k skip concealed metadata and managed markers. Source mode
+    keeps normal line movement. Existing window headers are restored on exit.
+    Unsaved: current buffer differs from disk.
+    Changed/ahead/behind: local Git and its recorded upstream state.
+    Local clean: local state only; not a remote reachability guarantee.
+    Push: actual upstream reflog update by push, otherwise unknown.
+    A no-op push may retain the earlier timestamp. A service exit is not proof.
+    An unavailable attempt never advances the timestamp. Attempt labels are
+    session-local. Git's upstream reflog is persistent.
+
+    The existing notes-sync helper is the only writer used by this layer.
+    ~/notes discovers it from <leader>ngs. Other workspaces require sync.command.
+    The service observer is enabled only for the configured notes service root.
+
+JOURNAL                                                *neorg-view-journal*
+    setup({ journal = true }) marks dates with journal files in Neorg's native
+    monthly calendar. The local integration shim enables this option.
+    Uses core.journal's workspace, folder and date strategy, with no extra
+    calendar, journal files, mappings or selection model.
+    NeorgViewJournalDay controls the marked dates' highlight. Native today and
+    range-selection styling take precedence. stop() restores the native view.
+
+LIMITS                                                 *neorg-view-limits*
+    Tested on Neovim 0.12.4 with the installed Neorg parser.
+    Shared buffer decorations use the narrower of two visible windows.
+    No merged cells or formulas. Unordered/sparse rows remain source text.
+    Insert mode reveals source rather than editing a separate grid model.
+
+vim:tw=78:ts=4:ft=help:norl:

@@ -11,6 +11,7 @@ in
     ./media
     ./presentations
     ./templates
+    ./portable
     ./flashcards
   ];
 

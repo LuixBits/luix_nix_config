@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "sources": {
+    "neorg-view.nvim": {
+      "LICENSE": "1615b75cae3b63bbacca842f1ef821e4ff11b3414c37a5d70c3fcde84aefc979",
+      "Makefile": "f80449f09284f21836300ab0ee731a98f535f44d2ab8dda319e2c6d98c5c07e6",
+      "README.md": "f1bd07b126a5cc9959399ca9c450b28330ad7956fc982bf2f137c56c2e29d1ec",
+      "doc/neorg-view.txt": "70062b4cdb0e70d86372bcd6ebb28f1f567387543221053e4e37c48ae794a025",
+      "integration/nvf.lua": "643bdc9d98b8e7073a58a9e07d7fe810c3236f6e6dd678e9546e17c6d2927eaf",
+      "lua/neorg_view/init.lua": "97961fcb37c92c990c696c774762809ad875a3d700e48c993d109233c2230e9e",
+      "lua/neorg_view/journal.lua": "64d46ccd2ea68d047c824f5e491a7dcbc7fd1e07d587481a7066dfef24502bb1",
+      "lua/neorg_view/navigation.lua": "45a0d88a92e40e7e4c1d2dffab249b6b6c894b7329937bc16c9c6f88661a96aa",
+      "lua/neorg_view/status.lua": "fe0c31a81dca6067e467df9331fc9b0add308aecd3954da8d2543136c9fa6955",
+      "lua/neorg_view/sync.lua": "f2caa3437d5ea9380380243404cbf192ccc753b040aee994ea483f2e9454d8ed",
+      "lua/neorg_view/tables.lua": "a087bb818c4bed52e98e194d1ae7a60c7b43a2be772af54fb6d602f521c5591f",
+      "tests/journal-native.lua": "09524c084e5ad063c27aedb7d38932517735371b3ce696eb3904e200253c6e67",
+      "tests/journal.lua": "3062099a1d68e32a5a473ede2934e072b9b52c801be01a6e43bf56206762649b",
+      "tests/navigation.lua": "ee2df123bce9dd530702e0ba10d00dc7c3a66af46c1d4cc8305a4f2e0e9fd85d",
+      "tests/reading.lua": "00d3c2d64523425f30141344edeee0f8656b01eb971253ac79f64d5c8847bb91",
+      "tests/run.lua": "8a3799c56a2cf26351b513f5b5dfec5d044e01c03322cf5d20ecfc42edef54e0",
+      "tests/tables.lua": "715bd98df8d1fc24473840fb01538e680d52f4095277908f2e331066d52b12d6"
+    },
+    "youtube-notes.nvim": {
+      "LICENSE": "1615b75cae3b63bbacca842f1ef821e4ff11b3414c37a5d70c3fcde84aefc979",
+      "Makefile": "2bf85ab164ec8db3ef39239d301f27a23a2bfdf83ad3ca81329837c495ab81ec",
+      "README.md": "f4a09aaa508d7cae69ee0141cb3158fbd7beff802bf26f9e25ff426ed6c8cbdd",
+      "lua/luix_youtube/documents.lua": "f3e476b8ee88a77da5adbfdd6ca18a0bc59860a6692c64ba2811f7ccbf33315b",
+      "lua/luix_youtube/init.lua": "ff046a9b189557ada088d371dd598e4e9ed65b90c671e690d1a0ab221a4372e5",
+      "scripts/norg-table.mjs": "9d7f5ff570e0a4efca20d9a57059c0cd55e0c48fc8f1717d9326f6b675efb202",
+      "scripts/notes-index.mjs": "47b7ade364fea9aedff5eee810d5a56175db5be12c1f3cd20d44a944667aa5ed",
+      "scripts/youtube-dashboard.test.lua": "6a12d3ecf63b729964e7d7cc92a58e0c0f88a7fc08e39b2a407026778837fb3c",
+      "scripts/youtube-documents.mjs": "27abedd6d2d2956a2ef193e79eb2a5a8a90830d224905ef6c3d93daf6be28bf2",
+      "scripts/youtube-notes-structure.mjs": "926acb0248de5c4f2ab28622cf77382e9844ee94f715dca5c466316a2b5b113e",
+      "scripts/youtube-notes.mjs": "a95ae650aff1bd54cf2317565f27863ffaf49decb5ebedb0d20f71edfd21d452",
+      "scripts/youtube-notes.test.mjs": "d538dc9e50f20e4ae35dd383162e8b981e0d5ed047f0019327cfe3e59af6d75d",
+      "scripts/youtube-workspace.mjs": "b6587b81d633e8ae27bf3ead8ff4128ccbd29b0c5688961944c57faa6af325ee"
+    }
+  }
+}
