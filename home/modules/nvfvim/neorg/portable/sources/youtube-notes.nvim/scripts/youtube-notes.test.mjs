@@ -1248,3 +1248,28 @@ test("watcher automatically exports narration and document metadata changes", as
     await stopped;
   }
 });
+
+
+test("the packaged publisher watches canonical sources after shared workspace migration", async (t) => {
+  const f = fixture(t);
+  f.sync();
+  exportWorkspace(f.options);
+  const child = spawn(process.execPath, [cli, "watch", "--repo-root", f.repoRoot, "--notes-root", f.notesRoot, "--today", "2026-10-29"], {
+    stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, YOUTUBE_NOTES_PORTABLE: "1" },
+  });
+  let output = "", errors = "";
+  child.stdout.on("data", chunk => { output += chunk; });
+  child.stderr.on("data", chunk => { errors += chunk; });
+  try {
+    await waitFor(() => output.includes('"updated":'));
+    f.put("docs/video-scripts/sample/sample-chapter02.md", "<!-- title: New chapter -->\n\nAutomatically exported through the packaged publisher.\n");
+    await waitFor(() => existsSync(path.join(f.notesRoot, "youtube/LuixBits/projects/sample/narration/sample-chapter02.norg")));
+    updateDocument(f.notesRoot, "sample", "done", { notesRoot: f.notesRoot });
+    await waitFor(() => f.note("youtube/LuixBits/projects/sample/index.norg").includes("Status: Done"));
+    assert.match(f.note("youtube/LuixBits/projects/sample/index.norg"), /Automatically exported through the packaged publisher/);
+    assert.equal(dashboardData({ repoRoot: f.notesRoot, notesRoot: f.notesRoot }).documents.items.find(item => item.id === "sample").scripts, 2);
+    assert.equal(errors, "");
+  } finally {
+    if (child.exitCode === null) { const stopped = new Promise(resolve => child.once("exit", resolve)); child.kill("SIGTERM"); await stopped; }
+  }
+});

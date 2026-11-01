@@ -22,7 +22,9 @@ catalog stores source metadata and word counts, without duplicating narration
 or storing machine paths. Ownership hashes protect edited generated content.
 
 The Remotion checkout remains the authoring source for plans and narration.
-Its exporter publishes those notes and refreshes the catalog. After the
+The `youtube-notes-export` user service publishes those notes and refreshes
+the catalog automatically. It runs the pinned backend from Nix and starts only
+where a migrated publisher workspace pointer exists. Replicas need no checkout. After the
 one-time `export-workspace` migration, that checkout reads dates and tags from
 the notes repository too. Its old `config/youtube-*.json` files are legacy seed
 files; changes belong in journal Options, the dashboard or the shared CLI.

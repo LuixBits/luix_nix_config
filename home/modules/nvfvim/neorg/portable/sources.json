@@ -31,8 +31,8 @@
       "scripts/youtube-dashboard.test.lua": "6a12d3ecf63b729964e7d7cc92a58e0c0f88a7fc08e39b2a407026778837fb3c",
       "scripts/youtube-documents.mjs": "27abedd6d2d2956a2ef193e79eb2a5a8a90830d224905ef6c3d93daf6be28bf2",
       "scripts/youtube-notes-structure.mjs": "926acb0248de5c4f2ab28622cf77382e9844ee94f715dca5c466316a2b5b113e",
-      "scripts/youtube-notes.mjs": "a95ae650aff1bd54cf2317565f27863ffaf49decb5ebedb0d20f71edfd21d452",
-      "scripts/youtube-notes.test.mjs": "d538dc9e50f20e4ae35dd383162e8b981e0d5ed047f0019327cfe3e59af6d75d",
+      "scripts/youtube-notes.mjs": "c4f21d554ebf031439d7d1486b342008bde8927d63cabb92c2796a47fee497e8",
+      "scripts/youtube-notes.test.mjs": "6a1356ea0af460abe3f51224e03f148973f299e5d7421d45e2b47d35b39081aa",
       "scripts/youtube-workspace.mjs": "b6587b81d633e8ae27bf3ead8ff4128ccbd29b0c5688961944c57faa6af325ee"
     }
   }

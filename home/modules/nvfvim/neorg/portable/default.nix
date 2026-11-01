@@ -27,6 +27,25 @@ in
     '';
   };
 
+  # This is an optional content publisher. Replicas need only synced notes.
+  # Execute the pinned backend, never scripts from the authoring checkout.
+  systemd.user.services.youtube-notes-export = {
+    Unit = {
+      Description = "Export video plans and narration into shared notes";
+      ConditionPathExists = "${config.home.homeDirectory}/projects/LuixBitsRemotion/private/work/youtube-notes/workspace.json";
+    };
+    Service = {
+      ExecStart = lib.escapeShellArgs [
+        "${packages.youtubeNotesCli}/bin/youtube-notes"
+        "watch" "--repo-root" "${config.home.homeDirectory}/projects/LuixBitsRemotion"
+        "--notes-root" notesDir
+      ];
+      Restart = "on-failure";
+      RestartSec = 15;
+    };
+    Install.WantedBy = [ "default.target" ];
+  };
+
   # Only retire the two exact symlinks from the earlier manual installation.
   # Preserve the links as a rollback aid and leave unrelated user files alone.
   home.activation.retireLocalNotesPlugins = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

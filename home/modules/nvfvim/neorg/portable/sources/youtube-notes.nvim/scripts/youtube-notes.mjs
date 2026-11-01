@@ -1030,7 +1030,7 @@ function main() {
     } else positional.push(arg);
   }
   const repoRoot = path.resolve(options.repoRoot || (process.env.YOUTUBE_NOTES_PORTABLE === "1" ? options.notesRoot || process.env.LUIX_NOTES_ROOT || path.join(homedir(), "notes") : checkout));
-  if (process.env.YOUTUBE_NOTES_PORTABLE === "1" && !existsSync(dataPath(repoRoot, "catalog")))
+  if (process.env.YOUTUBE_NOTES_PORTABLE === "1" && !workspaceRoot(repoRoot))
     throw new Error("Sync your notes first to load the shared YouTube workspace (Space n g s).");
   options.repoRoot = repoRoot;
   const report = (result) => {
