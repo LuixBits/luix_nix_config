@@ -316,7 +316,9 @@ let
     nix flake update --flake "$FLAKE_REF"
     preflight_host_identity "$HOST"
     preflight_fs_guard "$HOST"
-    sudo nixos-rebuild switch "''${NIX_ARGS[@]}" --flake "''${FLAKE_REF}#''${HOST}"
+    # Root builds can bypass nix-daemon, so pass its system CA setting after sudo.
+    sudo env NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+      nixos-rebuild switch "''${NIX_ARGS[@]}" --flake "''${FLAKE_REF}#''${HOST}"
   '';
 
   syncNoctalia = pkgs.writeShellScriptBin "syncnoctalia" ''
@@ -530,7 +532,9 @@ let
     fi
     preflight_host_identity "$HOST"
     preflight_fs_guard "$HOST"
-    sudo nixos-rebuild switch "''${NIX_ARGS[@]}" --flake "''${FLAKE_REF}#''${HOST}"
+    # Root builds can bypass nix-daemon, so pass its system CA setting after sudo.
+    sudo env NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+      nixos-rebuild switch "''${NIX_ARGS[@]}" --flake "''${FLAKE_REF}#''${HOST}"
     if [[ "$PUSH" -eq 1 ]]; then
       pushconfigs "$MSG"
     fi

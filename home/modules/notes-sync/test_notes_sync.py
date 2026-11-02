@@ -136,46 +136,82 @@ class NotesSyncTests(unittest.TestCase):
         self.assertNotIn("youtube/shorts/old.norg", self.tracked())
         self.assertEqual((self.clone() / "youtube/shorts/old.norg").read_text(), "* Old note\n")
 
-    def test_unrelated_files_remain_blocked_even_when_staged(self):
-        head = self.head()
-        path = self.write("unrelated.json", "{}\n")
+    def test_all_file_types_sync_including_staged_and_ignored_files(self):
         for staged in (False, True):
             with self.subTest(staged=staged):
+                prefix = "staged" if staged else "unstaged"
+                paths = {
+                    f"{prefix}/report.md": "# Report\n",
+                    f"{prefix}/data.json": "{}\n",
+                    f"{prefix}/build.log": "Build complete\n",
+                    f"{prefix}/script.sh": "#!/bin/sh\nexit 0\n",
+                    f"{prefix}/README": "Notes attachment\n",
+                }
+                for path, content in paths.items():
+                    self.write(path, content)
+                image = self.notes / prefix / "image.png"
+                image.write_bytes(b"\x89PNG\r\n\x1a\n\x00\xff")
+                self.write(".local-private/ignored.json", "private local state\n")
                 if staged:
-                    self.git(self.notes, "add", "unrelated.json")
-                result = self.sync(check=False)
-                self.assertNotEqual(result.returncode, 0)
-                self.assertIn("unsupported files", result.stdout)
-                self.assertEqual(head, self.head())
-                self.assertEqual(path.read_text(), "{}\n")
+                    self.git(self.notes, "add", prefix)
+                self.sync()
+                self.assert_synced()
+                for path, content in paths.items():
+                    self.assertEqual(self.git(self.remote, "show", f"main:{path}").stdout,
+                                     content)
+                exported = self.root / f"{prefix}-export"
+                self.run_command(["git", "clone", self.remote, exported])
+                self.assertEqual((exported / prefix / "image.png").read_bytes(),
+                                 image.read_bytes())
+                self.assertNotIn(".local-private/ignored.json", self.tracked())
 
-    def test_alias_name_does_not_allow_regular_file(self):
-        self.write("youtube/videos/example", "not a symlink\n")
-        result = self.sync(check=False)
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("unsupported files", result.stdout)
+    def test_symlinks_sync_without_following_targets(self):
+        external = self.root / "external"
+        external.mkdir()
+        (external / "private.txt").write_text("Outside repository\n")
+        targets = {"absolute": str(external), "relative": "../external",
+                   "dangling": "missing", "loop": "."}
+        for name, target in targets.items():
+            (self.notes / name).symlink_to(target)
+        self.sync()
+        other = self.clone()
+        for name, target in targets.items():
+            self.assertEqual(os.readlink(other / name), target)
+            self.assertIn(name, self.tracked(other))
+        self.assertFalse(any(path.endswith("private.txt") for path in self.tracked()))
+        self.assert_synced()
 
-    def test_unsafe_links_remain_blocked(self):
-        self.write("youtube/real/index.norg", "* Real\n")
-        external = self.root / "outside.norg"
-        external.write_text("* Outside\n")
-        link = self.notes / "youtube/unsafe.norg"
-        targets = [str(external), "../../outside.norg", "missing.norg",
-                   str(self.notes / "youtube/real/index.norg"), "."]
-        for target in targets:
-            with self.subTest(target=target):
-                link.symlink_to(target)
-                result = self.sync(check=False)
-                self.assertNotEqual(result.returncode, 0)
-                self.assertIn("link", result.stdout)
-                link.unlink()
-        directory_link = self.notes / "youtube/videos/example"
-        directory_link.parent.mkdir()
-        directory_link.symlink_to("../../japanese")
-        (self.notes / "japanese").mkdir()
-        result = self.sync(check=False)
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("YouTube notes directory", result.stdout)
+    def test_pc_cleanup_round_trip_with_mixed_files(self):
+        self.sync()
+        pc = self.clone()
+        self.write("from-pc.md", "# PC note\n", repo=pc)
+        self.sync(pc)
+        self.write("inbox/report.md", "# Laptop report\n")
+        self.write("inbox/data.json", '{"keep": true}\n')
+        self.write("inbox/build.log", "Disposable output\n")
+        attachment = self.notes / "inbox/image.png"
+        attachment.write_bytes(b"\x89PNG\x00\xff")
+        self.sync()
+        self.assertEqual((self.notes / "from-pc.md").read_text(), "# PC note\n")
+        self.sync(pc)
+        (pc / "organized").mkdir()
+        for name in ("report.md", "data.json", "image.png"):
+            (pc / "inbox" / name).rename(pc / "organized" / name)
+        (pc / "inbox/build.log").unlink()
+        (pc / "inbox").rmdir()
+        (pc / "from-pc.md").unlink()
+        self.sync(pc)
+        self.sync()
+        self.assertFalse((self.notes / "inbox").exists())
+        self.assertFalse((self.notes / "from-pc.md").exists())
+        self.assertEqual((self.notes / "organized/report.md").read_text(), "# Laptop report\n")
+        self.assertEqual((self.notes / "organized/data.json").read_text(), '{"keep": true}\n')
+        self.assertEqual((self.notes / "organized/image.png").read_bytes(), b"\x89PNG\x00\xff")
+        self.assertEqual(self.head(), self.head(pc))
+        self.assert_synced()
+        head = self.head()
+        self.sync()
+        self.assertEqual(head, self.head(), "Cleaned-up files must not reappear")
 
     def test_two_devices_keep_local_and_remote_notes(self):
         self.sync()
@@ -220,10 +256,12 @@ class NotesSyncTests(unittest.TestCase):
         self.sync()
         other = self.clone()
         self.write("japanese/flashcards/reviews.jsonl", '{"card":"one"}\n')
+        self.write("attachments/report.md", "# Shared report\n")
         self.sync(command="push")
         self.sync(other, command="pull")
         self.assertEqual((other / "japanese/flashcards/reviews.jsonl").read_text(),
                          '{"card":"one"}\n')
+        self.assertEqual((other / "attachments/report.md").read_text(), "# Shared report\n")
 
     def test_first_pull_preserves_an_older_devices_unsynced_notes(self):
         other = self.clone()
