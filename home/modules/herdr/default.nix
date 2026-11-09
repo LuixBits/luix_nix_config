@@ -445,11 +445,17 @@ let
       requiredTabs = (lib.concatMap
         (workspace: map (tab: { inherit workspace tab; }) [ 1 2 3 4 ])
         [ "w1" "w2" "w3" "w4" "w5" ])
-        ++ [ { workspace = "w4"; tab = 5; } ];
+        ++ [
+          { workspace = "w4"; tab = 5; }
+          { workspace = "w4"; tab = 6; }
+        ];
       requiredPanes = (lib.concatMap
         (workspace: map (pane: { inherit workspace pane; }) [ 1 2 3 4 ])
         [ "w1" "w2" "w3" "w4" "w5" ])
-        ++ [ { workspace = "w4"; pane = 5; } ];
+        ++ [
+          { workspace = "w4"; pane = 5; }
+          { workspace = "w4"; pane = 6; }
+        ];
       bootstrapCommands =
         lib.concatMap
           (workspace: [
@@ -458,7 +464,10 @@ let
             { pane = "${workspace}:p3"; command = kimiCommand; }
           ])
           [ "w1" "w2" "w3" "w4" "w5" ]
-        ++ [ { pane = "w4:p5"; command = "${pkgs.sshs}/bin/sshs"; } ];
+        ++ [
+          { pane = "w4:p5"; command = "${pkgs.sshs}/bin/sshs"; }
+          { pane = "w4:p6"; command = "${pkgs.sshs}/bin/sshs"; }
+        ];
       # Select every workspace's Neovim tab and finish on Projects.
       focusTabs = [ "w5:t1" "w4:t1" "w3:t1" "w2:t1" "w1:t1" ];
     }

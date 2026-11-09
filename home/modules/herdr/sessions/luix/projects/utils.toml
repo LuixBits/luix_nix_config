@@ -21,3 +21,7 @@ name = "Utils CLI"
 [[tabs]]
 name = "Utils SSH"
 command = "sshs"
+
+[[tabs]]
+name = "Utils SSH 2"
+command = "sshs"

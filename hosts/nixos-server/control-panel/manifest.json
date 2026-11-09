@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "requires": { "cockpit": "265" },
+  "menu": {
+    "btop": { "label": "Processes · btop", "order": 15 }
+  },
+  "content-security-policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+}

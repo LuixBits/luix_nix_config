@@ -11,6 +11,10 @@
         HostName = "192.168.18.13";
         User = "luix";
       };
+      "Server" = {
+        HostName = "192.168.18.26";
+        User = "luix-server";
+      };
     };
   };
 }

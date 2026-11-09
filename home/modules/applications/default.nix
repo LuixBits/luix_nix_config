@@ -78,6 +78,7 @@ in
     wl-clipboard
 
     # Desktop apps
+    bitwarden-desktop
     bottles
     chromium
     discord

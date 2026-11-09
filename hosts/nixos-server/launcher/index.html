@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>Luix server · Start</title>
+  <link rel="stylesheet" href="launcher.css">
+  <script src="launcher.js" defer></script>
+</head>
+<body>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-server" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01M11 6.5h6M11 17.5h6"/></symbol>
+    <symbol id="icon-terminal" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m6 9 3 3-3 3m7 0h5"/></symbol>
+    <symbol id="icon-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+    <symbol id="icon-bars" viewBox="0 0 24 24"><path d="M5 20V10m7 10V4m7 16v-7"/></symbol>
+    <symbol id="icon-game" viewBox="0 0 24 24"><path d="M7 6h10c2 0 3 2 3.5 4l1 6c.5 3-2 4-4 1l-2-2h-7l-2 2c-2 3-4.5 2-4-1l1-6C4 8 5 6 7 6Z"/><path d="M6 10v4m-2-2h4m8-2h.01m2 3h.01"/></symbol>
+    <symbol id="icon-folder" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/><path d="M3 9h18"/></symbol>
+    <symbol id="icon-photo" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="M9 4 21 12 9 20Z"/><path d="M3 5v14"/></symbol>
+    <symbol id="icon-film" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 8h4m10 0h4M3 16h4m10 0h4"/></symbol>
+    <symbol id="icon-chat" viewBox="0 0 24 24"><path d="M21 11a8 8 0 0 1-8 8H7l-5 3V11a9 9 0 0 1 19 0Z"/><path d="M7 10h10m-10 4h6"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+  </svg>
+  <main>
+    <header class="page-header">
+      <div class="identity"><span class="brand-icon"><svg><use href="#icon-server"/></svg></span><div><p class="eyebrow">START</p><h1>Luix server</h1></div></div>
+      <span id="host" class="host"></span>
+    </header>
+    <div class="intro"><p>Your apps and server tools.</p><label class="search"><svg aria-hidden="true"><use href="#icon-search"/></svg><input id="search" type="search" placeholder="Find a shortcut" aria-label="Find a shortcut" autocomplete="off"><kbd>/</kbd></label></div>
+    <p id="error" role="alert" hidden></p>
+    <section id="server-section" aria-labelledby="server-title"><h2 id="server-title">Server</h2><div id="server-links" class="grid server-grid"></div></section>
+    <section id="apps-section" aria-labelledby="apps-title"><h2 id="apps-title">Apps</h2><div id="app-links" class="grid"></div></section>
+    <p id="empty" hidden>No matching shortcuts.</p>
+    <footer>Shortcuts open in a new tab.</footer>
+    <noscript>Enable JavaScript to display the shortcuts.</noscript>
+  </main>
+  <dialog id="unlinked" aria-labelledby="unlinked-title"><p class="eyebrow">NOT LINKED</p><h2 id="unlinked-title"></h2><p>This shortcut will open the app once its address is configured.</p><button id="close-dialog" type="button">Close</button></dialog>
+</body>
+</html>

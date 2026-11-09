@@ -1,0 +1,80 @@
+onboarding = false
+
+[theme]
+# LuixBits Pastel Field Night, adapted from LuixBitsRemotion's
+# src/design-system/pastel-field/tokens.ts and illustrations/palette.ts.
+# Herdr requires a built-in base; the custom palette below overrides it.
+name = "dracula"
+auto_switch = false
+
+[theme.custom]
+accent = "#B8A9D9"
+panel_bg = "#2D2942"
+sidebar_bg = "#211D38"
+active_row_bg = "#453D61"
+# Darken the night palette's near hill for readable text on green highlights.
+selection_bg = "#334838"
+surface0 = "#453D61"
+surface1 = "#334838"
+surface_dim = "#B8A9D9"
+overlay0 = "#C9BEE4"
+overlay1 = "#EDE8D2"
+text = "#F5F1E0"
+subtext0 = "#EDE8D2"
+mauve = "#C9BEE4"
+green = "#B9D6BA"
+yellow = "#E6C65F"
+red = "#E4AB91"
+blue = "#C9BEE4"
+teal = "#B9D6BA"
+peach = "#E4AB91"
+
+[experimental]
+kitty_graphics = true
+
+[ui]
+agent_panel_sort = "spaces"
+pane_borders = "always"
+pane_outer_borders = true
+pane_gaps = true
+pane_scrollbars = false
+show_agent_labels_on_pane_borders = true
+status_indicators = "symbols"
+window_title = "{workspace}: {tab}"
+
+[ui.sidebar.agents]
+row_gap = 0
+rows = [
+  ["state_icon", { token = "workspace", bold = true, dim = false }, { token = "agent", fg = "#B9D6BA", dim = false }],
+]
+
+[ui.sidebar.spaces]
+row_gap = 0
+rows = [
+  ["state_icon", { token = "workspace", fg = "#F5F1E0", bold = true, dim = false }],
+  [{ token = "branch", fg = "#B9D6BA", dim = false }, "git_status", "$usage"],
+]
+
+[ui.toast]
+delivery = "herdr"
+delay_seconds = 1
+
+[ui.toast.herdr]
+position = "bottom-right"
+
+[terminal]
+default_shell = "/home/luix/.nix-profile/bin/fish"
+shell_mode = "non_login"
+new_cwd = "follow"
+
+[session]
+resume_agents_on_restore = false
+
+
+[[keys.command]]
+key = "prefix+alt+g"
+type = "popup"
+command = "lazygit"
+width = "90%"
+height = "90%"
+description = "Review current checkout"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manage Flyff agents"
+  short_description: "Coordinate Flyff coding agents in Herdr"
+  default_prompt: "Use $manage-flyff-agents to check the Flyff workspace and help me assign the next task."

@@ -1,4 +1,4 @@
-{ inputs, pkgs, ... }:
+{ inputs, lib, pkgs, ... }:
 {
   imports = [
     ../common/base.nix
@@ -9,6 +9,7 @@
     ../features/gaming.nix
     ../features/simracing
     ../features/corsair-cooling
+    ../features/strata
     inputs.spatial-input.nixosModules.default
     ./hardware-configuration.nix
   ];
@@ -16,6 +17,35 @@
   hardware.spatial-input.enable = true;
   hardware.spatial-input.wheel.enable = true;
   luix.simracing.enable = true;
+
+  # Calls and games share this desktop's audio graph. Small playback requests
+  # previously drove HDMI at 256 frames while Q9U capture ran at 1024 frames.
+  # Prefer timing margin under game load over minimum monitoring latency.
+  services.pipewire.extraConfig = {
+    pipewire."60-desktop-audio-buffering"."context.properties" = {
+      "default.clock.rate" = 48000;
+      "default.clock.quantum" = 2048;
+      "default.clock.min-quantum" = 2048;
+    };
+    pipewire-pulse."60-desktop-audio-buffering"."pulse.properties" = {
+      "pulse.min.req" = "2048/48000";
+      "pulse.min.frag" = "2048/48000";
+      "pulse.min.quantum" = "2048/48000";
+    };
+  };
+
+  # Override the shared Q9U rule's 1024-frame forced quantum on this desktop.
+  services.pipewire.wireplumber.extraConfig."52-pc-q9u-buffering"."monitor.alsa.rules" = [
+    {
+      matches = [ { "node.name" = "~alsa_input.usb-Samson_Technologies_Samson_Q9U_.*"; } ];
+      actions.update-props."node.force-quantum" = 2048;
+    }
+  ];
+
+  # Preserve the live workaround that improved speech, including after login
+  # or a service restart. Keep the saved voice preset available for later tuning.
+  home-manager.users.luix.systemd.user.services.easyeffects.Service.ExecStartPost =
+    lib.mkAfter [ "${pkgs.easyeffects}/bin/easyeffects --bypass 1" ];
 
   boot.initrd.availableKernelModules = [ "thunderbolt" ];
   boot.kernelParams = [
@@ -33,32 +63,22 @@
     ACTION=="add|bind|change", SUBSYSTEM=="pci", ATTR{vendor}=="0x1022", ATTR{class}=="0x0c0330", TEST=="power/control", ATTR{power/control}="on"
   '';
 
-  services.ollama = {
+  services.strata = {
     enable = true;
-    package = pkgs.ollama-rocm;
-
-    # Expose Ollama to LAN clients such as the mini PC.
+    models = [
+      "normal"
+      "abliterated"
+    ];
+    defaultModel = "normal";
     host = "0.0.0.0";
-    port = 11434;
-
-    # Strong/fast coding default for the RX 7900 XTX 24GB VRAM class.
-    loadModels = [ "qwen3-coder:30b" ];
-
-    environmentVariables = {
-      # Use only the 7900 XTX. Ollama also sees the Ryzen iGPU via ROCm,
-      # but splitting inference onto it crashes rocBLAS for this model.
-      ROCR_VISIBLE_DEVICES = "GPU-b029531ca159d189";
-
-      # 256K context is the model maximum, not the fast 24GB-VRAM target.
-      # 32K keeps the 30B coder model on the 7900 XTX with room for KV cache.
-      OLLAMA_CONTEXT_LENGTH = "32768";
-
-      # Keep the model warm briefly for agent workflows without pinning VRAM forever.
-      OLLAMA_KEEP_ALIVE = "15m";
-    };
+    port = 8080;
+    lanInterface = "enp75s0";
+    allowedClients = [ "192.168.18.13/32" ];
+    gpuDevice = "GPU-b029531ca159d189";
+    cpuWorkers = 15;
+    # Hermes requires at least 64K; OpenCode reads this limit from the API.
+    contextSize = 65536;
   };
-
-  networking.firewall.interfaces.enp10s0.allowedTCPPorts = [ 11434 ];
 
   environment.systemPackages = with pkgs; [
     dosfstools

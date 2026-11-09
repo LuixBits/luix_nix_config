@@ -1,0 +1,231 @@
+{
+  "model": "qwen3.8-flash-next-abliterated",
+  "suite": 1,
+  "results": {
+    "packet_parser": {
+      "request": {
+        "model": "qwen3.8-flash-next-abliterated",
+        "temperature": 0,
+        "seed": 42,
+        "max_tokens": 4096,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "messages": [
+          {
+            "role": "user",
+            "content": "Implement this C++17 function only (no main, no struct definitions):\nstd::optional<Frame> decode_frame(const std::vector<uint8_t>& data, uint32_t max_payload);\nFrame is already defined as { std::vector<uint8_t> payload; size_t consumed; }.\nProtocol: four-byte unsigned little-endian payload length, followed by payload bytes.\nReturn nullopt for an incomplete header or incomplete allowed-length payload.\nAs soon as a complete header declares a length above max_payload, throw std::length_error,\neven when its payload has not arrived. Accept empty payloads. Return only the first frame;\nconsumed counts header plus payload. Leave input unchanged. Avoid overflow and unbounded\nallocation on attacker-controlled lengths. Standard library only. Return one cpp code fence."
+          }
+        ]
+      },
+      "response": {
+        "id": "chatcmpl-464ceb0028f44d10a89011db",
+        "object": "chat.completion",
+        "created": 1793730165,
+        "model": "qwen3.8-flash-next-abliterated",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "```cpp\n#include <optional>\n#include <vector>\n#include <cstdint>\n#include <stdexcept>\n#include <cstring>\n\nstd::optional<Frame> decode_frame(const std::vector<uint8_t>& data, uint32_t max_payload) {\n    // Need at least 4 bytes for the header\n    if (data.size() < 4) {\n        return std::nullopt;\n    }\n\n    // Read 4-byte little-endian payload length\n    uint32_t payload_len = static_cast<uint32_t>(data[0]) |\n                           (static_cast<uint32_t>(data[1]) << 8) |\n                           (static_cast<uint32_t>(data[2]) << 16) |\n                           (static_cast<uint32_t>(data[3]) << 24);\n\n    // Check if declared length exceeds max_payload \u2014 throw immediately, even if payload hasn't arrived\n    if (payload_len > max_payload) {\n        throw std::length_error(\"Payload length exceeds maximum allowed\");\n    }\n\n    // Total frame size: 4-byte header + payload\n    uint64_t total_size = static_cast<uint64_t>(4) + static_cast<uint64_t>(payload_len);\n\n    // Check if we have enough data for the complete frame\n    if (static_cast<uint64_t>(data.size()) < total_size) {\n        return std::nullopt;\n    }\n\n    // Extract payload\n    Frame frame;\n    frame.payload.assign(data.begin() + 4, data.begin() + 4 + payload_len);\n    frame.consumed = static_cast<size_t>(total_size);\n\n    return frame;\n}\n```"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 180,
+          "completion_tokens": 372,
+          "total_tokens": 552,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 180,
+          "prompt_ms": 811.0,
+          "prompt_per_token_ms": 4.506,
+          "prompt_per_second": 221.9,
+          "predicted_n": 372,
+          "predicted_ms": 8238.8,
+          "predicted_per_token_ms": 22.147,
+          "predicted_per_second": 45.2,
+          "draft_n": 0,
+          "draft_n_accepted": 0
+        }
+      },
+      "seconds": 44.703,
+      "compile": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "test": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "passed": true
+    },
+    "currency_transfer": {
+      "request": {
+        "model": "qwen3.8-flash-next-abliterated",
+        "temperature": 0,
+        "seed": 42,
+        "max_tokens": 4096,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "messages": [
+          {
+            "role": "user",
+            "content": "Implement this C++17 function only (no main):\nbool transfer(uint64_t& source, uint64_t& destination, uint64_t amount);\nSingle-threaded game currency transfer. Reject zero amount, insufficient funds, destination\noverflow, or source and destination referencing the same object. On any rejection return\nfalse and leave both balances unchanged. Otherwise transfer exactly amount and return true.\nHandle the full uint64_t range without wraparound. Standard library only. One cpp code fence."
+          }
+        ]
+      },
+      "response": {
+        "id": "chatcmpl-b7282516226b4388841a9dc3",
+        "object": "chat.completion",
+        "created": 1793730174,
+        "model": "qwen3.8-flash-next-abliterated",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "```cpp\n#include <cstdint>\n\nbool transfer(uint64_t& source, uint64_t& destination, uint64_t amount) {\n    // Reject zero amount\n    if (amount == 0) {\n        return false;\n    }\n\n    // Reject same object reference\n    if (&source == &destination) {\n        return false;\n    }\n\n    // Check insufficient funds: source < amount\n    if (source < amount) {\n        return false;\n    }\n\n    // Check destination overflow: destination + amount > UINT64_MAX\n    // Equivalent to: destination > UINT64_MAX - amount\n    if (destination > UINT64_MAX - amount) {\n        return false;\n    }\n\n    // Perform the transfer\n    source -= amount;\n    destination += amount;\n\n    return true;\n}\n```"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 117,
+          "completion_tokens": 186,
+          "total_tokens": 303,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 117,
+          "prompt_ms": 637.2,
+          "prompt_per_token_ms": 5.446,
+          "prompt_per_second": 183.6,
+          "predicted_n": 186,
+          "predicted_ms": 4168.6,
+          "predicted_per_token_ms": 22.412,
+          "predicted_per_second": 44.6,
+          "draft_n": 0,
+          "draft_n_accepted": 0
+        }
+      },
+      "seconds": 4.808,
+      "compile": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "test": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "passed": true
+    },
+    "tool_call": {
+      "request": {
+        "model": "qwen3.8-flash-next-abliterated",
+        "temperature": 0,
+        "seed": 42,
+        "max_tokens": 4096,
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "messages": [
+          {
+            "role": "user",
+            "content": "Read src/auth.cpp with read_file before reviewing its authentication checks."
+          }
+        ],
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "description": "Read a repository source file",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "function": {
+            "name": "read_file"
+          }
+        }
+      },
+      "response": {
+        "id": "chatcmpl-4f6653ac53aa4fdc9dfef229",
+        "object": "chat.completion",
+        "created": 1793730179,
+        "model": "qwen3.8-flash-next-abliterated",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "tool_calls": [
+                {
+                  "id": "call_31cfe46e264e4b96915f6b0c",
+                  "type": "function",
+                  "function": {
+                    "name": "read_file",
+                    "arguments": "{\"path\":\"src/auth.cpp\"}"
+                  }
+                }
+              ]
+            },
+            "finish_reason": "tool_calls"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 286,
+          "completion_tokens": 19,
+          "total_tokens": 305,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 286,
+          "prompt_ms": 1203.4,
+          "prompt_per_token_ms": 4.208,
+          "prompt_per_second": 237.7,
+          "predicted_n": 19,
+          "predicted_ms": 386.5,
+          "predicted_per_token_ms": 20.342,
+          "predicted_per_second": 49.2,
+          "draft_n": 0,
+          "draft_n_accepted": 0
+        }
+      },
+      "seconds": 1.594,
+      "passed": true
+    }
+  }
+}

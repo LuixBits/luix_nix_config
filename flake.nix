@@ -123,7 +123,30 @@
           # Transient cooling bring-up for the pc without a full rebuild.
           openlinkhub-emergency = pkgs.callPackage ./hosts/features/corsair-cooling/emergency.nix { };
         }
+        // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          strata = pkgs.callPackage ./hosts/features/strata/package.nix { };
+          strata-compare = pkgs.callPackage ./hosts/features/strata/comparison.nix { };
+          opencode-local = pkgs.callPackage ./hosts/features/strata/client-package.nix { };
+          opencode-pentest = pkgs.callPackage ./hosts/features/strata/pentest-package.nix { };
+          strata-models =
+            let
+              strata = pkgs.callPackage ./hosts/features/strata/package.nix { };
+              models = pkgs.callPackage ./hosts/features/strata/models.nix { inherit strata; };
+            in
+            pkgs.linkFarm "strata-models" [
+              {
+                name = "normal";
+                path = models.normal;
+              }
+              {
+                name = "abliterated";
+                path = models.abliterated;
+              }
+            ];
+        }
       );
+
+      nixosModules.strata = import ./hosts/features/strata;
 
       nixosConfigurations = {
         pc = mkHost {

@@ -1,5 +1,48 @@
 # Samson Q9U audio recovery
 
+## 2026-11-08 voice cutouts under game load
+
+This recurrence affected both Discord and Star Citizen. The Q9U remained
+enumerated and capturing at 48 kHz; the previous USB enumeration failure
+below is not established as the cause of this incident.
+
+EasyEffects bypass improved speech according to the user, but cutouts
+returned even with Discord linked directly to the Q9U. Physical capture and
+client xrun counters increased across the session. PipeWire-Pulse also logged
+repeated Star Citizen capture-buffer overruns. Playback ran at a 256-frame
+quantum while Q9U capture was forced to 1024 frames.
+
+`hosts/pc/default.nix` now configures a 2048-frame minimum processing quantum
+and PulseAudio request/capture-buffer minima at 48 kHz, and overrides the
+shared Q9U forced quantum to match. This favors timing margin over latency
+(about 43 ms per processing block, not total end-to-end latency). The PC also
+reapplies EasyEffects bypass after loading the saved preset at service start;
+the preset itself is preserved. Other hosts retain their existing settings.
+
+These are persistent mitigations, not a proven root-cause repair. A live
+1024-frame trial still recorded one physical microphone xrun over roughly
+45 seconds, although the monitored Discord and playback counters stayed
+unchanged. The larger-buffer trial must be followed by a sustained spoken
+call under game load. In its roughly 45-second sample, physical Q9U errors
+increased from 271 to 272 and HDMI errors from 421 to 422; Discord capture
+and playback counts stayed unchanged. Thus 2048-frame processing has not
+eliminated hardware-node errors and must not be presented as a verified fix.
+The kernel also logged an xHCI buffer overrun on controller `0000:54:00.0`
+(the Q9U's controller) at 21:01:50. The slot/endpoint was not mapped to a
+specific device, so this does not establish that the Q9U caused that warning.
+The unused `enp72s0` adapter has repeated r8169 counter timeouts; a proposed
+temporary link-down test was not performed because sudo required a password.
+Its relation to the audio failures remains unproven.
+
+Silence or short stable counter samples alone do not
+prove that audible cutouts are fixed. Runtime `clock.force-quantum` changes
+are tests; the declarative settings take effect after the user activates them
+and the audio services reload or the user logs in again.
+
+Buffer option semantics: [PipeWire Pulse protocol documentation](https://docs.pipewire.org/1.6/page_module_protocol_pulse.html).
+
+## Earlier USB failure
+
 The USB failure investigated on 2026-10-28 and 2026-10-29 is unresolved.
 Restarting audio services, resetting the microphone, and rebinding its USB
 controller did not restore capture. Do not describe those attempts as a fix.

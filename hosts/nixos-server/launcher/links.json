@@ -1,0 +1,15 @@
+{
+  "server": [
+    { "id": "terminal", "name": "Remote terminal", "description": "Open a shell on the server", "icon": "terminal", "cockpitPath": "/system/terminal" },
+    { "id": "details", "name": "System details", "description": "Health, disks, services and logs", "icon": "activity", "cockpitPath": "/system" },
+    { "id": "btop", "name": "btop", "description": "Processes and live resource usage", "icon": "bars", "cockpitPath": "/luix-server/btop" }
+  ],
+  "apps": [
+    { "id": "flyff", "name": "Flyff", "description": "Current Flyff site", "icon": "game", "url": "https://flyff.luizperren.dev" },
+    { "id": "copyparty", "name": "Copyparty", "description": "Files and uploads", "icon": "folder", "url": null },
+    { "id": "immich", "name": "Immich", "description": "Photos and videos", "icon": "photo", "url": null },
+    { "id": "jellyfin", "name": "Jellyfin", "description": "Movies and series", "icon": "play", "url": null },
+    { "id": "plex", "name": "Plex", "description": "Media library", "icon": "film", "url": null },
+    { "id": "llm", "name": "Local LLM", "description": "Private chat and models", "icon": "chat", "url": null }
+  ]
+}

@@ -7,6 +7,10 @@
 }:
 let
   aiPackages = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
+  pkgsUnstable = import inputs.nixpkgs-unstable {
+    inherit (pkgs.stdenv.hostPlatform) system;
+    config.allowUnfree = true;
+  };
   writeCodexDefaults = pkgs.writeShellScript "write-codex-defaults" ''
     set -eu
 
@@ -69,7 +73,9 @@ in
 
   programs.vscode = {
     enable = true;
-    package = pkgs.vscode;
+    # Stable's 1.144 package still patches the removed @vscode/ripgrep/bin/rg.
+    # Use the corrected upstream recipe until that fix reaches stable.
+    package = pkgsUnstable.vscode;
     profiles.default.userSettings = {
       "terminal.integrated.defaultProfile.linux" = "fish";
       "terminal.integrated.profiles.linux".fish.path = "${pkgs.fish}/bin/fish";
