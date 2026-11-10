@@ -1,5 +1,29 @@
 # Samson Q9U audio recovery
 
+## 2026-11-10 USB detection failure
+
+The user confirmed that the Q9U was connected directly to the PC. The live
+hostname and evaluated flake hostname were both `pc`, running kernel
+`6.18.60`. At boot, USB port `3-3` on controller `0000:54:00.0` failed device
+descriptor reads and address setup with error `-71`. The Q9U was absent from
+USB, ALSA, and PipeWire. PipeWire, PipeWire-Pulse, and WirePlumber were active,
+and the live USB autosuspend setting was already `-1`.
+
+The user unplugged the USB cable from the microphone for 30 seconds, then
+reconnected it to the same PC port. At 19:44:23 CET, the kernel identified
+`17a0:0243`, `Samson Q9U`, serial `644C2E031A1E3B00`. A second later it logged
+sample-rate/control failures and `disabled by hub (EMI?), re-enabling...`,
+followed by a USB disconnect. Descriptor and address errors then returned;
+the Q9U remained absent from ALSA and PipeWire. This power-cycle attempt did
+not restore usable capture. The kernel's `EMI?` message does not establish
+electromagnetic interference as the cause.
+
+The next isolation test is a different USB data cable on the same port,
+followed by a different controller if needed. No successful recovery or
+permanent repair has been established for this recurrence. Do not restart
+audio services or adjust buffers to repair failed USB enumeration. The
+earlier controller-reset attempts below are not a validated recovery method.
+
 ## 2026-11-08 voice cutouts under game load
 
 This recurrence affected both Discord and Star Citizen. The Q9U remained

@@ -33,3 +33,23 @@
 - After changing supported Lua, shell, or JSON source, refresh the graph with
   `graphify-project update .` before handoff. Do not treat a successful graph
   refresh as a substitute for Nix validation.
+
+## Recurring Samson Q9U microphone failures
+
+- Read `home/modules/audio/README.md` before troubleshooting the Q9U
+  (`17a0:0243`). It records separate USB detection failures and audio cutouts
+  under game load, including attempts that did not fix them.
+- Check `lsusb -d 17a0:0243`, `/proc/asound/cards`, `wpctl status -n`, and the
+  current boot's kernel USB logs first. If the Q9U is absent from USB and ALSA,
+  investigate USB detection before changing PipeWire, EasyEffects, or buffers.
+- On 2026-11-10, unplugging the Q9U for 30 seconds and reconnecting the same
+  cable to the same port briefly restored its USB identity, then failed again.
+  Do not present this procedure as a verified fix. Test a different USB data
+  cable and, if needed, a different controller, recording each result.
+- Do not repeat the earlier USB reset or whole-controller unbind/rebind
+  attempts as routine recovery. They blocked in the kernel and disrupted the
+  Corsair cooling controller on the shared USB controller.
+- Record a successful recovery here and the detailed evidence in the audio
+  README. Require stable USB and ALSA detection, the intended application
+  receiving the Q9U stream, and an audible speech check before claiming success.
+  Distinguish a recovery workaround from a proven repair of the recurring cause.
