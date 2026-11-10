@@ -21,7 +21,6 @@
     ./modules/vpn
     ./modules/audio
     ./modules/niri
-    ./modules/qutebrowser
     ./modules/kdenlive
     ./modules/nvfvim
   ];

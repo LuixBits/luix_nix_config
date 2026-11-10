@@ -91,7 +91,7 @@ in
     lua
     lua51Packages.lz-n
     luarocks-nix
-    nodejs
+    nodejs_26
     pnpm
     (php83.buildEnv {
       extraConfig = ''
