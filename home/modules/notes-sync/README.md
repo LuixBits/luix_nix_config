@@ -1,10 +1,27 @@
 # Notes Git sync
 
-This shared Home Manager module saves local note changes, fetches the remote,
-rebases onto `origin/main`, and pushes. Its user timer runs every ten minutes.
-Neorg's existing Git keymaps use the same helpers. Manual pull also saves
-pending changes locally before integrating the remote; it does not
-push those commits.
+## Obsidian
+
+After a rebuild, the user service `obsidian-vault.service` clones the default
+`obsidian` branch of `LuixBits/notes` into `~/obsidian_sync` and registers
+it with Obsidian. The user's GitHub SSH key needs access to the private
+repository. The service retries when the network or key becomes available.
+Open Obsidian and accept its community-plugin prompt on a new installation.
+The vault's Git plugin handles subsequent pulls and pushes.
+
+An existing checkout of the former vault repository can switch in place.
+Git carries compatible local edits across. If there is an unfinished merge,
+unpublished commits, or overlapping local edits, the service reports the
+reason in `journalctl --user -u obsidian-vault.service`. After reconciling
+the local work, run `systemctl --user restart obsidian-vault.service`.
+
+## Neorg archive
+
+Git sync for the Neorg workspace in `~/notes` runs on demand. Neorg's Git
+keymaps and the `notes-sync.service` user unit use the same helpers. A full
+sync saves local changes, fetches, rebases onto `origin/main`, and pushes.
+Manual pull saves pending changes locally before integrating the remote.
+Older installations and the manual helpers use the historical `main` branch.
 
 ## Synced files
 
@@ -45,14 +62,12 @@ by a remote cleanup.
 ## Inspect operation
 
 ```console
-systemctl --user status notes-sync.timer notes-sync.service
+systemctl --user status notes-sync.service
 journalctl --user -u notes-sync.service -n 40 --no-pager
 ```
 
-An active timer alone does not prove that a push succeeded. With the timer's
-non-fatal-network setting, an offline attempt can exit successfully after
-saving local changes. A future status widget must record successful fetch,
-integration and push events separately.
+The service treats network errors as non-fatal. After an offline run, check
+the journal for a successful push when you next sync.
 
 ## Regression checks
 

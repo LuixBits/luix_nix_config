@@ -267,6 +267,20 @@ in
       fi
     '';
 
+    systemd.user.services.obsidian-vault = {
+      Unit.Description = "Prepare and register the Obsidian vault";
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.python3}/bin/python3 ${./obsidian-vault.py}";
+        Environment = [ "PATH=${lib.makeBinPath [ pkgs.git pkgs.openssh ]}" ];
+        RemainAfterExit = true;
+        Restart = "on-failure";
+        RestartSec = "2min";
+        RestartPreventExitStatus = "3";
+      };
+      Install.WantedBy = [ "default.target" ];
+    };
+
     systemd.user.services.notes-sync = {
       Unit.Description = "Sync Neorg notes";
       Service = {
@@ -280,17 +294,6 @@ in
           "NOTES_SYNC_SKIP_UNINITIALIZED=1"
         ];
       };
-    };
-
-    systemd.user.timers.notes-sync = {
-      Unit.Description = "Automatically sync Neorg notes";
-      Timer = {
-        OnStartupSec = "2min";
-        OnUnitActiveSec = "10min";
-        Persistent = true;
-        Unit = "notes-sync.service";
-      };
-      Install.WantedBy = [ "timers.target" ];
     };
   };
 }
