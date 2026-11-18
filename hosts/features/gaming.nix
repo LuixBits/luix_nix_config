@@ -10,6 +10,14 @@
   programs.steam.enable = true; # enables Steam and required 32-bit runtime
   programs.gamemode.enable = true;
 
+  # VKB flight sticks need raw HID access for Wine/Proton to expose their full
+  # controls. Apply uaccess before 73-seat-late.rules grants the active user ACLs.
+  services.udev.packages = [
+    (pkgs.writeTextDir "lib/udev/rules.d/70-vkb-joystick.rules" ''
+      SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="231d", MODE="0660", TAG+="uaccess"
+    '')
+  ];
+
   # LACT: GPU monitoring (temps, clocks, VRAM, power) plus fan-curve and
   # undervolt/overclock control for the 7900 XTX. GUI talks to the lactd
   # root daemon this option starts.

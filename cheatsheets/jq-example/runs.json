@@ -1,0 +1,9 @@
+{
+  "machine": "workshop",
+  "runs": [
+    {"name": "nightly-photos", "status": "failed", "durationSeconds": 72, "files": 120, "message": "Destination unavailable", "retry": null},
+    {"name": "documents", "status": "ok", "durationSeconds": 18, "files": 42, "message": "No failed transfers", "retry": false},
+    {"name": "archive", "status": "failed", "durationSeconds": 240, "files": 700, "message": "Connection timed out"},
+    {"name": "notes", "status": "ok", "durationSeconds": 4, "files": 8, "message": "Finished", "retry": false}
+  ]
+}

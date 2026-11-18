@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 {
   home.packages = with pkgs; [
     playerctl
@@ -19,8 +19,19 @@
     };
   };
 
-  systemd.user.services.easyeffects.Service.ExecStartPost = [
-    "${pkgs.coreutils}/bin/sleep 0.5"
-    "${pkgs.easyeffects}/bin/easyeffects --load-preset luix-voice"
-  ];
+  systemd.user.services.easyeffects.Service = {
+    # OBS can remain linked to the virtual source while EasyEffects considers
+    # its pipeline idle and disconnects the mic after ten seconds. Keep the
+    # pipeline available without requiring microphone listening to wake it.
+    # Update only this key before startup; keep the rest of the UI settings
+    # writable, including the selected microphone and effects controls.
+    ExecStartPre = [
+      "${pkgs.coreutils}/bin/mkdir -p ${config.xdg.configHome}/easyeffects/db"
+      "${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 --file ${config.xdg.configHome}/easyeffects/db/easyeffectsrc --group EffectsPipelines --key inactivityTimerEnable --type bool false"
+    ];
+    ExecStartPost = [
+      "${pkgs.coreutils}/bin/sleep 0.5"
+      "${pkgs.easyeffects}/bin/easyeffects --load-preset luix-voice"
+    ];
+  };
 }
